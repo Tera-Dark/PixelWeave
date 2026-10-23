@@ -86,6 +86,6 @@ function events(){
  $('toggle-json-import').onclick=()=>{$('json-import-panel').hidden=!$('json-import-panel').hidden;};$('import-json').onclick=importJson;
  $('copy-llm-prompt').onclick=async()=>{const text=makePrompt($('idea-input').value);try{await navigator.clipboard.writeText(text);notify('完整 LLM 像素动画生成规范已复制。');}catch{$('json-import-panel').hidden=false;$('json-input').value=text;$('json-input').select();notify('复制受限：已在文本框选中提示词，请手动复制。',true);}};
  document.addEventListener('keydown',e=>{if($('studio-page').hidden||e.target.matches('input,textarea,button'))return;if(e.code==='Space'){e.preventDefault();state.play=!state.play;draw();}if(e.code==='ArrowLeft')shift(-1);if(e.code==='ArrowRight')shift(1);});
- window.addEventListener('hashchange',()=>route(location.hash==='#studio'?'studio':'gallery'));
+ window.addEventListener('hashchange',()=>{if(location.hash==='#studio'||location.hash==='#gallery')route(location.hash.slice(1));});
 }
 restore();renderGallery();refresh();events();route(location.hash==='#studio'?'studio':'gallery');requestAnimationFrame(loop);
