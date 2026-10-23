@@ -2,6 +2,7 @@ import http from 'node:http';
 import {readFile,stat} from 'node:fs/promises';
 import {resolve,extname,sep} from 'node:path';
 import {modelSettings,generateWithLLM} from './src/generator.mjs';
+import {generateProgressive} from './src/progressive.mjs';
 const root=process.cwd();
 const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.json':'application/json; charset=utf-8'};
 let generating=false;
@@ -15,7 +16,7 @@ http.createServer(async(req,res)=>{
  try{
   const path=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
   if(path==='/api/status'&&req.method==='GET'){
-   const cfg=modelSettings();json(res,200,{available:cfg.configured,model:cfg.configured?cfg.model:null,mode:'local-proxy'});return;
+   const cfg=modelSettings();json(res,200,{available:cfg.configured,model:cfg.configured?cfg.model:null,mode:'local-proxy',pipeline:process.env.PIXELWEAVE_PIPELINE==='oneshot'?'oneshot':'progressive'});return;
   }
   if(path==='/api/generate'&&req.method==='POST'){
    if(generating){json(res,429,{error:'有一个创作任务正在运行，请完成当前任务后再次提交'});return;}
@@ -23,7 +24,7 @@ http.createServer(async(req,res)=>{
    let input;
    try{input=await body(req);}catch(e){json(res,400,{error:'JSON 请求体不合法：'+e.message});return;}
    generating=true;
-   try{json(res,200,await generateWithLLM(input.idea));}
+   try{const generator=process.env.PIXELWEAVE_PIPELINE==='oneshot'?generateWithLLM:generateProgressive;json(res,200,await generator(input.idea));}
    catch(e){json(res,502,{error:String(e.message).slice(0,1000)});}
    finally{generating=false;}
    return;
