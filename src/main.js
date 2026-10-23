@@ -202,7 +202,7 @@ async function generateFromLLM(){
   const output=await res.json();if(!res.ok)throw Error(output.error||'生成失败');
   const a=createLayeredAsset(output.asset);state.items.push(a);choose(a.id);persist();renderGallery();
   const issues=output.warnings?.length?' 质量提示：'+output.warnings.join('；'):'';
-  notify('已生成 '+a.data.layers.length+' 层 / '+a.frames+' 帧，用时尝试 '+output.attempts+' 次。'+issues);
+  notify('已生成 '+a.data.layers.length+' 层 / '+a.frames+' 帧，模型调用 '+output.attempts+' 次。'+issues);
  }catch(e){notify('LLM 生成失败：'+e.message,true);}
  finally{button.disabled=false;button.textContent='使用本地 LLM 生成 ✳';}
 }
