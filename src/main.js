@@ -1,6 +1,6 @@
 import {DEMOS,SIZE,renderAsset,makeImported,validateMatrix} from './engine.js';
 import {LAYERED_FORMAT,createLayeredAsset,validateLayered,pixelCoordinates,paintLayerPixel,addEmptyLayer,reorderLayer,duplicateFrame,deleteFrame,createBlankLayered,metrics} from './layered.js';
-import {makeLayeredPrompt} from './llm.js';
+import {makeLayeredPrompt,parseModelJSON} from './llm.js';
 const $=id=>document.getElementById(id),state={items:[...DEMOS],id:'atelier',frame:0,play:true,speed:1,edits:{},tool:null,elapsed:0,last:0,activeLayer:'liquid',symbol:'K',undo:[],redo:[]};
 let cards=[],thumbs=[],painting=false,galleryTick=-1;
 const current=()=>state.items.find(a=>a.id===state.id)||DEMOS[0],layers=()=>state.edits[state.id]||{};
@@ -64,17 +64,38 @@ function loop(now){if(!state.last)state.last=now;const dt=Math.min(100,now-state
  if(state.play){state.elapsed+=dt*state.speed;const pace=1000/current().fps;if(state.elapsed>=pace){state.frame=(state.frame+Math.floor(state.elapsed/pace))%current().frames;state.elapsed%=pace;draw();}}
  const tick=Math.floor(now/125);if(tick!==galleryTick){galleryTick=tick;for(const x of cards)renderAsset(x.c,x.a,tick%x.a.frames,state.edits[x.a.id]);renderAsset($('hero-canvas'),DEMOS[0],tick%12,state.edits.health);}requestAnimationFrame(loop);}
 function tool(t){state.tool=state.tool===t?null:t;for(const v of ['pencil','erase']){$('tool-'+v).classList.toggle('active',state.tool===v);$('tool-'+v).setAttribute('aria-pressed',String(state.tool===v));}}
-function paint(e){if(!state.tool)return;const c=$('studio-canvas'),r=c.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/r.width*96),y=Math.floor((e.clientY-r.top)/r.height*96);if(x<0||x>95||y<0||y>95)return;
- if(!state.edits[state.id])state.edits[state.id]={};const f=String(state.frame);if(!state.edits[state.id][f])state.edits[state.id][f]={};
- if(state.tool==='erase')delete state.edits[state.id][f][x+','+y];else state.edits[state.id][f][x+','+y]=$('brush-color').value;
- renderAsset(c,current(),state.frame,layers());renderAsset(thumbs[state.frame],current(),state.frame,layers());}
+function paint(e){
+ if(!state.tool)return;
+ const c=$('studio-canvas');
+ if(isLayered()){
+  const data=current().data,pt=pixelCoordinates(c,data,e.clientX,e.clientY);
+  if(!pt)return;
+  const symbol=state.tool==='erase'?'.':state.symbol;
+  if(paintLayerPixel(data,state.activeLayer,state.frame,pt.x,pt.y,symbol)){
+   renderAsset(c,current(),state.frame);renderAsset(thumbs[state.frame],current(),state.frame);
+  }
+  return;
+ }
+ const r=c.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/r.width*96),y=Math.floor((e.clientY-r.top)/r.height*96);
+ if(x<0||x>95||y<0||y>95)return;
+ if(!state.edits[state.id])state.edits[state.id]={};const f=String(state.frame);
+ if(!state.edits[state.id][f])state.edits[state.id][f]={};
+ if(state.tool==='erase')delete state.edits[state.id][f][x+','+y];
+ else state.edits[state.id][f][x+','+y]=$('brush-color').value;
+ renderAsset(c,current(),state.frame,layers());renderAsset(thumbs[state.frame],current(),state.frame,layers());
+}
 function download(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2500);}
 const png=c=>new Promise((ok,fail)=>c.toBlob(b=>b?ok(b):fail(Error('PNG 生成失败')),'image/png'));
 const fileName=()=>current().name.toLowerCase().replace(/[^a-z0-9]+/g,'-');
 async function exportPng(){const c=cv();renderAsset(c,current(),state.frame,layers());download(await png(c),fileName()+'-frame-'+(state.frame+1)+'.png');notify('PNG 当前帧已下载。');}
 async function exportSheet(){const a=current(),c=document.createElement('canvas');c.width=384;c.height=96*Math.ceil(a.frames/4);const context=c.getContext('2d');context.imageSmoothingEnabled=false;const frame=cv();
  for(let i=0;i<a.frames;i++){renderAsset(frame,a,i,layers());context.drawImage(frame,(i%4)*96,Math.floor(i/4)*96);}download(await png(c),fileName()+'-spritesheet.png');notify('完整帧序列精灵图已下载。');}
-function exportJson(){const a=current();download(new Blob([JSON.stringify({format:'pixelweave-project/v0.2',asset:a.type==='matrix'?a.data:{demoId:a.id},patches:layers(),fps:a.fps},null,2)],{type:'application/json'}),fileName()+'.pixelweave.json');notify('资产工程 JSON 已下载，支持重新导入。');}
+function exportJson(){
+ const a=current();
+ const data=isLayered()?a.data:{format:'pixelweave-project/v0.2',asset:a.type==='matrix'?a.data:{demoId:a.id},patches:layers(),fps:a.fps};
+ download(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),fileName()+'.pixelweave.json');
+ notify(isLayered()?'完整分层工程已下载，可再次导入并编辑每层。':'资产工程 JSON 已下载。');
+}
 function exportVideo(){if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream){notify('此浏览器不支持 WebM，推荐下载精灵图。',true);return;}
  const mime=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'].find(s=>MediaRecorder.isTypeSupported(s));if(!mime){notify('未检测到 WebM 编码器。',true);return;}
  const a=current(),c=document.createElement('canvas');c.width=288;c.height=288;const stream=c.captureStream(30),chunks=[];let rec;
@@ -85,13 +106,20 @@ function exportVideo(){if(!window.MediaRecorder||!HTMLCanvasElement.prototype.ca
  const timer=setInterval(()=>{i++;renderAsset(c,a,i%a.frames,layers());if(i>=a.frames*2){clearInterval(timer);setTimeout(()=>{if(rec.state!=='inactive')rec.stop();},140);}},1000/a.fps);
  rec.onerror=()=>{clearInterval(timer);if(rec.state!=='inactive')rec.stop();notify('录制失败，请使用精灵图导出。',true);};
 }
-function importJson(){const raw=$('json-input').value;if(raw.length>200000){notify('超过 200KB 的安全限制。',true);return;}
- try{const j=JSON.parse(raw);let a;if(j.format==='pixelweave-project/v0.2'){
-  if(j.asset&&j.asset.demoId){a=state.items.find(x=>x.id===j.asset.demoId);if(!a)throw Error('工程引用了未知内置资产');}
-  else{a=makeImported(validateMatrix(j.asset));state.items.push(a);}
-  state.edits[a.id]=scrub(j.patches);
- }else{a=makeImported(validateMatrix(j));state.items.push(a);}
- choose(a.id);persist();renderGallery();$('json-import-panel').hidden=true;$('json-input').value='';notify('已成功导入「'+a.name+'」，现在可以编辑每一帧。');
+function importJson(){
+ const raw=$('json-input').value;
+ if(raw.length>350000){notify('输入超过 350KB 限制。',true);return;}
+ try{
+  const j=parseModelJSON(raw);let a;
+  if(j.format===LAYERED_FORMAT){a=createLayeredAsset(validateLayered(j));state.items.push(a);}
+  else if(j.format==='pixelweave-project/v0.2'){
+   if(j.asset&&j.asset.demoId){a=state.items.find(x=>x.id===j.asset.demoId);if(!a)throw Error('工程引用了未知内置资产');}
+   else if(j.asset?.format===LAYERED_FORMAT){a=createLayeredAsset(validateLayered(j.asset));state.items.push(a);}
+   else{a=makeImported(validateMatrix(j.asset));state.items.push(a);}
+   if(a.type!=='layered')state.edits[a.id]=scrub(j.patches);
+  }else{a=makeImported(validateMatrix(j));state.items.push(a);}
+  choose(a.id);persist();renderGallery();$('json-import-panel').hidden=true;$('json-input').value='';
+  notify('成功导入「'+a.name+'」。'+(isLayered()?'已保留每个独立图层及所有帧。':'可编辑每一帧。'));
  }catch(e){notify('JSON 导入失败：'+e.message,true);}
 }
 function isLayered(){return current().type==='layered';}
@@ -187,7 +215,7 @@ function newProject(){
 }
 function events(){
  document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>route(b.dataset.page));
- $('hero-studio').onclick=()=>route('studio');$('hero-open').onclick=()=>{choose('health');route('studio');};
+ $('hero-studio').onclick=()=>route('studio');$('hero-open').onclick=()=>{choose('atelier');route('studio');};
  $('principle-open').onclick=()=>route('studio');$('studio-to-gallery').onclick=()=>route('gallery');
  $('btn-play').onclick=()=>{state.play=!state.play;state.elapsed=0;draw();};$('btn-prev').onclick=()=>shift(-1);$('btn-next').onclick=()=>shift(1);
  $('btn-restart').onclick=()=>{state.frame=0;state.play=true;state.elapsed=0;draw();};$('frame-range').oninput=e=>{state.frame=+e.target.value;state.play=false;draw();};
@@ -195,13 +223,25 @@ function events(){
  $('zoom-control').oninput=e=>{const v=+e.target.value;$('zoom-value').textContent=v+'×';$('studio-canvas').style.width=v*96+'px';$('studio-canvas').style.height=v*96+'px';};
  $('toggle-grid').onclick=()=>{const on=$('studio-stage').classList.toggle('grid-mode');$('toggle-grid').classList.toggle('active',on);};
  $('tool-pencil').onclick=()=>tool('pencil');$('tool-erase').onclick=()=>tool('erase');
- const c=$('studio-canvas');c.onpointerdown=e=>{if(!state.tool)return;painting=true;c.setPointerCapture(e.pointerId);paint(e);};c.onpointermove=e=>{if(painting)paint(e);};
- const stop=()=>{if(painting){painting=false;persist();renderGallery();}};c.onpointerup=stop;c.onpointercancel=stop;c.onlostpointercapture=stop;
+ const c=$('studio-canvas');c.onpointerdown=e=>{if(!state.tool)return;if(isLayered())remember();painting=true;state.play=false;draw();c.setPointerCapture(e.pointerId);paint(e);};c.onpointermove=e=>{if(painting)paint(e);};
+ const stop=()=>{if(painting){painting=false;persist();renderGallery();if(isLayered())renderLayers();}};c.onpointerup=stop;c.onpointercancel=stop;c.onlostpointercapture=stop;
  $('export-png').onclick=()=>exportPng().catch(e=>notify(e.message,true));$('export-sheet').onclick=()=>exportSheet().catch(e=>notify(e.message,true));
  $('export-json').onclick=exportJson;$('export-webm').onclick=exportVideo;
+ $('layer-name').onchange=e=>mutateLayer(()=>{selectedLayer().name=e.target.value.trim().slice(0,40)||selectedLayer().id;});
+ $('layer-x').onchange=e=>mutateLayer(()=>{const n=Number(e.target.value);if(!Number.isInteger(n)||Math.abs(n)>64)throw Error('横向偏移需为 ±64 整数');selectedLayer().x=n;});
+ $('layer-y').onchange=e=>mutateLayer(()=>{const n=Number(e.target.value);if(!Number.isInteger(n)||Math.abs(n)>64)throw Error('纵向偏移需为 ±64 整数');selectedLayer().y=n;});
+ $('layer-opacity').onchange=e=>mutateLayer(()=>{selectedLayer().opacity=Number(e.target.value)/100;});
+ $('layer-up').onclick=()=>mutateLayer(d=>reorderLayer(d,state.activeLayer,1));
+ $('layer-down').onclick=()=>mutateLayer(d=>reorderLayer(d,state.activeLayer,-1));
+ $('layer-add').onclick=()=>mutateLayer(d=>{state.activeLayer=addEmptyLayer(d).id;});
+ $('layer-frame-add').onclick=()=>mutateLayer(d=>{duplicateFrame(d,state.frame);state.frame++;});
+ $('layer-frame-delete').onclick=()=>mutateLayer(d=>{deleteFrame(d,state.frame);state.frame=Math.min(state.frame,d.layers[0].frames.length-1);});
+ $('layer-undo').onclick=()=>timeTravel('undo');$('layer-redo').onclick=()=>timeTravel('redo');
+ $('new-layer-project').onclick=newProject;
+ $('generate-llm').onclick=generateFromLLM;
  $('toggle-json-import').onclick=()=>{$('json-import-panel').hidden=!$('json-import-panel').hidden;};$('import-json').onclick=importJson;
- $('copy-llm-prompt').onclick=async()=>{const text=makePrompt($('idea-input').value);try{await navigator.clipboard.writeText(text);notify('完整 LLM 像素动画生成规范已复制。');}catch{$('json-import-panel').hidden=false;$('json-input').value=text;$('json-input').select();notify('复制受限：已在文本框选中提示词，请手动复制。',true);}};
+ $('copy-llm-prompt').onclick=async()=>{const text=makeLayeredPrompt($('idea-input').value);try{await navigator.clipboard.writeText(text);notify('完整 LLM 像素动画生成规范已复制。');}catch{$('json-import-panel').hidden=false;$('json-input').value=text;$('json-input').select();notify('复制受限：已在文本框选中提示词，请手动复制。',true);}};
  document.addEventListener('keydown',e=>{if($('studio-page').hidden||e.target.matches('input,textarea,button'))return;if(e.code==='Space'){e.preventDefault();state.play=!state.play;draw();}if(e.code==='ArrowLeft')shift(-1);if(e.code==='ArrowRight')shift(1);});
  window.addEventListener('hashchange',()=>{if(location.hash==='#studio'||location.hash==='#gallery')route(location.hash.slice(1));});
 }
-restore();renderGallery();refresh();events();route(location.hash==='#studio'?'studio':'gallery');requestAnimationFrame(loop);
+restore();renderGallery();refresh();events();route(location.hash==='#studio'?'studio':'gallery');beginLLMStatus();requestAnimationFrame(loop);
