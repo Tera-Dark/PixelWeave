@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101622">
+  <meta name="description" content="PixelWeave — 不依赖 Diffusion 的像素动画作品展示站与在线创作工作站。">
+  <title>PixelWeave — Pixels with a pulse.</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+<div class="shell">
+  <header class="site-header">
+    <a class="brand" href="#gallery" aria-label="PixelWeave 首页"><span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span>pixel<span class="brand-accent">weave</span><small>ANIMATION LAB</small></span></a>
+    <nav class="top-nav" aria-label="主导航">
+      <button class="nav-link active" data-page="gallery">作品画廊 <span>GALLERY</span></button>
+      <button class="nav-link" data-page="studio">创作工作站 <span>STUDIO</span></button>
+    </nav>
+    <div class="header-actions"><span class="header-version"><i class="status-dot"></i> PREVIEW 0.2</span><a class="btn btn-line header-gh" href="https://github.com/Tera-Dark/PixelWeave" target="_blank" rel="noopener noreferrer">GITHUB <span aria-hidden="true">↗</span></a></div>
+  </header>
+  <main id="gallery-page" class="page">
+    <section class="hero layout-width">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="asterisk">✳</span> A LITTLE PIXEL STUDIO <span class="thin-line"></span> EST. 2026</div>
+        <h1>Tiny worlds.<br><em>Alive by design.</em></h1>
+        <p class="hero-desc">让每一颗像素都有自己的心跳。用代码编织轮廓、色彩与时间，让静止的游戏素材成为会呼吸的小世界。</p>
+        <div class="hero-actions"><button class="btn btn-primary" id="hero-studio">进入创作工作站 <span>↗</span></button><a href="#collection" class="btn btn-quiet">探索作品 <span>↓</span></a></div>
+        <div class="hero-foot"><span><b>04</b> 精选演示作品</span><i></i><span><b>0</b> DIFFUSION REQUIRED</span></div>
+      </div>
+      <div class="hero-visual">
+        <div class="visual-orbit orbit-a"></div><div class="visual-orbit orbit-b"></div>
+        <div class="hero-work-card"><div class="card-upper"><span>NO. 001 / INTERACTIVE ARTIFACT</span><span class="blink">● LOOPING</span></div><div class="hero-art"><canvas id="hero-canvas" width="96" height="96" aria-label="循环播放的红色生命药水像素动画"></canvas></div><div class="card-lower"><div><b>Scarlet Remedy</b><small>Health potion · 12 frames</small></div><button class="open-arrow" id="hero-open" title="在工作站编辑生命药水" aria-label="编辑生命药水">↗</button></div></div>
+        <div class="float-note note-left">FRAME BY FRAME<br><b>01 — 12</b></div>
+        <div class="float-note note-right">PIXEL<br><b>PERFECT ✳</b></div>
+      </div>
+    </section>
+    <section id="collection" class="collection layout-width">
+      <div class="section-top"><div><div class="eyebrow">01 / CURATED COLLECTION</div><h2>会动的<span class="serif">像素藏品</span><span class="tiny-star">✳</span></h2><p>不是预渲染视频，每一件作品都是浏览器实时绘制的可循环像素动画。</p></div><span class="collection-count">COLLECTION · <b id="collection-count">04</b></span></div>
+      <div class="gallery-grid" id="gallery-grid" aria-label="像素动画作品列表"></div>
+    </section>
+    <section class="principle layout-width"><div class="principle-icon">✳</div><div><span class="eyebrow">THE PIXELWEAVE APPROACH</span><h2>不靠图像模型，<em>只靠创造力与逻辑。</em></h2><p>像素轮廓、有限调色板、逐帧变化以及确定性的循环引擎。这些演示素材目前由手工编程绘制；我们正在为通用 LLM 构建开放的像素资产格式与创作流程。</p></div><button class="btn btn-line" id="principle-open">打开实验工作台 ↗</button></section>
+    <footer class="footer layout-width"><span>PIXELWEAVE © 2026</span><span>MADE OF CODE · MADE TO MOVE</span><a href="https://github.com/Tera-Dark/PixelWeave" target="_blank" rel="noopener noreferrer">OPEN SOURCE ↗</a></footer>
+  </main>
+  <main id="studio-page" class="page studio-page" hidden>
+    <div class="studio-head layout-width"><div><div class="eyebrow">02 / CREATIVE WORKSPACE</div><h1>像素<span class="serif">动画工作站</span></h1><p>设计、预览、绘制与导出。所有画面在浏览器中实时生成。</p></div><div class="studio-head-actions"><span class="local-tag"><i class="status-dot"></i> LOCAL · NO API REQUIRED</span><button class="btn btn-line" id="studio-to-gallery">返回画廊 ↗</button></div></div>
+    <div class="studio-shell layout-width">
+      <aside class="studio-left panel">
+        <div class="panel-top"><span>ASSET LIBRARY</span><span class="counter" id="asset-counter">04</span></div><p class="panel-help">选择一个资产，进入可编辑的逐帧视图。</p><div id="asset-list" class="asset-list"></div>
+        <div class="panel-bottom"><span>✳</span><p><strong>CODE, NOT DIFFUSION</strong><small>本地确定性绘制引擎</small></p></div>
+      </aside>
+      <section class="studio-center">
+        <div class="studio-canvas-header"><div><span class="eyebrow">LIVE PREVIEW / ASSET</span><h2 id="asset-name">Scarlet Remedy</h2><div class="asset-subline" id="asset-subline">治疗药剂 · 12 帧循环</div></div><div class="tag-stack"><span class="tag" id="asset-size">96 × 96 PX</span><span class="tag tag-accent">PIXEL ART</span></div></div>
+        <div class="studio-stage" id="studio-stage">
+          <div class="stage-top"><span>PREVIEW / 01</span><div class="stage-top-right"><span class="stage-live"><i class="status-dot"></i> LIVE RENDER</span><button class="stage-icon" id="toggle-grid" title="显示/隐藏像素网格" aria-label="切换像素网格">▦</button></div></div>
+          <div class="studio-canvas-wrap"><canvas id="studio-canvas" width="96" height="96" aria-label="可编辑像素动画画布"></canvas></div>
+          <div class="stage-bottom"><span id="stage-frame-label">FRAME 01 / 12</span><span>100% GENERATED WITH CODE</span></div>
+        </div>
+        <div class="transport"><button class="transport-btn" id="btn-prev" title="上一帧" aria-label="上一帧">⏮</button><button class="transport-btn transport-primary" id="btn-play" title="播放/暂停" aria-label="播放/暂停">Ⅱ</button><button class="transport-btn" id="btn-next" title="下一帧" aria-label="下一帧">⏭</button><span class="transport-info" id="transport-label">01 / 12</span><input id="frame-range" type="range" min="0" max="11" value="0" aria-label="动画进度"><span class="transport-info" id="fps-label">8 FPS</span><button class="transport-btn" id="btn-restart" title="回到开头" aria-label="回到开头">↺</button></div>
+        <div class="frame-panel panel"><div class="frame-heading"><div><span class="eyebrow">FRAME SEQUENCE</span><b>逐帧时间轴</b></div><span class="muted" id="frame-count">12 FRAMES</span></div><div class="frame-track" id="frame-track"></div></div>
+        <section class="composer panel"><div class="composer-title"><div><span class="eyebrow">LLM ASSET PROTOCOL / EXPERIMENTAL</span><h3>让语言成为像素</h3></div><span class="experimental-tag">JSON IMPORT</span></div><p>写下想要的资产，复制生成规范给任意 LLM，再将返回的 JSON 导入工作站。此 MVP 暂不直接调用云端模型。</p><label for="idea-input" class="label">创作描述</label><textarea id="idea-input" rows="2" placeholder="例如：一瓶紫色星光药剂，液体轻轻晃动，瓶内有发光气泡">一瓶泛着微光的像素风生命药水，红色液体轻轻晃动，带有玻璃高光与气泡循环动画。</textarea><div class="composer-actions"><button class="btn btn-line" id="copy-llm-prompt">复制 LLM 绘图规范 <span>↗</span></button><button class="btn btn-quiet" id="toggle-json-import">导入模型生成 JSON ↓</button></div><div id="json-import-panel" hidden><label for="json-input" class="label">粘贴 LLM 生成的资产 JSON</label><textarea id="json-input" rows="5" placeholder='{"name":"Potion","width":16,"height":16,"palette":{".":"transparent","R":"#e54d5a"},"frames":[["................","....RRRR........", "..."]]}'></textarea><button class="btn btn-primary" id="import-json">验证并导入资产 ↗</button></div><div class="feedback" id="feedback" role="status" aria-live="polite">已就绪。试着选择一件作品，或者生成你自己的像素资产。</div></section>
+      </section>
+      <aside class="studio-right panel"><div class="panel-top"><span>INSPECTOR</span><span>✳</span></div><div class="inspector-block"><div class="eyebrow">ARTIFACT DETAILS</div><h3 id="inspector-name">Scarlet Remedy</h3><p id="inspector-desc">装着生命魔力的小药瓶。</p><div class="detail-list"><div><span>类型</span><b id="detail-type">程序化动画</b></div><div><span>画布</span><b id="detail-res">96 × 96</b></div><div><span>动画帧</span><b id="detail-frames">12</b></div><div><span>播放速率</span><b id="detail-fps">8 FPS</b></div><div><span>循环模式</span><b>LOOP</b></div></div></div><div class="inspector-block"><div class="eyebrow">ANIMATION CONTROLS</div><label class="control-label" for="speed-control">播放速度 <strong id="speed-value">1.0×</strong></label><input type="range" id="speed-control" min="0.5" max="2" value="1" step="0.25"><label class="control-label" for="zoom-control">预览缩放 <strong id="zoom-value">3×</strong></label><input type="range" id="zoom-control" min="2" max="5" value="3" step="1"><label class="control-label" for="brush-color">像素画笔颜色</label><div class="brush-controls"><input type="color" id="brush-color" value="#ffd6a5" aria-label="画笔颜色"><button class="tool-btn" id="tool-pencil" aria-pressed="false">✎ 绘制</button><button class="tool-btn" id="tool-erase" aria-pressed="false">⌫ 擦改</button></div><p class="panel-help">编辑仅作用于选中的帧。擦改用于撤销手工像素覆盖。</p></div><div class="inspector-block export-box"><div class="eyebrow">EXPORT / DOWNLOAD</div><button class="export-button" id="export-png"><span>↧</span><div><b>下载当前帧</b><small>PNG · 原始像素画</small></div><span class="export-arrow">↗</span></button><button class="export-button" id="export-sheet"><span>▦</span><div><b>下载动画精灵图</b><small>PNG · 完整帧序列</small></div><span class="export-arrow">↗</span></button><button class="export-button" id="export-json"><span>{ }</span><div><b>下载资产工程</b><small>JSON · 可再次导入</small></div><span class="export-arrow">↗</span></button><button class="export-button" id="export-webm"><span>▶</span><div><b>录制动画循环</b><small>WebM · 浏览器支持时可用</small></div><span class="export-arrow">↗</span></button></div></aside>
+    </div><footer class="footer layout-width"><span>PIXELWEAVE STUDIO · 0.2</span><span>NO EXTERNAL RENDER SERVICE</span><a href="https://github.com/Tera-Dark/PixelWeave" target="_blank" rel="noopener noreferrer">SOURCE CODE ↗</a></footer>
+  </main>
+</div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
