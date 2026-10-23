@@ -8,8 +8,8 @@ function fakeCanvas(){
  };
  return {canvas:{width:SIZE,height:SIZE,getContext:()=>c},count:()=>strokes};
 }
-test('four gallery demos draw every frame without exceptions',()=>{
- assert.equal(DEMOS.length,4);
+test('all five gallery demos draw every frame without exceptions',()=>{
+ assert.equal(DEMOS.length,5);
  for(const a of DEMOS){
   const f=fakeCanvas();for(let i=0;i<a.frames;i++)renderAsset(f.canvas,a,i);
   assert.ok(f.count()>50,a.name+' drew no meaningful pixels');
