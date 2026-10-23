@@ -1,12 +1,32 @@
-import {DEMOS,SIZE,renderAsset,makeImported,validateMatrix,makePrompt} from './engine.js';
-const $=id=>document.getElementById(id),state={items:[...DEMOS],id:'health',frame:0,play:true,speed:1,edits:{},tool:null,elapsed:0,last:0};
+import {DEMOS,SIZE,renderAsset,makeImported,validateMatrix} from './engine.js';
+import {LAYERED_FORMAT,createLayeredAsset,validateLayered,pixelCoordinates,paintLayerPixel,addEmptyLayer,reorderLayer,duplicateFrame,deleteFrame,createBlankLayered,metrics} from './layered.js';
+import {makeLayeredPrompt} from './llm.js';
+const $=id=>document.getElementById(id),state={items:[...DEMOS],id:'atelier',frame:0,play:true,speed:1,edits:{},tool:null,elapsed:0,last:0,activeLayer:'liquid',symbol:'K',undo:[],redo:[]};
 let cards=[],thumbs=[],painting=false,galleryTick=-1;
 const current=()=>state.items.find(a=>a.id===state.id)||DEMOS[0],layers=()=>state.edits[state.id]||{};
 const cv=()=>{const e=document.createElement('canvas');e.width=SIZE;e.height=SIZE;return e;};
 function notify(t,bad=false){$('feedback').textContent=t;$('feedback').className='feedback '+(bad?'error':'success');}
 function scrub(o){const r={};if(!o||typeof o!=='object')return r;for(const [i,obj] of Object.entries(o)){if(!/^\d{1,2}$/.test(i)||+i>15||!obj||typeof obj!=='object')continue;const p={};let n=0;for(const [xy,color] of Object.entries(obj)){const m=/^(\d{1,2}),(\d{1,2})$/.exec(xy);if(m&&+m[1]<96&&+m[2]<96&&/^#[0-9a-f]{6}$/i.test(color)&&n++<10000)p[xy]=color;}r[i]=p;}return r;}
-function persist(){try{localStorage.setItem('pixelweave.v02',JSON.stringify({custom:state.items.filter(a=>a.type==='matrix').map(a=>({id:a.id,data:a.data})),edits:state.edits}));}catch{notify('本地存储已满，请导出 JSON 备份。',true);}}
-function restore(){try{const d=JSON.parse(localStorage.getItem('pixelweave.v02')||'null');if(!d)return;for(const v of (Array.isArray(d.custom)?d.custom:[]).slice(0,12)){try{const a=makeImported(validateMatrix(v.data));if(/^custom-[0-9-]+$/.test(v.id||''))a.id=v.id;state.items.push(a);}catch{}}if(d.edits&&typeof d.edits==='object')for(const [id,v] of Object.entries(d.edits))if(state.items.some(a=>a.id===id))state.edits[id]=scrub(v);}catch{}}
+function persist(){try{
+  const custom=state.items.filter(a=>a.type==='matrix').map(a=>({id:a.id,data:a.data}));
+  const layered=state.items.filter(a=>a.type==='layered').map(a=>({id:a.id,data:a.data}));
+  localStorage.setItem('pixelweave.v03',JSON.stringify({custom,layered,edits:state.edits}));
+ }catch{notify('本地存储已满，请导出 JSON 备份。',true);}}
+function restore(){try{
+ const d=JSON.parse(localStorage.getItem('pixelweave.v03')||localStorage.getItem('pixelweave.v02')||'null');if(!d)return;
+ for(const v of (Array.isArray(d.custom)?d.custom:[]).slice(0,12)){
+  try{const a=makeImported(validateMatrix(v.data));if(/^custom-[0-9-]+$/.test(v.id||''))a.id=v.id;state.items.push(a);}catch{}
+ }
+ for(const v of (Array.isArray(d.layered)?d.layered:[]).slice(0,12)){
+  try{
+   const data=validateLayered(v.data);
+   const built=state.items.find(a=>a.id===v.id&&a.type==='layered');
+   if(built){built.data=data;built.frames=data.layers[0].frames.length;built.name=data.name;built.fps=data.fps;}
+   else {const a=createLayeredAsset(data);if(/^layered-[0-9-]+$/.test(v.id||''))a.id=v.id;state.items.push(a);}
+  }catch{}
+ }
+ if(d.edits&&typeof d.edits==='object')for(const [id,v] of Object.entries(d.edits))if(state.items.some(a=>a.id===id))state.edits[id]=scrub(v);
+}catch{}}
 function route(name){const studio=name==='studio';$('gallery-page').hidden=studio;$('studio-page').hidden=!studio;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));if(studio)refresh();history.replaceState(null,'','#'+name);window.scrollTo(0,0);}
 function renderGallery(){cards=[];const host=$('gallery-grid');host.replaceChildren();state.items.forEach((a,i)=>{
  const b=document.createElement('button');b.className='work-card';b.type='button';b.setAttribute('aria-label','打开 '+a.name);
@@ -18,7 +38,12 @@ function renderGallery(){cards=[];const host=$('gallery-grid');host.replaceChild
  title.textContent=a.name;small.textContent=a.cn+' · '+a.frames+' FRAMES';arrow.className='work-arrow';arrow.textContent='↗';info.append(title,small);meta.append(info,arrow);b.append(art,meta);host.append(b);
  b.onclick=()=>{choose(a.id);route('studio');};cards.push({c,a});
  });$('collection-count').textContent=String(state.items.length).padStart(2,'0');}
-function choose(id){if(!state.items.some(a=>a.id===id))return;state.id=id;state.frame=0;state.elapsed=0;state.play=true;refresh();}
+function choose(id){if(!state.items.some(a=>a.id===id))return;
+  state.id=id;state.frame=0;state.elapsed=0;state.play=true;state.undo=[];state.redo=[];
+  state.activeLayer=current().type==='layered'?(current().data.layers.find(l=>l.id==='liquid')?.id||current().data.layers.at(-1).id):null;
+  if(current().type==='layered')state.symbol=Object.keys(current().data.palette).find(k=>k!=='.')||'.';
+  refresh();
+}
 function refresh(){
  const a=current();$('asset-name').textContent=a.name;$('asset-subline').textContent=a.cn+' · '+a.frames+' 帧循环';$('inspector-name').textContent=a.name;$('inspector-desc').textContent=a.desc;
  $('asset-size').textContent=(a.type==='matrix'?a.data.width+' × '+a.data.height:'96 × 96')+' PX';$('detail-type').textContent=a.type==='matrix'?'LLM 像素矩阵':'程序化动画';$('detail-res').textContent=a.type==='matrix'?a.data.width+' × '+a.data.height:'96 × 96';
@@ -28,7 +53,7 @@ function refresh(){
  });$('asset-counter').textContent=String(state.items.length).padStart(2,'0');
  const track=$('frame-track');track.replaceChildren();thumbs=[];
  for(let i=0;i<a.frames;i++){const b=document.createElement('button');b.type='button';b.className='frame-button';const c=cv();renderAsset(c,a,i,layers());const label=document.createElement('span');label.textContent='F'+String(i+1).padStart(2,'0');b.append(c,label);b.onclick=()=>{state.frame=i;state.play=false;draw();};track.append(b);thumbs.push(c);}
- draw();
+ renderLayers();draw();
 }
 function draw(){renderAsset($('studio-canvas'),current(),state.frame,layers());const f=String(state.frame+1).padStart(2,'0'),count=String(current().frames).padStart(2,'0');
  $('stage-frame-label').textContent='FRAME '+f+' / '+count;$('transport-label').textContent=f+' / '+count;$('frame-range').value=state.frame;$('btn-play').textContent=state.play?'Ⅱ':'▶';
