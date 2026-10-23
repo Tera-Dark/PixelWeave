@@ -94,6 +94,97 @@ function importJson(){const raw=$('json-input').value;if(raw.length>200000){noti
  choose(a.id);persist();renderGallery();$('json-import-panel').hidden=true;$('json-input').value='';notify('已成功导入「'+a.name+'」，现在可以编辑每一帧。');
  }catch(e){notify('JSON 导入失败：'+e.message,true);}
 }
+function isLayered(){return current().type==='layered';}
+function selectedLayer(){return isLayered()?current().data.layers.find(l=>l.id===state.activeLayer):null;}
+function remember(){
+ if(!isLayered())return;
+ state.undo.push(JSON.stringify(current().data));if(state.undo.length>25)state.undo.shift();state.redo.length=0;
+}
+function updateLayered(){
+ const a=current(),d=a.data;
+ a.name=d.name;a.frames=d.layers[0].frames.length;a.fps=d.fps;a.desc=d.layers.length+' 层 / '+a.frames+' 帧分层像素艺术。';
+ refresh();renderGallery();persist();
+}
+function timeTravel(direction){
+ if(!isLayered())return;
+ const stack=direction==='undo'?state.undo:state.redo,other=direction==='undo'?state.redo:state.undo;
+ if(!stack.length){notify('当前没有可'+(direction==='undo'?'撤销':'重做')+'的操作。',true);return;}
+ other.push(JSON.stringify(current().data));
+ current().data=validateLayered(JSON.parse(stack.pop()));
+ if(!current().data.layers.some(l=>l.id===state.activeLayer))state.activeLayer=current().data.layers.at(-1).id;
+ state.frame=Math.min(state.frame,current().data.layers[0].frames.length-1);updateLayered();
+}
+function mutateLayer(callback){
+ if(!isLayered())return;
+ remember();
+ try{callback(current().data);updateLayered();}
+ catch(e){current().data=JSON.parse(state.undo.pop());notify(e.message,true);renderLayers();}
+}
+function renderLayers(){
+ const active=isLayered(),panel=$('layers-panel');
+ panel.hidden=!active;if(!active)return;
+ const data=current().data;
+ if(!data.layers.some(l=>l.id===state.activeLayer))state.activeLayer=data.layers.at(-1).id;
+ const host=$('layer-list');host.replaceChildren();
+ for(const layer of [...data.layers].reverse()){
+  const row=document.createElement('div');row.className='layer-row'+(layer.id===state.activeLayer?' selected':'');
+  const eye=document.createElement('button');eye.type='button';eye.className='layer-eye';eye.textContent=layer.visible?'◉':'○';eye.title=layer.visible?'隐藏图层':'显示图层';eye.setAttribute('aria-label',eye.title);
+  eye.onclick=()=>mutateLayer(()=>{layer.visible=!layer.visible;});
+  const select=document.createElement('button');select.type='button';select.className='layer-select';
+  const b=document.createElement('strong');b.textContent=layer.name;
+  const sub=document.createElement('small');sub.textContent=layer.id+' · '+Math.round(layer.opacity*100)+'%';
+  select.append(b,sub);select.onclick=()=>{state.activeLayer=layer.id;renderLayers();};
+  row.append(eye,select);host.append(row);
+ }
+ $('layer-count').textContent=data.layers.length+' LAYERS';
+ const layer=selectedLayer();
+ $('layer-name').value=layer.name;$('layer-x').value=layer.x;$('layer-y').value=layer.y;
+ $('layer-opacity').value=Math.round(layer.opacity*100);$('layer-opacity-value').textContent=Math.round(layer.opacity*100)+'%';
+ $('layer-up').disabled=data.layers.at(-1).id===layer.id;
+ $('layer-down').disabled=data.layers[0].id===layer.id;
+ $('layer-add').disabled=data.layers.length>=12;
+ $('layer-frame-add').disabled=current().frames>=16;$('layer-frame-delete').disabled=current().frames<=1;
+ $('layer-undo').disabled=state.undo.length===0;$('layer-redo').disabled=state.redo.length===0;
+ const pal=$('layer-palette');pal.replaceChildren();
+ for(const [key,color] of Object.entries(data.palette)){
+  const b=document.createElement('button');b.type='button';b.className='palette-swatch'+(state.symbol===key?' selected':'');
+  b.style.background=color==='transparent'?'repeating-conic-gradient(#8590a1 0% 25%, #3d4758 0% 50%) 50% / 12px 12px':color;
+  b.textContent=key==='.'?'×':'';b.title=key+' '+color;b.setAttribute('aria-label','画笔颜色 '+key+' '+color);
+  b.onclick=()=>{state.symbol=key;state.tool='pencil';for(const v of ['pencil','erase'])$('tool-'+v).classList.toggle('active',v==='pencil');renderLayers();};
+  pal.append(b);
+ }
+ const m=metrics(data);
+ $('layer-metrics').textContent='COVERAGE '+m.coverage+'%  ·  MOTION '+m.meanMotion+'%  ·  LOOP SEAM '+m.seam+'%';
+}
+function beginLLMStatus(){
+ fetch('./api/status',{cache:'no-store'}).then(async r=>{if(!r.ok)throw Error('static');return r.json();}).then(cfg=>{
+  if(cfg.available){$('llm-status').textContent='● 已连接本地模型代理：'+cfg.model+' · 支持自动生成';$('generate-llm').disabled=false;}
+  else {$('llm-status').textContent='本地代理未配置模型。可使用 JSON 导入或新建画布。';$('generate-llm').disabled=true;}
+ }).catch(()=>{
+  $('llm-status').textContent='当前为 GitHub Pages 静态模式：复制 LLM 提示词，在任意文本模型中生成 JSON 后粘贴导入。';
+  $('generate-llm').disabled=true;
+ });
+}
+async function generateFromLLM(){
+ const button=$('generate-llm'),idea=$('idea-input').value.trim();
+ if(idea.length<4){notify('先描述你希望生成的像素动画主题。',true);return;}
+ button.disabled=true;button.textContent='LLM 创作中…';notify('正在通过本地文本模型进行美术规划、分层绘制与校验。');
+ try{
+  const res=await fetch('./api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idea})});
+  const output=await res.json();if(!res.ok)throw Error(output.error||'生成失败');
+  const a=createLayeredAsset(output.asset);state.items.push(a);choose(a.id);persist();renderGallery();
+  const issues=output.warnings?.length?' 质量提示：'+output.warnings.join('；'):'';
+  notify('已生成 '+a.data.layers.length+' 层 / '+a.frames+' 帧，用时尝试 '+output.attempts+' 次。'+issues);
+ }catch(e){notify('LLM 生成失败：'+e.message,true);}
+ finally{button.disabled=false;button.textContent='使用本地 LLM 生成 ✳';}
+}
+function newProject(){
+ try{
+  const name=$('idea-input').value.trim().slice(0,55)||'Untitled Sprite';
+  const a=createLayeredAsset(createBlankLayered(name,24,24,4));state.items.push(a);choose(a.id);
+  state.symbol='K';persist();renderGallery();notify('已创建 24×24 / 4 帧的空白分层项目。请选中画笔，在画布上绘制。');
+ }catch(e){notify(e.message,true);}
+}
 function events(){
  document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>route(b.dataset.page));
  $('hero-studio').onclick=()=>route('studio');$('hero-open').onclick=()=>{choose('health');route('studio');};
