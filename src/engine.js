@@ -1,3 +1,4 @@
+import {LAYERED_SAMPLE,renderLayered} from './layered.js';
 // PixelWeave core — deterministic code-generated pixel art, no diffusion.
 export const SIZE = 96;
 export const DEMOS = [
@@ -6,6 +7,7 @@ export const DEMOS = [
   {id:'lantern',name:'Keeper’s Light',cn:'守夜人提灯',desc:'黄铜提灯和跳动的烛火，在静夜里投出温暖微光。',type:'程序化动画',fps:8,frames:12,category:'LIGHT',tone:'lantern',color:'#f7c77d'},
   {id:'crystal',name:'Astral Shard',cn:'星界结晶',desc:'缓缓悬浮的紫晶，内部光斑沿着切面流转。',type:'程序化动画',fps:8,frames:12,category:'MAGIC',tone:'crystal',color:'#c4aaf0'}
 ];
+DEMOS.unshift({id:'atelier',name:LAYERED_SAMPLE.name,cn:'分层生命药剂',desc:'可独立选择、显示、隐藏与编辑的七层药剂动画。10 帧，每层均有独立像素矩阵。',type:'layered',fps:LAYERED_SAMPLE.fps,frames:LAYERED_SAMPLE.layers[0].frames.length,category:'LAYERED',tone:'health',color:'#ff9f9c',data:LAYERED_SAMPLE});
 const P=(c,x,y,w,h,color)=>{c.fillStyle=color;c.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));};
 const S=(c,x,y,w,h,color)=>{c.strokeStyle=color;c.lineWidth=1;c.strokeRect(Math.round(x)+.5,Math.round(y)+.5,Math.round(w)-1,Math.round(h)-1);};
 const L=(c,points,color)=>{c.fillStyle=color;c.beginPath();points.forEach((a,i)=>i?c.lineTo(Math.round(a[0]),Math.round(a[1])):c.moveTo(Math.round(a[0]),Math.round(a[1])));c.closePath();c.fill();};
@@ -107,6 +109,7 @@ function matrix(c,asset,frame){
 }
 export function renderAsset(canvas,asset,frame=0,patches=null){
  if(!canvas)return;
+ if(asset.type==='layered'){renderLayered(canvas,asset.data,frame);return;}
  const c=canvas.getContext('2d',{willReadFrequently:true});c.imageSmoothingEnabled=false;c.clearRect(0,0,canvas.width,canvas.height);c.save();c.scale(canvas.width/SIZE,canvas.height/SIZE);
  if(asset.type==='matrix')matrix(c,asset,frame);
  else if(asset.id==='health')bottle(c,frame,false);
