@@ -1,36 +1,41 @@
-# PixelWeave 技术架构
+# PixelWeave v0.3 架构
 
-## 双重产品形态
+产品同时包含 **Gallery 作品展台** 与 **Studio 人类可操作的编辑工作台**。所有绘制完全基于普通文本模型、结构化像素矩阵和 Canvas 2D，不依赖图像生成模型。
 
-1. Gallery：面向访客的公开作品站，零配置、循环动画、点击直达工作站。
-2. Studio：面向创作者的在线工作站，统一使用同一批资产渲染器，拥有时间轴、局部手工覆写、导出与本地保存。
+## 七层分工
+1. **Brief / Art Director**：自然语言理解，风格、构图、色板和动效设定。
+2. **Pixel DSL / Schema**：版本化的 `pixelweave/layered-v1`，严格验证 JSON 且从不执行 LLM 产出的代码。
+3. **Layer / Asset Forge**：每个图层维护独立的矩阵与动画帧；当前支持 1–12 层、最多 16 帧。
+4. **Renderer**：浏览器 Canvas 2D 整数像素逐层合成；所有帧可以通过索引重现。
+5. **Motion**：各层逐帧素材、帧复制/删除、播放/暂停、帧率调整。
+6. **Inspector / Editor**：图层层级、可见性、透明度、移动与色板像素编辑、撤销重做。
+7. **Export / Gallery**：保留分层 JSON + 合成 PNG / Sprite Sheet / WebM；展示站与工作站共用渲染器。
 
-## 系统分层
+## 模型调用工作流
 
-- Presentation：index.html / src/style.css — 响应式画廊与创作台。
-- Interaction：src/main.js — 选中资产、时间轴、画笔、导入与导出。
-- Asset Renderer：src/engine.js — 根据 frame index 执行 Canvas 整数像素绘制、确定性循环。
-- Asset Schema：src/engine.js — LLM 输出的色板与像素矩阵严格检查。
-- Persist & Export：浏览器 localStorage、PNG / Sprite Sheet / WebM / JSON。
-- LLM Orchestration：当前为手动复制提示词与 JSON 导入，自动化尚未实现。
-- Scene Compositor：尚未实现。
-- Wallpaper Pipeline：尚未实现。
+浏览器 Studio
+→ POST /api/generate（仅开发服务器）
+→ 文本 LLM 做美术规划（失败可跳过）
+→ 文本 LLM 按 DSL 生成 16×16、四层、四帧的结构化结果
+→ Schema 验证、色板校验、动画帧覆盖/变化率/循环断点诊断
+→ 格式失败时最多两次修复重试
+→ 浏览器收到 JSON 并装载资产
+→ 允许人工逐层/逐帧修画，导出完整资产
 
-## 原则
+Pages 是完全静态网站，只支持人工复制 Prompt 和导入 JSON。密钥从不进入前端仓库，API 代理只监听 127.0.0.1。
 
-- 纯文本 LLM + 绘制代码，绝不依赖 Diffusion 模型。
-- 严格把美术描述与可执行代码分开，LLM 输出必须先通过 JSON Schema 校验。
-- 优先高质量小资产，然后组合成场景。
-- 不信任 LLM 生成的脚本；不在公共静态网站内存储或转发 API Key。
-- 高层可以自由使用 LLM，美术图层和帧动画必须可预览、可编辑、可复用。
-- Demo 必须诚实标明是手工编程案例，不冒充 LLM 生成结果。
+## 模块
 
-## 下一步拟拆分
+- `src/layered.js`: schema + renderer + editor transforms + 7-layer sample.
+- `src/llm.js`: prompts + JSON extraction + heuristic quality metrics.
+- `src/generator.mjs`: transport, planner, generator, validation + retry.
+- `src/engine.js`: compatibility renderer for v0.2 procedural and legacy matrix assets.
+- `src/main.js`: Studio and Gallery, editing/persistence/exports.
+- `dev-server.mjs`: local static web + server-side /api/generate.
 
-src/core：asset-schema、pixel-dsl、palette、animation、compositor
-src/agents：art-director、sprite-maker、motion-maker、art-critic
-src/exporters：sprite-sheet、webm、apng、lively-wallpaper
-src/gallery：作品元数据、展示素材与版本
-src/studio：资产编辑、时间轴、图层控制、命令历史
+## 限制与下一轮
 
-MVP 保持最小依赖，下一步重构应保持现有导入与导出的兼容性。
+- 当前“导演/生成”是文本内容上的两步调用，不是经过视觉模型评分的美术智能体。
+- 自动修复主要针对 JSON 结构、尺寸、色板；视觉诊断仅作提示，目前不会自动迭代审美细节。
+- 内置 Gallery 作品全是由程序人工设计的示例，不能当作 LLM 的实测出图质量。
+- 隐藏图层不改变原始像素矩阵；删除或修改色板键需要未来加入迁移机制。
