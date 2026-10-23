@@ -16,7 +16,7 @@
 | Timeline | 逐帧播放、暂停、调速、复制帧、删除帧、无缝循环预览 |
 | Pixel Asset JSON | 完整分层 JSON 可导入/导出，严格验证画布、调色板、层数和帧数 |
 | Export | PNG 当前帧、Spritesheet PNG、WebM 循环录制、工程 JSON |
-| LLM Generator | 本地 OpenAI-compatible / Ollama 文本模型；先规划，再绘制，数据不合格自动修复（至多 3 次） |
+| LLM Generator | 本地 OpenAI-compatible / Ollama 文本模型；先规划，再分别生成轮廓、主体色块、高光、动态特效四层，每层最多三次数据修复重试 |
 | Static Pages | 不配模型也能查看、手工编辑、导入 LLM JSON、导出资产 |
 | Persistence | localStorage 保存到当前浏览器；作品不会自动上传公开画廊 |
 
@@ -52,7 +52,7 @@ npm run dev
 2. 将规范粘贴给任意文本 LLM，复制返回的 JSON。
 3. 在 Studio 选择“导入 JSON”，粘贴结果，验证后即获得可逐层编辑的动画资产。
 
-如果在本地运行且配置了模型，以上流程由 Node 代理自动完成。
+如果在本地运行且配置了模型，以上流程由 Node 代理自动完成。默认使用 **Progressive 分层生成模式**（Director → 轮廓 → 色块 → 高光 → 特效）；也可设置 PowerShell 环境变量 `$env:PIXELWEAVE_PIPELINE="oneshot"` 使用旧版一次性完整 JSON 生成模式。
 
 ## PixelWeave Layered Format v1
 
