@@ -1,5 +1,6 @@
 import {makeLayeredPrompt,directorPrompt,repairPrompt,parseModelJSON,inspectAsset} from './llm.js';
 import {pickKnowledge} from './knowledge.mjs';
+import {artDirection} from './art-style.mjs';
 
 export function modelSettings(env=process.env){
  const base=(env.PIXELWEAVE_API_BASE||'http://127.0.0.1:11434/v1').trim();
@@ -28,12 +29,13 @@ export async function generateWithLLM(idea,env=process.env,fetchImpl=fetch){
  const brief=String(idea??'').trim();
  if(brief.length<4||brief.length>500)throw Error('创作描述应为 4–500 个字符');
  const guide=pickKnowledge(brief,'director');
+ const style=artDirection(env.PIXELWEAVE_ART_STYLE||'none','director');
  let plan=null;
  try{plan=parseModelJSON(await callTextModel([
   {role:'system',content:'You are a senior pixel art director. JSON only.'},
-  {role:'user',content:directorPrompt(brief)+'\n\n'+guide.context}
+  {role:'user',content:directorPrompt(brief)+'\n\n'+guide.context+'\n\n'+style.context}
  ],env,fetchImpl));}catch{plan=null;}
- const normal=makeLayeredPrompt(brief,plan)+'\n\n'+pickKnowledge(brief,'fill').context+'\n\n'+pickKnowledge(brief,'effects').context;
+ const normal=makeLayeredPrompt(brief,plan)+'\n\n'+pickKnowledge(brief,'fill').context+'\n\n'+pickKnowledge(brief,'effects').context+'\n\n'+artDirection(style.id,'fill').context;
  let previous='',error='';
  for(let i=0;i<3;i++){
   previous=await callTextModel([
@@ -42,7 +44,7 @@ export async function generateWithLLM(idea,env=process.env,fetchImpl=fetch){
   ],env,fetchImpl);
   try{
    const inspected=inspectAsset(parseModelJSON(previous));
-   return {asset:inspected.data,metrics:inspected.stats,warnings:inspected.warnings,attempts:i+1,planned:!!plan,knowledge:{version:'pixelweave-knowledge-rules-v1',ruleIds:guide.ruleIds,tags:guide.tags}};
+   return {asset:inspected.data,metrics:inspected.stats,warnings:inspected.warnings,attempts:i+1,planned:!!plan,artStyle:{id:style.id,enabled:style.enabled},knowledge:{version:'pixelweave-knowledge-rules-v1',ruleIds:guide.ruleIds,tags:guide.tags}};
   }catch(e){error=e.message;}
  }
  throw Error('连续三次生成均未通过分层资产校验：'+error);
