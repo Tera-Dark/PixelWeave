@@ -1,17 +1,14 @@
-# PixelWeave · 像素艺术与动画创作指南 v1.1 — 完整合订版
+# PixelWeave 像素艺术与动画创作指南 v1.1 — 完整合订版
 
-> 2026-10-24 · 原创图例、六件分层案例、文本 LLM 规则检索与质量审查。
-> 主要章节、视觉实验和案例说明已合并；SVG 图例与 JSON 工程以相对路径链接访问。
+> 2026-10-24 | 原创像素级视觉对照、分层案例、知识驱动 LLM 规范。
 
-[在线逐帧教学实验室](lab.html) · [六个分层参考资产](examples/reference/README.md) · [知识规则索引](rules.json) · [项目整改验证报告](../../docs/KNOWLEDGE-UPGRADE-REPORT.md)
+[在线交互教学实验室](lab.html) · [分层案例库](examples/reference/README.md) · [机器规则集](rules.json) · [验证报告](../../docs/KNOWLEDGE-UPGRADE-REPORT.md)
 
-**教学质量说明：本书中的视觉示意和资产是项目原创教学作品，不等于已通过外部专业美术评审的高分范例。**
+**注意：原创教学案例只通过代码结构测试，尚未通过外部专业像素画师盲评；不能代表真实模型输出水平。**
 
 ---
 
 <!-- README.md -->
-
----
 
 # PixelWeave · 像素艺术与动画创作知识库
 
@@ -137,8 +134,6 @@
 
 <!-- 01-FOUNDATIONS.md -->
 
----
-
 # L0 · 像素的基本语法：从点到可信的轮廓
 
 **配套原创视觉实验：[轮廓台阶、像素簇与逐像素修订](labs/01-PIXEL-CLUSTERS.md)**。先跟练正反例，再完成本文知识点。
@@ -218,8 +213,6 @@ Pixel / Logical Resolution / Pixel Cluster / Jaggies / Negative Space / Anti-ali
 
 <!-- labs/01-PIXEL-CLUSTERS.md -->
 
----
-
 # L0 实验：像素簇与轮廓的逐像素修订
 
 来源：Pixel Joint / cure 综合教程：https://pixeljoint.com/forum/forum_posts.asp?TID=11299 。本实验示意及练习均为 PixelWeave 原创，不复制原教程图片。
@@ -263,8 +256,6 @@ Pixel / Logical Resolution / Pixel Cluster / Jaggies / Negative Space / Anti-ali
 ---
 
 <!-- 02-COLOR-LIGHT-MATERIAL.md -->
-
----
 
 # L1 · 色板、光影和材质设计
 
@@ -351,8 +342,6 @@ Ditherpunk 是一个可以选择的特定艺术方向（高对比、抖动图案
 
 <!-- labs/02-MATERIAL-LIGHT.md -->
 
----
-
 # L1 实验：方向光、受光面、材质差异
 
 来源：Slynyrd 色板、光影和纹理专题；Pixel Joint pillow shading / dithering 技法。所有对比图为 PixelWeave 自制示意，非作者原图。
@@ -392,8 +381,6 @@ Ditherpunk 是一个可以选择的特定艺术方向（高对比、抖动图案
 ---
 
 <!-- 03-ASSET-DESIGN.md -->
-
----
 
 # L1 → L2 · 静态道具到分层动画素材：造型先于细节
 
@@ -467,8 +454,6 @@ Ditherpunk 是一个可以选择的特定艺术方向（高对比、抖动图案
 ---
 
 <!-- 04-ANIMATION.md -->
-
----
 
 # L2 · 从静态像素到可信动画
 
@@ -569,8 +554,6 @@ PixelWeave 当前部分支持这些功能；尤其“单帧持时、onion skin�
 
 <!-- labs/03-ANIMATION-CYCLES.md -->
 
----
-
 # L2 实验：从静帧到分层逐帧循环
 
 来源：[Slynyrd Intro to Animation](https://www.slynyrd.com/blog/2018/8/19/pixelblog-8-intro-to-animation)、[Items](https://www.slynyrd.com/blog/2019/12/21/pixelblog-24-items)、[Aseprite Linked Cels](https://www.aseprite.org/docs/linked-cels/)。
@@ -615,8 +598,6 @@ F7 → F0 的气泡仅移动 1px，新的气泡出现由 F6→F7 表示；旧泡
 ---
 
 <!-- 05-CHARACTER-VFX.md -->
-
----
 
 # L3 · 角色动作、布料、自然效果和小型特效
 
@@ -679,8 +660,6 @@ E. 在 D 上添加服装、头发与次级运动。
 ---
 
 <!-- 06-SCENE-DESIGN.md -->
-
----
 
 # L4 · 场景构图、景深、瓦片、透视与氛围
 
@@ -745,8 +724,6 @@ Tile 是可复用的小图块，Tileset 是图块集合，Tilemap 是由图块�
 ---
 
 <!-- 07-WALLPAPER.md -->
-
----
 
 # L5 · 动态像素艺术壁纸：从场景到耐看的循环作品
 
@@ -825,8 +802,6 @@ Tile 是可复用的小图块，Tileset 是图块集合，Tilemap 是由图块�
 ---
 
 <!-- 08-LLM-PLAYBOOK.md -->
-
----
 
 # PixelWeave · LLM 像素动画创作编译规范
 
@@ -940,7 +915,7 @@ AI 必须知道“可改与不可改”的边界。仅指定主题而不指定�
 - 重算动画指标与视觉预览。
 - 提供 Accept / Reject / Revert。
 
-PixelWeave v0.3 目前实现了图层级的人工编辑、JSON 验证和生成重试；**像素哈希冻结、局部补丁协议和真正的视觉评审循环尚属待实现任务**。
+PixelWeave v0.3 + 知识库 v1.1 已实现：图层级人工编辑、JSON 验证、带来源规则的阶段式检索，以及限定图层/帧/bbox 的 **layer-patch-v1** 数据协议；系统通过比较受保护图层来拒绝越权修改。**仍未完成**：单独的 stableAnchor 哈希冻结、所有非矩形对象 mask、真实视觉模型或专业画师驱动的自动评审循环。
 
 ## 9. 建议的模型评测协议
 
@@ -955,11 +930,21 @@ PixelWeave v0.3 目前实现了图层级的人工编辑、JSON 验证和生成�
 
 **不能用几张好看样张代替完整模型基准测试。**
 
+
+## 10. 已落地的检索与可控局部重绘 v1.1
+
+- 规则书：rules.json 给每条规则唯一 ID、领域标签、执行阶段、来源文件和 hard / diagnostic / advice 类别。
+- 任务路由：src/knowledge.mjs 只读取仓库内白名单章节、主题相关规则和教学案例，不把整个手册无差别发送给模型。
+- 分层模型调用：src/progressive.mjs 从导演、轮廓、填充到高光/特效，阶段各自获取不同知识，不应污染无关任务。
+- 有边界的像素修订：src/scoped-patch.mjs 仅接受结构化 patch：目标图层、允许的帧、像素 bbox、合法色板符号，其余数据必须逐像素不变。
+- 本地模型接口：POST /api/refine 只在环回地址 127.0.0.1 的 Node 服务可用；公开 GitHub Pages 不暴露密钥。
+- 比较验证：tools/benchmark-knowledge.mjs 默认 dry run，明确带 --run 后才能触发模型；PIXELWEAVE_KNOWLEDGE=off 用于禁用规则进行 A/B。
+
+目前仅验证了**代码功能和模拟模型请求**；知识对真实 LLM 艺术质量的影响仍需实际模型测试、外部人类盲评，并控制题材、随机性与模型预算。
+
 ---
 
 <!-- 09-QUALITY-ASSURANCE.md -->
-
----
 
 # PixelWeave · 像素画与动画质量验收规范
 
@@ -1075,8 +1060,6 @@ L0 只审剪影与像素簇；L1 加入光影材质；L2 要求动画和循环�
 
 <!-- 10-CURRICULUM.md -->
 
----
-
 # 10 · 十个循序渐进的原创实战项目
 
 **用途**：人类训练课程 + PixelWeave 文本模型的回归评测集合。每个项目必须提交可编辑源文件、原尺寸 PNG 和简短复盘。难度按照依赖关系递进，不要求固定花费小时数。
@@ -1182,8 +1165,6 @@ L0 只审剪影与像素簇；L1 加入光影材质；L2 要求动画和循环�
 
 <!-- examples/reference/README.md -->
 
----
-
 # 原创分层像素教学案例库
 
 六件 JSON 都由本项目手工编排代码生成，并通过自动数据校验；不使用 Diffusion，也不应误称为“真实 LLM 作品”或“经外部大师认证的高分样张”。
@@ -1204,8 +1185,6 @@ L0 只审剪影与像素簇；L1 加入光影材质；L2 要求动画和循环�
 ---
 
 <!-- SOURCES.md -->
-
----
 
 # 像素艺术知识库 · 来源目录与选材说明
 
