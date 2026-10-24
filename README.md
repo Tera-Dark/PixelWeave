@@ -7,6 +7,17 @@
 - **状态：** 像素分层、逐帧编辑已具备；LLM 自动流程需本地启动 Node.js 代理并配置文本模型。作品画廊中的示例均为手工编程示范，不伪称 AI 生成。
 
 
+## 最新美术研究：暮烬遗物 / Ashen Reliquary（可选）
+
+在确认以 The Game Kitchen 的《Blasphemous》为研究起点后，PixelWeave 提炼了一套原创的「**暮烬遗物**」美术方法，**不复制**原作的可识别角色、像素纹理或宗教图像。它强调从功能/身世设计轮廓、针对材质组织高光、克制的焦点与有物理原因的微动画。
+
+- [阅读一手制作流程与动画师访谈研究](knowledge/pixel-art/studies/BLASPHEMOUS-CASE-STUDY.md)
+- [暮烬遗物 · 完整艺术风格与制作关卡](knowledge/pixel-art/styles/ASHEN-RELIQUARY.md)
+- [六件现有 v2 资产的针对性审美复盘](knowledge/pixel-art/studies/V2-ASSET-CRITIQUE.md)
+- [机器可读的风格规范](knowledge/pixel-art/styles/ashen-reliquary.json)
+
+本地 Studio 已新增**美术方向（可选）**下拉菜单，选择后才会在文本 LLM 的分层创作阶段注入相应指引。不选时继续使用通用流程。**研究阶段不等于真实模型审美 A/B 已验证**；当前 v2 六件素材保留，后续先改药瓶和提灯，再经过静帧与动画人工审核后决定是否替换。
+
 ## Gallery 美术升级 · Original Art Studies v2
 
 首页和工作站现已默认使用六件更细致的 32×32 原创分层像素动画，而非旧版简陋的几何教学案例。原演示保存在“查看旧版演示”中用于比较。六件作品皆为**代码手工构图与分层制作，不是 LLM 实测产物**。
