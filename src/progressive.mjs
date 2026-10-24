@@ -3,6 +3,7 @@ import {directorPrompt,parseModelJSON,inspectAsset} from './llm.js';
 import {LAYERED_FORMAT,validateLayered} from './layered.js';
 import {pickKnowledge} from './knowledge.mjs';
 import {diagnoseLayered} from './scoped-patch.mjs';
+import {artDirection} from './art-style.mjs';
 
 const LAYERS=[
  ['silhouette','主体轮廓','Solid silhouette and outline. Keep identity EXACTLY stable across all frames.'],
@@ -21,11 +22,12 @@ function safePalette(p){
  }
  return Object.keys(cleaned).length>=4?cleaned:{...DEFAULT_PALETTE};
 }
-function outlinePrompt(idea,plan,palette,[id,name,task],existing,knowledgeEnabled=true){
+function outlinePrompt(idea,plan,palette,[id,name,task],existing,knowledgeEnabled=true,styleId='none'){
  const refs=existing.map(l=>({id:l.id,frame0:l.frames[0]}));
  return [
   'You are a meticulous human-caliber pixel artist hand-authoring a single isolated layer of a sprite animation. No diffusion, image AI, SVG or image tools.',
   'Art brief: '+String(idea).slice(0,500),
+  'OPTIONAL ORIGINAL STYLE: '+artDirection(styleId,id).context,
   'CURATED TECHNIQUE NOTES: '+pickKnowledge(idea,id==='silhouette'?'silhouette':id==='fill'?'fill':id==='highlights'?'highlights':'effects',{enabled:knowledgeEnabled}).context,
   'Art director notes: '+JSON.stringify(plan).slice(0,1600),
   'Output ONLY this ONE-layer JSON: {"frames":[["16 characters per row" x 16 rows], ["...frame 2"], ["...frame 3"], ["...frame 4"]]}',
@@ -56,11 +58,13 @@ export async function generateProgressive(idea,env=process.env,fetchImpl=fetch){
  if(brief.length<4||brief.length>500)throw Error('描述需包含 4–500 字');
  let plan={name:'Layered Sprite'},calls=0;
  const knowledgeEnabled=env.PIXELWEAVE_KNOWLEDGE!=='off';
+ const styleId=env.PIXELWEAVE_ART_STYLE||'none';
+ const style=artDirection(styleId,'director');
  const guidance=pickKnowledge(brief,'director',{enabled:knowledgeEnabled});
  const ask=async(messages)=>{
   calls++;return await callTextModel(messages,env,fetchImpl);
  };
- try{plan=parseModelJSON(await ask([{role:'system',content:'Professional pixel art director. JSON only.'},{role:'user',content:directorPrompt(brief)+'\n\n'+guidance.context}]));}
+ try{plan=parseModelJSON(await ask([{role:'system',content:'Professional pixel art director. JSON only.'},{role:'user',content:directorPrompt(brief)+'\n\n'+guidance.context+'\n\n'+style.context}]));}
  catch{plan={name:'Layered Sprite'};}
  const palette=safePalette(plan.palette);
  const layers=[];
@@ -68,7 +72,7 @@ export async function generateProgressive(idea,env=process.env,fetchImpl=fetch){
  for(const desc of LAYERS){
   let raw='',error='',rows=null;
   for(let attempt=0;attempt<3;attempt++){
-   const prompt=outlinePrompt(brief,plan,palette,desc,layers,knowledgeEnabled);
+   const prompt=outlinePrompt(brief,plan,palette,desc,layers,knowledgeEnabled,styleId);
    const repair=attempt?'\n\nPREVIOUS INVALID OUTPUT: '+raw.slice(0,14000)+'\nVALIDATION ERROR: '+error+'\nRegenerate the whole 4-frame layer and COUNT EACH ROW.':'';
    raw=await ask([{role:'system',content:'Render ONE pixel-art layer as exact data-only 16x16x4 JSON. No code or image generation.'},{role:'user',content:prompt+repair}]);
    try{rows=checkOneLayer(parseModelJSON(raw),desc[0],palette);break;}
@@ -80,5 +84,5 @@ export async function generateProgressive(idea,env=process.env,fetchImpl=fetch){
  }
  const work=validateLayered({format:LAYERED_FORMAT,name:String(plan.name||'Layered Sprite').slice(0,64),width:16,height:16,fps:8,palette,layers});
  const result=inspectAsset(work);
- return {asset:work,metrics:result.stats,warnings:result.warnings,planned:!!plan?.name,attempts:calls,pipeline:'progressive',knowledge:{enabled:knowledgeEnabled,version:'pixelweave-knowledge-rules-v1',tags:guidance.tags,ruleIds:guidance.ruleIds},diagnostics:diagnoseLayered(work,{staticLayerIds:['silhouette']})};
+ return {asset:work,metrics:result.stats,warnings:result.warnings,planned:!!plan?.name,attempts:calls,pipeline:'progressive',artStyle:{id:style.id,enabled:style.enabled,version:style.version||null},knowledge:{enabled:knowledgeEnabled,version:'pixelweave-knowledge-rules-v1',tags:guidance.tags,ruleIds:guidance.ruleIds},diagnostics:diagnoseLayered(work,{staticLayerIds:['silhouette']})};
 }
