@@ -64,7 +64,7 @@ function draw(){renderAsset($('studio-canvas'),current(),state.frame,layers());c
 function shift(n){state.frame=(state.frame+n+current().frames)%current().frames;state.play=false;state.elapsed=0;draw();}
 function loop(now){if(!state.last)state.last=now;const dt=Math.min(100,now-state.last);state.last=now;
  if(state.play){state.elapsed+=dt*state.speed;const pace=1000/current().fps;if(state.elapsed>=pace){state.frame=(state.frame+Math.floor(state.elapsed/pace))%current().frames;state.elapsed%=pace;draw();}}
- const tick=Math.floor(now/125);if(tick!==galleryTick){galleryTick=tick;for(const x of cards)renderAsset(x.c,x.a,tick%x.a.frames,state.edits[x.a.id]);renderAsset($('hero-canvas'),DEMOS[0],tick%12,state.edits.health);}requestAnimationFrame(loop);}
+ const tick=Math.floor(now/125);if(tick!==galleryTick){galleryTick=tick;for(const x of cards)renderAsset(x.c,x.a,tick%x.a.frames,state.edits[x.a.id]);const hero=state.items.find(a=>a.id==='study-scarlet-vial')||DEMOS[0];renderAsset($('hero-canvas'),hero,tick%hero.frames,state.edits[hero.id]);}requestAnimationFrame(loop);}
 function tool(t){state.tool=state.tool===t?null:t;for(const v of ['pencil','erase']){$('tool-'+v).classList.toggle('active',state.tool===v);$('tool-'+v).setAttribute('aria-pressed',String(state.tool===v));}}
 function paint(e){
  if(!state.tool)return;
@@ -270,7 +270,7 @@ function newProject(){
 function events(){
  document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>route(b.dataset.page));
  $('toggle-archive').onclick=()=>{showArchive=!showArchive;$('toggle-archive').textContent=showArchive?'隐藏旧版演示':'查看旧版演示';renderGallery();};
- $('hero-studio').onclick=()=>route('studio');$('hero-open').onclick=()=>{choose('atelier');route('studio');};
+ $('hero-studio').onclick=()=>route('studio');$('hero-open').onclick=()=>{choose(state.items.some(a=>a.id==='study-scarlet-vial')?'study-scarlet-vial':'atelier');route('studio');};
  $('principle-open').onclick=()=>route('studio');$('studio-to-gallery').onclick=()=>route('gallery');
  $('btn-play').onclick=()=>{state.play=!state.play;state.elapsed=0;draw();};$('btn-prev').onclick=()=>shift(-1);$('btn-next').onclick=()=>shift(1);
  $('btn-restart').onclick=()=>{state.frame=0;state.play=true;state.elapsed=0;draw();};$('frame-range').oninput=e=>{state.frame=+e.target.value;state.play=false;draw();};
