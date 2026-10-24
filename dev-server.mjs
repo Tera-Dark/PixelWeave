@@ -25,7 +25,7 @@ http.createServer(async(req,res)=>{
    let input;
    try{input=await body(req);}catch(e){json(res,400,{error:'JSON 请求体不合法：'+e.message});return;}
    generating=true;
-   try{const generator=process.env.PIXELWEAVE_PIPELINE==='oneshot'?generateWithLLM:generateProgressive;json(res,200,await generator(input.idea));}
+   try{const generator=process.env.PIXELWEAVE_PIPELINE==='oneshot'?generateWithLLM:generateProgressive;json(res,200,await generator(input.idea,{...process.env,PIXELWEAVE_ART_STYLE:input.styleId||'none'}));}
    catch(e){json(res,502,{error:String(e.message).slice(0,1000)});}
    finally{generating=false;}
    return;
