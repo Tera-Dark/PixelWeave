@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark">
+<title>PixelWeave | Pixel Art Learning Lab</title><link rel="stylesheet" href="./lab.css"></head>
+<body>
+<header><a class="logo" href="../../index.html">✳ pixel<span>weave</span></a><nav><a href="./README.md">学习路线</a><a href="./PIXEL-ART-ANIMATION-GUIDE.md">完整指南</a><a href="../../index.html#studio">进入工作站 ↗</a></nav></header>
+<main>
+<section class="hero"><div class="overline">PIXELWEAVE ORIGINAL REFERENCE / L0–L2</div><h1>看见每一颗像素<br><em>为什么这样移动。</em></h1><p>六件分层资产，支持逐帧播放、隔离图层和观察帧间差异。全部由代码手工编排，作为学习结构、材质和动画规则的原始练习素材，不代表 LLM 出图水平。</p></section>
+<section class="lab-layout">
+ <aside class="panel library"><div class="overline">01 / REFERENCE LIBRARY</div><h2>案例库</h2><div id="library">加载案例中…</div></aside>
+ <section class="stage panel">
+  <div class="stage-head"><div><div class="overline">02 / LIVE SPRITE VIEWER</div><h2 id="asset-title">选择一件教学资产</h2><div class="desc" id="asset-meta"></div></div><span class="tag">NO DIFFUSION</span></div>
+  <div class="art-area"><canvas id="art" width="384" height="384" role="img" aria-label="分层像素艺术实时画布"></canvas></div>
+  <div class="controls"><button id="play" aria-label="播放暂停">Ⅱ 暂停</button><button id="prev" aria-label="上一帧">←</button><input id="timeline" type="range" value="0" min="0" max="0" aria-label="选择动画帧"><button id="next" aria-label="下一帧">→</button><span id="frame-number">F01 / 01</span></div>
+  <div class="controls secondary"><label><input id="difference" type="checkbox"> 显示相对上一帧变化像素</label><button id="reset">全部图层可见</button><a id="asset-download" download>下载可编辑 JSON ↗</a></div>
+  <p id="message" class="footnote" aria-live="polite">可以暂停查看某一帧，单击右侧眼睛按钮隔离不同的绘制部件。</p>
+ </section>
+ <aside class="panel inspector"><div class="overline">03 / LAYER INSPECTOR</div><h2>按语义拆层</h2><div id="layers"></div><div class="divider"></div><div class="overline">结构诊断（不等于美术评分）</div><div id="metrics"></div><p class="footnote">静止层通常每帧应保持一致。火焰、气泡与布料有意变化，不能仅用变化率判断好坏。</p></aside>
+</section>
+<section class="teaching"><div class="overline">04 / BEFORE & AFTER</div><h2>原理的视觉证据</h2><p>先看错误与修正版在原尺寸的感觉，再放大观察像素簇。以下对照图全部为项目原创示意。</p>
+<div class="examples">
+<article><img src="./visuals/01-contour.svg" alt="轮廓错误与修正"><h3>轮廓台阶</h3><a href="./labs/01-PIXEL-CLUSTERS.md">阅读逐像素修订步骤 ↗</a></article>
+<article><img src="./visuals/02-clusters.svg" alt="孤点噪声与连续像素簇"><h3>像素簇</h3><a href="./labs/01-PIXEL-CLUSTERS.md">阅读形体训练 ↗</a></article>
+<article><img src="./visuals/03-lighting.svg" alt="错误的枕头式明暗与方向性光照"><h3>明暗体积</h3><a href="./labs/02-MATERIAL-LIGHT.md">阅读光照实验 ↗</a></article>
+<article><img src="./visuals/04-texture.svg" alt="随机噪点与有意纹理"><h3>材质抖动</h3><a href="./labs/02-MATERIAL-LIGHT.md">阅读材质实验 ↗</a></article>
+</div></section>
+<footer><span>ORIGINAL EDUCATIONAL ARTWORK · PIXELWEAVE</span><a href="https://github.com/Tera-Dark/PixelWeave">Source ↗</a></footer>
+</main><script type="module" src="./lab.js"></script></body></html>
