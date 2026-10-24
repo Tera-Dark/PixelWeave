@@ -11,11 +11,14 @@
 
 先有系统的美术知识和经验证的创作规则，再构建 LLM 绘画代理。PixelWeave 的独立知识库现已包括 **7 级模块化课程、10 项实践任务、27 条标注来源、LLM 分层创作工作流、分级质量验收、可机读的课程路由索引与可导入的血瓶练习资产**。
 
+- **[进入交互式像素教学实验室：6 个可拆层/逐帧观察的原创资产](knowledge/pixel-art/lab.html)**
 - **[完整独立合订版：像素艺术与动画创作指南](knowledge/pixel-art/PIXEL-ART-ANIMATION-GUIDE.md)**
 - [分章检索与教学入口](knowledge/pixel-art/README.md)
 - [基础：像素与轮廓](knowledge/pixel-art/01-FOUNDATIONS.md) → [色彩材质](knowledge/pixel-art/02-COLOR-LIGHT-MATERIAL.md) → [道具结构](knowledge/pixel-art/03-ASSET-DESIGN.md)
 - [动画原理](knowledge/pixel-art/04-ANIMATION.md) → [角色/特效](knowledge/pixel-art/05-CHARACTER-VFX.md) → [场景](knowledge/pixel-art/06-SCENE-DESIGN.md) → [动态壁纸](knowledge/pixel-art/07-WALLPAPER.md)
 - [LLM 创作流程](knowledge/pixel-art/08-LLM-PLAYBOOK.md) / [艺术质量验收](knowledge/pixel-art/09-QUALITY-ASSURANCE.md) / [分阶段实战](knowledge/pixel-art/10-CURRICULUM.md)
+- [L0 轮廓逐像素跟练](knowledge/pixel-art/labs/01-PIXEL-CLUSTERS.md) / [L1 材质光照](knowledge/pixel-art/labs/02-MATERIAL-LIGHT.md) / [L2 八帧周期](knowledge/pixel-art/labs/03-ANIMATION-CYCLES.md)
+- [六件可编辑原创案例](knowledge/pixel-art/examples/reference/README.md) / [知识规则表](knowledge/pixel-art/rules.json)
 - [教程来源与证据登记](knowledge/pixel-art/SOURCES.md) / [可机读知识路由](knowledge/pixel-art/manifest.json) / [分层药瓶练习工程](knowledge/pixel-art/examples/learning-potion.layered.json)
 
 **状态说明**：知识库已整理、链接与示例进行程序测试；具体审美规范是可迭代实践建议，并非全行业的统一定理。当前知识库尚未自动注入线上 LLM 生成流程，接入时应使用 Core → Technique → Case 按需加载。
@@ -33,6 +36,14 @@
 | LLM Generator | 本地 OpenAI-compatible / Ollama 文本模型；先规划，再分别生成轮廓、主体色块、高光、动态特效四层，每层最多三次数据修复重试 |
 | Static Pages | 不配模型也能查看、手工编辑、导入 LLM JSON、导出资产 |
 | Persistence | localStorage 保存到当前浏览器；作品不会自动上传公开画廊 |
+
+## 知识加载、局部重绘与真实模型对照测试
+
+文本模型现在会按关键词与阶段检索 [知识规则表](knowledge/pixel-art/rules.json)，附带规则 ID 与技术章节摘要；生成结果中的知识命中记录可用于检查是否发生无关知识污染。
+
+本地 Studio 里选中一个分层资产和帧之后，可以输入改画要求，并填写可选像素范围，然后使用“LLM 只重绘当前图层”。后端只接受结构化像素 Patch，冻结其他层和未授权帧并在应用前校验。不满足条件的模型回复会被拒绝，不会覆盖资产。
+
+在仓库执行 node tools/benchmark-knowledge.mjs 可以查看 [知识启用/停用对照](docs/KNOWLEDGE-UPGRADE-REPORT.md) 的计划。真正调用模型需要明确提供 --run；该脚本可能消耗收费 API 额度。自动数据检测**不能证明审美质量提升**，需要盲评。
 
 ## Windows：连接 Ollama 或兼容模型 API
 
