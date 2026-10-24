@@ -33,7 +33,7 @@ test('potion bubble mask never leaves its liquid layer',()=>{
  const a=load().find(x=>x.id==='scarlet-vial').asset;
  const issues=diagnoseLayered(a);
  assert.equal(issues.filter(i=>i.id==='BUBBLE_OUTSIDE_LIQUID').length,0);
- const bad=structuredClone(a);bad.layers.find(l=>l.id==='bubbles').frames[2][4]='............W...........';
+ const bad=structuredClone(a);bad.layers.find(l=>l.id==='bubbles').frames[2][4]='.'.repeat(16)+'W'+'.'.repeat(15);
  assert.ok(diagnoseLayered(bad).some(i=>i.id==='BUBBLE_OUTSIDE_LIQUID'));
 });
 test('knowledge routing retrieves situation-specific rules with source identifiers',()=>{
