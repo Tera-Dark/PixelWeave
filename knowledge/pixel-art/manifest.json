@@ -174,7 +174,22 @@
     ],
     "creativePipeline": "08-LLM-PLAYBOOK.md",
     "curriculum": "10-CURRICULUM.md",
-    "sources": "SOURCES.md"
+    "sources": "SOURCES.md",
+    "labs": [
+      "labs/01-PIXEL-CLUSTERS.md",
+      "labs/02-MATERIAL-LIGHT.md",
+      "labs/03-ANIMATION-CYCLES.md"
+    ],
+    "referenceAssets": "examples/reference/index.json",
+    "rulebook": "rules.json",
+    "illustrations": [
+      "visuals/01-contour.svg",
+      "visuals/02-clusters.svg",
+      "visuals/03-lighting.svg",
+      "visuals/04-texture.svg"
+    ],
+    "interactiveLab": "lab.html",
+    "benchmarkGuide": "../../docs/KNOWLEDGE-UPGRADE-REPORT.md"
   },
   "routeProfiles": [
     {
@@ -248,5 +263,6 @@
   "sourceCatalog": {
     "file": "SOURCES.md",
     "curatedReferences": 27
-  }
+  },
+  "version": "1.1"
 }
