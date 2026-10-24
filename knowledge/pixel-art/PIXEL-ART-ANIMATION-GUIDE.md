@@ -1,23 +1,35 @@
-# PixelWeave 像素艺术与动画创作指南 · 单文件合订版
+# PixelWeave · 像素艺术与动画创作指南 v1.1 — 完整合订版
 
-> 2026-10-24 · v1.0 · 独立原创技术整理。详细资料已在对应章节内标注出处。
-> 此合订版由独立章节自动拼合；章节文件与机器检索路由详见知识库目录。
+> 2026-10-24 · 原创图例、六件分层案例、文本 LLM 规则检索与质量审查。
+> 主要章节、视觉实验和案例说明已合并；SVG 图例与 JSON 工程以相对路径链接访问。
 
-## 阅读顺序
+[在线逐帧教学实验室](lab.html) · [六个分层参考资产](examples/reference/README.md) · [知识规则索引](rules.json) · [项目整改验证报告](../../docs/KNOWLEDGE-UPGRADE-REPORT.md)
 
-起步与轮廓 → 色板与材质 → 静态道具 → 逐帧循环 → 角色与特效 → 场景 → 动态壁纸 → LLM 创作规范 → 质量评测 → 练习计划 → 来源登记。
-
-仓库课程入口：https://github.com/Tera-Dark/PixelWeave/tree/main/knowledge/pixel-art
+**教学质量说明：本书中的视觉示意和资产是项目原创教学作品，不等于已通过外部专业美术评审的高分范例。**
 
 ---
 
-<!-- BEGIN README.md -->
+<!-- README.md -->
+
+---
 
 # PixelWeave · 像素艺术与动画创作知识库
 
-> 版本 1.0 · 2026-10-24 · 中文原创学习手册  
+> 版本 1.1 · 2026-10-24 · 中文原创学习手册  
 > 面向人类美术学习、LLM 绘画代理、PixelWeave 分层资产系统。  
 > 不是教程链接堆砌：本知识库将来源、原理、操作、练习、验收、失败处理串成一条完整路径。
+
+## 开始之前：看实物、拆图层、修改像素
+
+- **[在线交互教学实验室](lab.html)**：六个原创动画案例、可切换图层和逐帧差异对比。
+- [L0 错误轮廓与像素簇修订](labs/01-PIXEL-CLUSTERS.md)
+- [L1 材质与受光的修改过程](labs/02-MATERIAL-LIGHT.md)
+- [L2 血瓶液面、火焰、布旗 8 帧拆解](labs/03-ANIMATION-CYCLES.md)
+- [六件可编辑原创参考资产](examples/reference/README.md)
+- [任务路由与带来源的规则表](rules.json)
+- [人工评审与 A/B 模型评测要求](09-QUALITY-ASSURANCE.md)
+
+**质量边界**：现有参考素材经过数据/冻结层测试，但尚无独立专业像素美术师盲审。规则检索与局部补丁已有软件实现，真实模型的艺术提升仍需对照实验。
 
 ## 0. 阅读须知
 
@@ -121,13 +133,15 @@
 
 **版权、出处与局限**：不同像素艺术流派在 AA、描边、抖动、帧率、复古硬件限制方面并无统一答案；知识库应保留例外，并支持增添经人工验证的新规则。
 
-<!-- END README.md -->
+---
+
+<!-- 01-FOUNDATIONS.md -->
 
 ---
 
-<!-- BEGIN 01-FOUNDATIONS.md -->
-
 # L0 · 像素的基本语法：从点到可信的轮廓
+
+**配套原创视觉实验：[轮廓台阶、像素簇与逐像素修订](labs/01-PIXEL-CLUSTERS.md)**。先跟练正反例，再完成本文知识点。
 
 **目标**：让每一枚像素参与描绘形体，而非简单制造马赛克。完成本章后，应能只用 2–4 色做出原尺寸可辨的 16×16 小物件。
 
@@ -200,13 +214,61 @@
 
 Pixel / Logical Resolution / Pixel Cluster / Jaggies / Negative Space / Anti-aliasing / Banding / Pillow Shading / Silhouette。
 
-<!-- END 01-FOUNDATIONS.md -->
+---
+
+<!-- labs/01-PIXEL-CLUSTERS.md -->
 
 ---
 
-<!-- BEGIN 02-COLOR-LIGHT-MATERIAL.md -->
+# L0 实验：像素簇与轮廓的逐像素修订
+
+来源：Pixel Joint / cure 综合教程：https://pixeljoint.com/forum/forum_posts.asp?TID=11299 。本实验示意及练习均为 PixelWeave 原创，不复制原教程图片。
+
+## 对照 1：轮廓台阶
+
+![原创轮廓错误/修正对照](../visuals/01-contour.svg)
+
+**流程：**
+1. 在 Studio 隐藏填充/高光，只看单色轮廓，1× 观察大形。
+2. 放大 8×，寻找不符合目标曲线的突然跳步，记录 (x,y)。
+3. 先“移动”而不是“补满”：原位置去掉一个像素，在目标边上补一个像素。
+4. 检查负空间是否因修复变窄或闭合；再缩回原尺寸。
+5. 两份工程保留 before/after，记录调整坐标及原因。
+
+不等长台阶不一定错误。岩石、荆棘和破损刀锋可能需要突然转折；检查意图，而不是仅统计转角。
+
+## 对照 2：像素簇还是散点噪声？
+
+![原创散点/受光像素簇对照](../visuals/02-clusters.svg)
+
+1. 将主物体分成暗面、主色、亮面三个连续块。
+2. 隐藏全部微高光；把 5–10 个随机单像素亮点重新组织成 1–2 个受光面。
+3. 返回 1× 看体积。原尺寸更清楚时才继续细化。
+4. 眼睛、火花、星点允许独立像素：孤点不是绝对错误，必须有语义。
+
+## 可编辑的完整练习
+
+[下载原创钥匙工程](../examples/reference/readable-key.layered.json)。Studio → 导入 JSON → 分别隔离 contour / fill / glint 三层。
+
+- 仅显示 contour：柄部孔洞必须看得出。
+- 显示 fill：检查杆身明暗是否沿一致方向。
+- 显示 glint：高光必须辅助金属阅读，而不是破坏剪影。
+- 故意在钥匙柄边缘画一枚突刺，再用单像素移动修复，导出两个 JSON 版本。
+- 找另一人不看文件名识别图案；不要把模型自评当外部识别测试。
+
+**出口门槛**：1× 可识别、轮廓连续、像素簇有职责、可以给出具体修改坐标、全部帧与图层通过数据校验。
+
+拓展阅读：Slynyrd 基础 https://www.slynyrd.com/blog/2018/5/16/pixelblog-5-back-to-basics 。
+
+---
+
+<!-- 02-COLOR-LIGHT-MATERIAL.md -->
+
+---
 
 # L1 · 色板、光影和材质设计
+
+**配套原创视觉实验：[受光方向、色板聚类、玻璃/金属/水晶](labs/02-MATERIAL-LIGHT.md)**。使用三件可编辑参考资产检验每一步。
 
 **前置**：[01 基础语法](01-FOUNDATIONS.md)。**结业**：用有限颜色把玻璃、金属、液体区别开。
 
@@ -285,13 +347,57 @@ Ditherpunk 是一个可以选择的特定艺术方向（高对比、抖动图案
 
 **模型分工**：先定 palette 与光向，再分玻璃/主体/高光图层；高光层不得推翻经过审核的剪影。失败时返回具体“材质识别失败”的区域，而不是要求“整体更精美”。
 
-<!-- END 02-COLOR-LIGHT-MATERIAL.md -->
+---
+
+<!-- labs/02-MATERIAL-LIGHT.md -->
 
 ---
 
-<!-- BEGIN 03-ASSET-DESIGN.md -->
+# L1 实验：方向光、受光面、材质差异
+
+来源：Slynyrd 色板、光影和纹理专题；Pixel Joint pillow shading / dithering 技法。所有对比图为 PixelWeave 自制示意，非作者原图。
+
+## 光照示意
+
+![原创枕头式明暗与方向光对比](../visuals/03-lighting.svg)
+
+所谓 pillow shading 的常见问题不是中间亮色本身，而是没有光源或形体解释，机械沿边缘一圈圈变亮。
+
+- 步骤 1：在旁边写明主光位于左上，别让模型自行改变光源。
+- 步骤 2：只用暗部 / 中间色 / 亮部三种明度组画形体；不要提前加纹理。
+- 步骤 3：放大检查受光面是否遵从形体的朝向。
+- 步骤 4：灰度 1× 检查主次；再决定是否做 Hue Shifting（明暗色相变化）。
+- 例外：中央发光的魔晶或正面打光的人像，中心亮是合理的。
+
+## 材质：抖动不是万能精致滤镜
+
+![原创噪点式抖动与有方向纹理对照](../visuals/04-texture.svg)
+
+从 1× 看是否因为细碎色点丢失了体积。Dithering 可用于特定复古风格，不能仅因为某种“反噪声”规范就全部禁用，也不能缺少设计意图而覆盖整个物体。
+
+## 三件可编辑对照素材
+
+| 素材 | 单独检查的层 | 应形成的效果 |
+| --- | --- | --- |
+| [玻璃药水](../examples/reference/scarlet-vial.layered.json) | glass / reflections / liquid | 玻璃边缘、液体内部与反光相互独立 |
+| [黄铜提灯](../examples/reference/hearth-lantern.layered.json) | frame / highlights / flame | 固定金属框架，局部受光解释灯火 |
+| [多面晶体](../examples/reference/prism-crystal.layered.json) | shape / facets / shimmer | 每个切面的明暗属于同一形体，闪光只是次级 |
+
+**实作**：各复制一份工程。错误版增加 8–10 个分散亮点；修正版删去无意义亮点，重新以材质受光区域聚类，保持总色数不变。记录三个物体的主光方向和至少一个具体修复区域。
+
+**出口门槛**：隐藏 highlights 后主体可读；玻璃、金属、晶体有不同反光逻辑；只有经过外部观众原尺寸辨识，才可声称“材质识别通过”。
+
+延伸：[色板](https://www.slynyrd.com/blog/2018/1/10/pixelblog-1-color-palettes)、[光影](https://www.slynyrd.com/blog/2018/6/15/pixelblog-6-light-and-shadow)、[纹理](https://www.slynyrd.com/blog/2018/2/15/pixelblog-2-texture)。
+
+---
+
+<!-- 03-ASSET-DESIGN.md -->
+
+---
 
 # L1 → L2 · 静态道具到分层动画素材：造型先于细节
+
+**案例库：[6 件按材质/动画拆层的原创教学工程](examples/reference/README.md)**。所有作品是代码编排教学样例，未通过外部专家审美评审。
 
 **本章核心**：物品不是几个矩形块的堆叠，而是一套“可读的轮廓、逻辑合理的物理结构、统一的材质、明确的视觉焦点”。
 
@@ -358,13 +464,15 @@ Ditherpunk 是一个可以选择的特定艺术方向（高对比、抖动图案
 
 **合格条件**：独立隐藏任何动态层都不破坏玻璃主体；所有可动部分有清楚边界；无材质穿帮；层名可让不知情的人直接理解。**失败优先改层次结构与剪影**，不要先开始动画。
 
-<!-- END 03-ASSET-DESIGN.md -->
+---
+
+<!-- 04-ANIMATION.md -->
 
 ---
 
-<!-- BEGIN 04-ANIMATION.md -->
-
 # L2 · 从静态像素到可信动画
+
+**配套实践：[血瓶液面 8 帧、火焰与旗帜](labs/03-ANIMATION-CYCLES.md)**。学习逐帧坐标和循环事件生命周期。
 
 **前置**：[L0 轮廓](01-FOUNDATIONS.md)、[L1 材质](02-COLOR-LIGHT-MATERIAL.md) 与 [分层道具](03-ASSET-DESIGN.md)。
 
@@ -457,11 +565,58 @@ PixelWeave 当前部分支持这些功能；尤其“单帧持时、onion skin�
 
 **验收**：用户不用放大便能感知“液体在动/火焰在燃烧”；单独禁用动态层后仍是合格的静态道具；10 次循环后没有明显接缝或耀眼噪点。不要以“帧差很大”作为成功条件。
 
-<!-- END 04-ANIMATION.md -->
+---
+
+<!-- labs/03-ANIMATION-CYCLES.md -->
 
 ---
 
-<!-- BEGIN 05-CHARACTER-VFX.md -->
+# L2 实验：从静帧到分层逐帧循环
+
+来源：[Slynyrd Intro to Animation](https://www.slynyrd.com/blog/2018/8/19/pixelblog-8-intro-to-animation)、[Items](https://www.slynyrd.com/blog/2019/12/21/pixelblog-24-items)、[Aseprite Linked Cels](https://www.aseprite.org/docs/linked-cels/)。
+
+## 案例 A：玻璃药水，8 帧，6 层
+
+[打开原创 Scarlet Vial 工程](../examples/reference/scarlet-vial.layered.json)。
+
+稳定层：shadow、glass、reflections、stopper；动态层：liquid、bubbles。稳定层应当在 8 帧中逐像素完全一致。
+
+| 帧 | 液面偏移（逻辑像素） | 气泡 (x,y) | 事件 |
+| --- | ---: | --- | --- |
+| F0 | 0 | (12,18) | 已在液体内 |
+| F1 | 0 | (12,17) | 上浮 |
+| F2 | -1 | (12,16) | 上浮 |
+| F3 | -1 | (12,15) | 上浮 |
+| F4 | 0 | 无 | 到液面附近消散 |
+| F5 | 0 | 无 | 休止 |
+| F6 | +1 | 无 | 休止 |
+| F7 | +1 | (12,19) | 底部新泡生成 |
+
+F7 → F0 的气泡仅移动 1px，新的气泡出现由 F6→F7 表示；旧泡消失被解释为接近液面后破裂。气泡不应突然跑到瓶外。**这是一套教学动作设计，并非流体物理仿真。**
+
+逐帧修改路线：先单独播放 liquid；再播放 bubbles；然后与静止玻璃合成；最后检查 F7→F0。故意在 F2 把气泡挪到 (12,10) 形成错误工程，用液体遮罩检查发现后修回 (12,16)。
+
+## 案例 B：火焰与金属不可混为一个动态层
+
+[提灯](../examples/reference/hearth-lantern.layered.json) · [独立火焰](../examples/reference/ember-flame.layered.json)。
+
+固定炉芯/外框与动态火焰分开。先遮掉内核只看外焰的姿态，再加回内核、最后才加 sparks。不要让灯架每帧改变形状。主要节奏来自峰值、过渡、停留与回归，而不是无节制加帧。
+
+## 案例 C：旗杆与布面
+
+[Wind Banner 8 帧](../examples/reference/wind-banner.layered.json)：staff 完全不动，fabric 末端变化，folds 跟随面料弯曲。对比“固定杆正确版”和“杆子也每帧乱跳的错误版”，检查稳定锚点。
+
+## 模型必须输出怎样的修复
+
+修复请求必须指定图层 ID、准许修改帧、像素矩形区域、冻结图层。系统验收：数据无非法符号、冻结层逐像素一致、修改像素没有越过可修改区域。程序帧差只能报警，不能证明视觉美感；同一动作仍需在 1× 速度下人工观看 10 次。
+
+**出口门槛**：静态结构稳定、动作语义明确、事件有诞生/持续/消散、首尾不突然闪烁、可以导出后回读完整 JSON。
+
+---
+
+<!-- 05-CHARACTER-VFX.md -->
+
+---
 
 # L3 · 角色动作、布料、自然效果和小型特效
 
@@ -521,11 +676,11 @@ E. 在 D 上添加服装、头发与次级运动。
 
 **通过条件**：动态的主动作有表现力；静态结构不漂移；低分辨率不会因为服饰细节而牺牲动作清晰性。无法通过时返工 Dummy 的关键姿态，而非继续叠加发丝、粒子。
 
-<!-- END 05-CHARACTER-VFX.md -->
-
 ---
 
-<!-- BEGIN 06-SCENE-DESIGN.md -->
+<!-- 06-SCENE-DESIGN.md -->
+
+---
 
 # L4 · 场景构图、景深、瓦片、透视与氛围
 
@@ -587,11 +742,11 @@ Tile 是可复用的小图块，Tileset 是图块集合，Tilemap 是由图块�
 
 交付：至少三层可独立显示的静态车站景深图，包含明确前中后景、一个主光源、一件可读的关键道具。随后增加少量雨和灯光循环。隐藏动态层后，场景本身仍应具有合理构图。
 
-<!-- END 06-SCENE-DESIGN.md -->
-
 ---
 
-<!-- BEGIN 07-WALLPAPER.md -->
+<!-- 07-WALLPAPER.md -->
+
+---
 
 # L5 · 动态像素艺术壁纸：从场景到耐看的循环作品
 
@@ -667,11 +822,11 @@ Tile 是可复用的小图块，Tileset 是图块集合，Tilemap 是由图块�
 
 来源：[Slynyrd 风景与视差](https://www.slynyrd.com/pixelblog-catalogue)、[Saint11 风格一致性](https://saint11.org/blog/consistency/)、[Aseprite Spritesheets](https://www.aseprite.org/docs/sprite-sheet/)。
 
-<!-- END 07-WALLPAPER.md -->
-
 ---
 
-<!-- BEGIN 08-LLM-PLAYBOOK.md -->
+<!-- 08-LLM-PLAYBOOK.md -->
+
+---
 
 # PixelWeave · LLM 像素动画创作编译规范
 
@@ -800,11 +955,11 @@ PixelWeave v0.3 目前实现了图层级的人工编辑、JSON 验证和生成�
 
 **不能用几张好看样张代替完整模型基准测试。**
 
-<!-- END 08-LLM-PLAYBOOK.md -->
-
 ---
 
-<!-- BEGIN 09-QUALITY-ASSURANCE.md -->
+<!-- 09-QUALITY-ASSURANCE.md -->
+
+---
 
 # PixelWeave · 像素画与动画质量验收规范
 
@@ -907,11 +1062,20 @@ L0 只审剪影与像素簇；L1 加入光影材质；L2 要求动画和循环�
 
 参考：[Pixel Joint 常见错误](https://pixeljoint.com/forum/forum_posts.asp?TID=11299)、[Slynyrd Intro Animation](https://www.slynyrd.com/blog/2018/8/19/pixelblog-8-intro-to-animation)、[Aseprite 时间线与 Cel](https://aseprite.org/docs/basics/)。
 
-<!-- END 09-QUALITY-ASSURANCE.md -->
+
+## 本轮实证边界（v1.1）
+
+新增机器检测：分层资产结构、稳定层哈希等价性、气泡与液体逐帧像素叠合、单层补丁的授权区域/帧校验。它们可以客观地检查具体几类技术错误，却**不能**评判美商、构图、角色表演和视觉风格。
+
+资产库中的六个范例由项目原创代码生成，状态为“可复现并通过结构检查”；没有外部专家盲审，更不能拿来作为模型完成度的满分样板。未来对照实验必须记录：相同题目、相同文本模型、是否注入知识、生成失败重试次数、结构性告警、人工匿名评分和生成费用。未做真实盲评前，不给 v1.1 自称 90 分。
+
+[交互实验室](lab.html) · [规则目录](rules.json) · [六件原创案例](examples/reference/README.md)
 
 ---
 
-<!-- BEGIN 10-CURRICULUM.md -->
+<!-- 10-CURRICULUM.md -->
+
+---
 
 # 10 · 十个循序渐进的原创实战项目
 
@@ -1014,11 +1178,34 @@ L0 只审剪影与像素簇；L1 加入光影材质；L2 要求动画和循环�
 
 **不必把练习做成规定时间的考试。能解释为什么每处像素存在、为什么某层不该动、为什么动画循环自然，才是真正掌握。**
 
-<!-- END 10-CURRICULUM.md -->
+---
+
+<!-- examples/reference/README.md -->
 
 ---
 
-<!-- BEGIN SOURCES.md -->
+# 原创分层像素教学案例库
+
+六件 JSON 都由本项目手工编排代码生成，并通过自动数据校验；不使用 Diffusion，也不应误称为“真实 LLM 作品”或“经外部大师认证的高分样张”。
+
+| 案例 | 重点 | 帧数 | 固定层 |
+| --- | --- | ---: | --- |
+| [readable-key](readable-key.layered.json) | 轮廓/负空间 | 1 | contour |
+| [scarlet-vial](scarlet-vial.layered.json) | 玻璃与液面周期 | 8 | glass、stopper、shadow、reflections |
+| [hearth-lantern](hearth-lantern.layered.json) | 金属 + 火焰 | 6 | frame、shadow |
+| [prism-crystal](prism-crystal.layered.json) | 切面光影 | 6 | shape、facets |
+| [wind-banner](wind-banner.layered.json) | 固定点/布料 | 8 | staff |
+| [ember-flame](ember-flame.layered.json) | 外焰与内核节奏 | 8 | base |
+
+每个工程可在 PixelWeave Studio 的“导入 JSON”中直接打开并编辑任意像素/帧。源码为 [tools/build-reference-assets.mjs](../../../../tools/build-reference-assets.mjs)。
+
+**教学案例 ≠ 高级作品的最终审美真值**。尚缺外部专家审核、材质盲测、同任务多模型 A/B 生成和角色复杂动画实测。评价记录中必须注明 authoringMethod=code-authored, externalExpertReview=false。
+
+---
+
+<!-- SOURCES.md -->
+
+---
 
 # 像素艺术知识库 · 来源目录与选材说明
 
@@ -1073,6 +1260,13 @@ L0 只审剪影与像素簇；L1 加入光影材质；L2 要求动画和循环�
 - 商业项目中美术管线、Asset Bible、迭代评审与跨美术协作。
 - 使用人工评分与多模型对照，对本项目的自动质量指标进行实证校准。
 
-<!-- END SOURCES.md -->
+
+## 本轮补充核查（2026-10-24）
+
+- [Pixel Joint / Cure 原始教学](https://pixeljoint.com/forum/forum_posts.asp?TID=11299)：专门描述像素簇、线条台阶、Banding 与噪点；本项目的四张正反例图为原创重构，非原图复制。
+- [Slynyrd Items](https://www.slynyrd.com/blog/2019/12/21/pixelblog-24-items)：验证小道具形体可读性、不同物件匹配不同 Idle 的原则；不代表所有像素动画必须同一 FPS。
+- [Slynyrd Intro Animation](https://www.slynyrd.com/blog/2018/8/19/pixelblog-8-intro-to-animation)：明确关键姿态与帧数并非越多越好，启发逐帧实验。
+- [Aseprite Linked Cels](https://www.aseprite.org/docs/linked-cels/)：确认静止 Cel 可共享图像和坐标，本项目尚未实现 linked cel 数据压缩。
+- 本项目新增的示例资产全部标明 code-authored / externalExpertReview=false；模型输出和主观美术得分不来自这些第三方文档。
 
 ---
