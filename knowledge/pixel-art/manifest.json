@@ -189,7 +189,13 @@
       "visuals/04-texture.svg"
     ],
     "interactiveLab": "lab.html",
-    "benchmarkGuide": "../../docs/KNOWLEDGE-UPGRADE-REPORT.md"
+    "benchmarkGuide": "../../docs/KNOWLEDGE-UPGRADE-REPORT.md",
+    "artStudies": [
+      "studies/BLASPHEMOUS-CASE-STUDY.md",
+      "studies/V2-ASSET-CRITIQUE.md"
+    ],
+    "artDirection": "styles/ASHEN-RELIQUARY.md",
+    "artStyle": "styles/ashen-reliquary.json"
   },
   "routeProfiles": [
     {
