@@ -11,7 +11,8 @@
 
 先有系统的美术知识和经验证的创作规则，再构建 LLM 绘画代理。PixelWeave 的独立知识库现已包括 **7 级模块化课程、10 项实践任务、27 条标注来源、LLM 分层创作工作流、分级质量验收、可机读的课程路由索引与可导入的血瓶练习资产**。
 
-- **[从零开始阅读像素动画创作指南](knowledge/pixel-art/README.md)**
+- **[完整独立合订版：像素艺术与动画创作指南](knowledge/pixel-art/PIXEL-ART-ANIMATION-GUIDE.md)**
+- [分章检索与教学入口](knowledge/pixel-art/README.md)
 - [基础：像素与轮廓](knowledge/pixel-art/01-FOUNDATIONS.md) → [色彩材质](knowledge/pixel-art/02-COLOR-LIGHT-MATERIAL.md) → [道具结构](knowledge/pixel-art/03-ASSET-DESIGN.md)
 - [动画原理](knowledge/pixel-art/04-ANIMATION.md) → [角色/特效](knowledge/pixel-art/05-CHARACTER-VFX.md) → [场景](knowledge/pixel-art/06-SCENE-DESIGN.md) → [动态壁纸](knowledge/pixel-art/07-WALLPAPER.md)
 - [LLM 创作流程](knowledge/pixel-art/08-LLM-PLAYBOOK.md) / [艺术质量验收](knowledge/pixel-art/09-QUALITY-ASSURANCE.md) / [分阶段实战](knowledge/pixel-art/10-CURRICULUM.md)
