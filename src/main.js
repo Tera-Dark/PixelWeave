@@ -2,7 +2,7 @@ import {DEMOS,SIZE,renderAsset,makeImported,validateMatrix} from './engine.js';
 import {LAYERED_FORMAT,createLayeredAsset,validateLayered,pixelCoordinates,paintLayerPixel,addEmptyLayer,reorderLayer,duplicateFrame,deleteFrame,createBlankLayered,metrics} from './layered.js';
 import {makeLayeredPrompt,parseModelJSON} from './llm.js';
 const $=id=>document.getElementById(id),state={items:[...DEMOS],id:'atelier',frame:0,play:true,speed:1,edits:{},tool:null,elapsed:0,last:0,activeLayer:'liquid',symbol:'K',undo:[],redo:[]};
-let cards=[],thumbs=[],painting=false,galleryTick=-1;
+let cards=[],thumbs=[],painting=false,galleryTick=-1,localModelAvailable=false;
 const current=()=>state.items.find(a=>a.id===state.id)||DEMOS[0],layers=()=>state.edits[state.id]||{};
 const cv=()=>{const e=document.createElement('canvas');e.width=SIZE;e.height=SIZE;return e;};
 function notify(t,bad=false){$('feedback').textContent=t;$('feedback').className='feedback '+(bad?'error':'success');}
@@ -152,6 +152,7 @@ function renderLayers(){
  const active=isLayered(),panel=$('layers-panel');
  panel.hidden=!active;if(!active)return;
  const data=current().data;
+ $('refine-layer').disabled=!localModelAvailable;
  if(!data.layers.some(l=>l.id===state.activeLayer))state.activeLayer=data.layers.at(-1).id;
  const host=$('layer-list');host.replaceChildren();
  for(const layer of [...data.layers].reverse()){
@@ -186,9 +187,10 @@ function renderLayers(){
 }
 function beginLLMStatus(){
  fetch('./api/status',{cache:'no-store'}).then(async r=>{if(!r.ok)throw Error('static');return r.json();}).then(cfg=>{
-  if(cfg.available){$('llm-status').textContent='● 已连接本地模型代理：'+cfg.model+' · 支持自动生成';$('generate-llm').disabled=false;}
-  else {$('llm-status').textContent='本地代理未配置模型。可使用 JSON 导入或新建画布。';$('generate-llm').disabled=true;}
+  if(cfg.available){localModelAvailable=true;$('refine-layer').disabled=!isLayered();$('llm-status').textContent='● 已连接本地模型代理：'+cfg.model+' · 支持自动生成';$('generate-llm').disabled=false;}
+  else {localModelAvailable=false;$('refine-layer').disabled=true;$('llm-status').textContent='本地代理未配置模型。可使用 JSON 导入或新建画布。';$('generate-llm').disabled=true;}
  }).catch(()=>{
+  localModelAvailable=false;$('refine-layer').disabled=true;
   $('llm-status').textContent='当前为 GitHub Pages 静态模式：复制 LLM 提示词，在任意文本模型中生成 JSON 后粘贴导入。';
   $('generate-llm').disabled=true;
  });
@@ -205,6 +207,34 @@ async function generateFromLLM(){
   notify('已生成 '+a.data.layers.length+' 层 / '+a.frames+' 帧，模型调用 '+output.attempts+' 次。'+issues);
  }catch(e){notify('LLM 生成失败：'+e.message,true);}
  finally{button.disabled=false;button.textContent='使用本地 LLM 生成 ✳';}
+}
+async function refineSelectedLayer(){
+ if(!isLayered()){notify('请先选中分层像素资产。',true);return;}
+ if(!localModelAvailable){notify('局部 LLM 修复需要在本地启动已配置的模型代理。',true);return;}
+ const snapshotId=state.id,frame=state.frame,layerId=state.activeLayer;
+ const data=current().data,idea=$('idea-input').value.trim();
+ const px=id=>$(id).value.trim();
+ const x=px('patch-x')===''?0:Number(px('patch-x')),y=px('patch-y')===''?0:Number(px('patch-y'));
+ const width=px('patch-w')===''?data.width-x:Number(px('patch-w'));
+ const height=px('patch-h')===''?data.height-y:Number(px('patch-h'));
+ const bbox={x,y,width,height};
+ if(Object.values(bbox).some(v=>!Number.isInteger(v))||x<0||y<0||width<1||height<1||x+width>data.width||y+height>data.height){
+  notify('限定区域不合法：X/Y/宽/高应是画布内的整数坐标。',true);return;
+ }
+ if(idea.length<4){notify('请先描述本次要修改的内容（例如：液面更圆润，少两个气泡）。',true);return;}
+ const button=$('refine-layer');button.disabled=true;button.textContent='正在生成受约束补丁…';
+ notify('只允许修改图层 '+layerId+' 的 F'+(frame+1)+'，其他帧和图层锁定。');
+ try{
+  const res=await fetch('./api/refine',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({asset:data,layerId,frames:[frame],bbox,idea})});
+  const output=await res.json();if(!res.ok)throw Error(output.error||'局部生成失败');
+  if(state.id!==snapshotId||state.frame!==frame||state.activeLayer!==layerId)throw Error('生成期间切换了资产或图层，请重新执行修复');
+  remember();
+  current().data=validateLayered(output.asset);
+  updateLayered();
+  const caution=output.diagnostics?.length?'；检测到 '+output.diagnostics.length+' 条提示，请人工复核':'';
+  notify('补丁已通过冻结层校验，实际改变 '+output.changed+' 像素，模型请求 '+output.attempts+' 次。'+caution);
+ }catch(e){notify('局部修复未应用：'+e.message,true);}
+ finally{button.disabled=!localModelAvailable||!isLayered();button.textContent='✳ LLM 只重绘当前图层';}
 }
 function newProject(){
  try{
@@ -238,6 +268,7 @@ function events(){
  $('layer-frame-delete').onclick=()=>mutateLayer(d=>{deleteFrame(d,state.frame);state.frame=Math.min(state.frame,d.layers[0].frames.length-1);});
  $('layer-undo').onclick=()=>timeTravel('undo');$('layer-redo').onclick=()=>timeTravel('redo');
  $('new-layer-project').onclick=newProject;
+ $('refine-layer').onclick=refineSelectedLayer;
  $('generate-llm').onclick=generateFromLLM;
  $('toggle-json-import').onclick=()=>{$('json-import-panel').hidden=!$('json-import-panel').hidden;};$('import-json').onclick=importJson;
  $('copy-llm-prompt').onclick=async()=>{const text=makeLayeredPrompt($('idea-input').value);try{await navigator.clipboard.writeText(text);notify('完整 LLM 像素动画生成规范已复制。');}catch{$('json-import-panel').hidden=false;$('json-input').value=text;$('json-input').select();notify('复制受限：已在文本框选中提示词，请手动复制。',true);}};
