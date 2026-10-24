@@ -96,6 +96,12 @@ const all=[];
   poly(fire,[[16,24],[13,22],[12,19],[14,17],[14+phase,15],[16+phase,17],[18,16],[21,20],[19,24]],'T');
   poly(fire,[[16,23],[14,21],[15,18],[17,20],[18,19],[19,22],[18,24]],'Y');
   poly(fire,[[16,24],[16,20],[17,20],[18,23]],'W');if(f%3===0)p(fire,17,14,'Z');
+  // Layer 4 animation: silhouette-changing tongues remain visible between lattice bars.
+  const tongues=[0,-2,1,-1,0,2,-1,1][f];
+  poly(fire,[[12,24],[11,22],[12,20],[12,18],[13+phase,15+tongues],[15,18],[15,23]],'T');
+  poly(fire,[[18,24],[18,20],[20,16+tongues],[21,20],[22,23]],'S');
+  poly(fire,[[12,24],[12,21],[13,19+tongues],[14,21],[14,24]],'Y');
+  poly(fire,[[19,24],[19,20+tongues],[20,22],[21,24]],'Y');
   rect(front,8,13,3,14,'K');rect(front,22,13,3,14,'K');rect(front,15,13,3,14,'K');
   rect(front,9,24,15,3,'K');poly(front,[[7,26],[25,26],[23,30],[9,30]],'K');
   line(front,[[9,27],[23,27]],'B');line(front,[[10,28],[22,28]],'C');
