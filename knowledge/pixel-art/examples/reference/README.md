@@ -1,16 +1,18 @@
-# 原创分层像素教学案例库
+# PixelWeave Art Studies v2 — Six Authored 32px Sprites
 
-六件 JSON 都由本项目手工编排代码生成，并通过自动数据校验；不使用 Diffusion，也不应误称为“真实 LLM 作品”或“经外部大师认证的高分样张”。
+这些资源是六件重新制作的 **32×32、8 帧、分层可编辑** 的原创像素研究资产，代替上一版简单几何教学图。统一「Nocturne Atelier」夜色工坊的美术基调，包含更有层次的色板、清晰主体轮廓、不同材质的选择性反光与动态特征。
 
-| 案例 | 重点 | 帧数 | 固定层 |
-| --- | --- | ---: | --- |
-| [readable-key](readable-key.layered.json) | 轮廓/负空间 | 1 | contour |
-| [scarlet-vial](scarlet-vial.layered.json) | 玻璃与液面周期 | 8 | glass、stopper、shadow、reflections |
-| [hearth-lantern](hearth-lantern.layered.json) | 金属 + 火焰 | 6 | frame、shadow |
-| [prism-crystal](prism-crystal.layered.json) | 切面光影 | 6 | shape、facets |
-| [wind-banner](wind-banner.layered.json) | 固定点/布料 | 8 | staff |
-| [ember-flame](ember-flame.layered.json) | 外焰与内核节奏 | 8 | base |
+[查看六件作品静帧对照](../../visuals/studies-v2-contact.svg) · [美术基调与案例分析](../../ART-DIRECTION-V2.md) · [打开交互实验室](../../lab.html)
 
-每个工程可在 PixelWeave Studio 的“导入 JSON”中直接打开并编辑任意像素/帧。源码为 [tools/build-reference-assets.mjs](../../../../tools/build-reference-assets.mjs)。
+| 作品 ID | 名称 | 图层数量 | 关键表现 |
+|---|---|---:|---|
+| readable-key | Gilded Reliquary Key | 5 | 复古金钥匙，嵌蓝色宝石，不规则细长钥齿 |
+| scarlet-vial | Vermilion Nocturne | 7 | 厚玻璃、封蜡圈、分离红液层和气泡 |
+| hearth-lantern | The Lamplighter's Oath | 7 | 黄铜拱柄、前景金属栅格、暖火及双股火舌 |
+| prism-crystal | Vesper Geode | 6 | 一大两小紫晶簇，切面、深浅与少量高光 |
+| wind-banner | Ashen Standard | 7 | 金边旧旗、稳定旗杆、位移与褶皱变化 |
+| ember-flame | Cinderwake | 8 | 无矩形死板底座，炭木、热芯、双火舌和火星 |
 
-**教学案例 ≠ 高级作品的最终审美真值**。尚缺外部专家审核、材质盲测、同任务多模型 A/B 生成和角色复杂动画实测。评价记录中必须注明 authoringMethod=code-authored, externalExpertReview=false。
+每件都有独立完整的 `.layered.json`，可从实验室下载后导入主工作站编辑。图层顺序代表真实遮挡顺序；帧数相同不代表各层都会移动。完整资产可由 `tools/build-reference-assets.mjs` 的确定性绘图逻辑重现。
+
+**状态：** 代码手工编排的原创教学资产，并非 LLM 生成作品；结构与循环可进行程序测试，但尚未经过外部像素画师盲审。技术通过不等于艺术品质已经达标。
