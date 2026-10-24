@@ -1,6 +1,8 @@
 import {callTextModel} from './generator.mjs';
 import {directorPrompt,parseModelJSON,inspectAsset} from './llm.js';
 import {LAYERED_FORMAT,validateLayered} from './layered.js';
+import {pickKnowledge} from './knowledge.mjs';
+import {diagnoseLayered} from './scoped-patch.mjs';
 
 const LAYERS=[
  ['silhouette','主体轮廓','Solid silhouette and outline. Keep identity EXACTLY stable across all frames.'],
@@ -24,6 +26,7 @@ function outlinePrompt(idea,plan,palette,[id,name,task],existing){
  return [
   'You are a meticulous human-caliber pixel artist hand-authoring a single isolated layer of a sprite animation. No diffusion, image AI, SVG or image tools.',
   'Art brief: '+String(idea).slice(0,500),
+  'CURATED TECHNIQUE NOTES: '+pickKnowledge(idea,id==='silhouette'?'silhouette':id==='fill'?'fill':id==='highlights'?'highlights':'effects').context,
   'Art director notes: '+JSON.stringify(plan).slice(0,1600),
   'Output ONLY this ONE-layer JSON: {"frames":[["16 characters per row" x 16 rows], ["...frame 2"], ["...frame 3"], ["...frame 4"]]}',
   'Current layer: '+id+' / '+name+'. Artistic task: '+task,
@@ -52,10 +55,11 @@ export async function generateProgressive(idea,env=process.env,fetchImpl=fetch){
  const brief=String(idea||'').trim();
  if(brief.length<4||brief.length>500)throw Error('描述需包含 4–500 字');
  let plan={name:'Layered Sprite'},calls=0;
+ const guidance=pickKnowledge(brief,'director');
  const ask=async(messages)=>{
   calls++;return await callTextModel(messages,env,fetchImpl);
  };
- try{plan=parseModelJSON(await ask([{role:'system',content:'Professional pixel art director. JSON only.'},{role:'user',content:directorPrompt(brief)}]));}
+ try{plan=parseModelJSON(await ask([{role:'system',content:'Professional pixel art director. JSON only.'},{role:'user',content:directorPrompt(brief)+'\n\n'+guidance.context}]));}
  catch{plan={name:'Layered Sprite'};}
  const palette=safePalette(plan.palette);
  const layers=[];
@@ -75,5 +79,5 @@ export async function generateProgressive(idea,env=process.env,fetchImpl=fetch){
  }
  const work=validateLayered({format:LAYERED_FORMAT,name:String(plan.name||'Layered Sprite').slice(0,64),width:16,height:16,fps:8,palette,layers});
  const result=inspectAsset(work);
- return {asset:work,metrics:result.stats,warnings:result.warnings,planned:!!plan?.name,attempts:calls,pipeline:'progressive'};
+ return {asset:work,metrics:result.stats,warnings:result.warnings,planned:!!plan?.name,attempts:calls,pipeline:'progressive',knowledge:{version:'pixelweave-knowledge-rules-v1',tags:guidance.tags,ruleIds:guidance.ruleIds},diagnostics:diagnoseLayered(work,{staticLayerIds:['silhouette']})};
 }
