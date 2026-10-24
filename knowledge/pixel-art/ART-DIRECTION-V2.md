@@ -41,7 +41,7 @@
 
 - 独立素材：knowledge/pixel-art/examples/reference/*.layered.json
 - 精灵数据生成代码：tools/build-reference-assets.mjs 的 buildReferenceLibrary()。
-- [六件作品的 SVG 静帧联系表](../visuals/studies-v2-contact.svg)
+- [六件作品的 SVG 静帧联系表](visuals/studies-v2-contact.svg)
 - 网页工作站将新版作为 Gallery 首选；旧版通过“查看旧版演示”保留为历史对比。
 - 每件为 32×32、8 帧，多语义层可选、可人工修改。所有图层均经过 schema 自动校验。
 - 视觉对比：真人观看 1× + 8×、逐帧与真实帧率、透明底与深色背景、动态关闭重看主体。
