@@ -1,5 +1,7 @@
 # L2 · 从静态像素到可信动画
 
+**配套实践：[血瓶液面 8 帧、火焰与旗帜](labs/03-ANIMATION-CYCLES.md)**。学习逐帧坐标和循环事件生命周期。
+
 **前置**：[L0 轮廓](01-FOUNDATIONS.md)、[L1 材质](02-COLOR-LIGHT-MATERIAL.md) 与 [分层道具](03-ASSET-DESIGN.md)。
 
 ## 1. Animation = 形体 × 时间 × 变化逻辑
