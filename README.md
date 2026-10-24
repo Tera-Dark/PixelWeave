@@ -6,6 +6,19 @@
 - **最新实验版本：** v0.3
 - **状态：** 像素分层、逐帧编辑已具备；LLM 自动流程需本地启动 Node.js 代理并配置文本模型。作品画廊中的示例均为手工编程示范，不伪称 AI 生成。
 
+
+## 📚 Pixel Art & Animation Handbook（新增独立知识库）
+
+先有系统的美术知识和经验证的创作规则，再构建 LLM 绘画代理。PixelWeave 的独立知识库现已包括 **7 级模块化课程、10 项实践任务、27 条标注来源、LLM 分层创作工作流、分级质量验收、可机读的课程路由索引与可导入的血瓶练习资产**。
+
+- **[从零开始阅读像素动画创作指南](knowledge/pixel-art/README.md)**
+- [基础：像素与轮廓](knowledge/pixel-art/01-FOUNDATIONS.md) → [色彩材质](knowledge/pixel-art/02-COLOR-LIGHT-MATERIAL.md) → [道具结构](knowledge/pixel-art/03-ASSET-DESIGN.md)
+- [动画原理](knowledge/pixel-art/04-ANIMATION.md) → [角色/特效](knowledge/pixel-art/05-CHARACTER-VFX.md) → [场景](knowledge/pixel-art/06-SCENE-DESIGN.md) → [动态壁纸](knowledge/pixel-art/07-WALLPAPER.md)
+- [LLM 创作流程](knowledge/pixel-art/08-LLM-PLAYBOOK.md) / [艺术质量验收](knowledge/pixel-art/09-QUALITY-ASSURANCE.md) / [分阶段实战](knowledge/pixel-art/10-CURRICULUM.md)
+- [教程来源与证据登记](knowledge/pixel-art/SOURCES.md) / [可机读知识路由](knowledge/pixel-art/manifest.json) / [分层药瓶练习工程](knowledge/pixel-art/examples/learning-potion.layered.json)
+
+**状态说明**：知识库已整理、链接与示例进行程序测试；具体审美规范是可迭代实践建议，并非全行业的统一定理。当前知识库尚未自动注入线上 LLM 生成流程，接入时应使用 Core → Technique → Case 按需加载。
+
 ## 已经完成的主要功能
 
 | 功能 | 说明 |
