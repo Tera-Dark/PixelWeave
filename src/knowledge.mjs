@@ -50,15 +50,31 @@ export function pickKnowledge(brief,stage='director',{enabled=true,limit=9}={}){
   const file=readFileSync(new URL(name,base),'utf8');
   return {name,excerpt:file.slice(0,850)};
  });
+ const caseMap=[
+  {tag:'potion',file:'labs/03-ANIMATION-CYCLES.md',asset:'examples/reference/scarlet-vial.layered.json',section:'## 案例 A'},
+  {tag:'lantern',file:'labs/02-MATERIAL-LIGHT.md',asset:'examples/reference/hearth-lantern.layered.json',section:'## 三件'},
+  {tag:'fire',file:'labs/03-ANIMATION-CYCLES.md',asset:'examples/reference/ember-flame.layered.json',section:'## 案例 B'},
+  {tag:'cloth',file:'labs/03-ANIMATION-CYCLES.md',asset:'examples/reference/wind-banner.layered.json',section:'## 案例 C'},
+  {tag:'crystal',file:'labs/02-MATERIAL-LIGHT.md',asset:'examples/reference/prism-crystal.layered.json',section:'## 三件'},
+  {tag:'key',file:'labs/01-PIXEL-CLUSTERS.md',asset:'examples/reference/readable-key.layered.json',section:'## 可编辑的'}
+ ];
+ const selectedCase=caseMap.find(p=>tags.includes(p.tag));
+ let caseExcerpt='';
+ if(selectedCase){
+  const body=readFileSync(new URL(selectedCase.file,base),'utf8');
+  const index=body.indexOf(selectedCase.section);
+  caseExcerpt=body.slice(index<0?0:index,(index<0?0:index)+900);
+ }
  const texts=rules.map(r=>'['+r.id+'] ('+r.level+') '+r.text);
  const context=[
   'PIXELWEAVE CURATED KNOWLEDGE / '+stageName.toUpperCase(),
   'Text-only LLM. Art advice is not a hard software invariant.',
   'Brief tags: '+tags.join(', '),
   ...texts,
-  ...excerpts.map(c=>'[Chapter '+c.name+'] '+c.excerpt)
+  ...excerpts.map(c=>'[Chapter '+c.name+'] '+c.excerpt),
+  ...(selectedCase?['[CASE '+selectedCase.asset+'] '+caseExcerpt]:[])
  ].join('\n');
- return {enabled:true,tags,ruleIds:rules.map(r=>r.id),rules,chapters,context:context.slice(0,6500)};
+ return {enabled:true,tags,ruleIds:rules.map(r=>r.id),rules,chapters,caseAsset:selectedCase?.asset||null,context:context.slice(0,6500)};
 }
 export function knowledgeInventory(){
  return {version:rulebook.version,totalRules:rulebook.rules.length,courseFiles:manifest.chapters.map(c=>c.file)};
