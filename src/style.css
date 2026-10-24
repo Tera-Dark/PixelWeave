@@ -66,3 +66,9 @@
 .gallery-control #toggle-archive{font-size:11px;padding:8px 10px;white-space:nowrap;color:#b6c2d0;border-color:#3c4a5d}
 .gallery-control #toggle-archive:hover{color:#f8ceba;border-color:#d4a38a}
 @media(max-width:720px){.gallery-control{justify-content:flex-start;margin-top:12px}.gallery-control #toggle-archive{order:2}}
+
+/* Optional art direction: restrained, visible but subordinate to the brief */
+.art-style-note{margin:8px 0 13px!important;font-size:11px;color:#9bafbe;line-height:1.8}
+.art-style-note a{color:#ebb49b;text-decoration:underline;text-decoration-color:#ebb49b66;text-underline-offset:3px}
+#art-style-select{height:40px;max-width:100%;margin-top:6px;margin-bottom:3px;cursor:pointer}
+#art-style-select option{background:#1c2736;color:#f4e8db}
