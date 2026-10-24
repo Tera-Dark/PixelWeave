@@ -1,7 +1,7 @@
 {
-  "version": 1,
-  "releaseStatus": "curriculum reference, code-authored, not externally juried",
-  "examples": [
+  "version": 2,
+  "releaseStatus": "art-director revision, visual review pending independent professional critique",
+  "items": [
     {
       "id": "readable-key",
       "path": "readable-key.layered.json",
@@ -9,17 +9,22 @@
       "tags": [
         "L0",
         "silhouette",
+        "key",
         "metal"
       ],
-      "frames": 1,
+      "frames": 8,
       "layers": [
-        "contour",
-        "fill",
-        "glint"
+        "shadow",
+        "iron_silhouette",
+        "gold_face",
+        "engraving",
+        "gem_light"
       ],
-      "author": "PixelWeave original code-authored educational reference",
+      "author": "PixelWeave original authored 32px pixel construction",
       "notLLMOutput": true,
-      "expertReviewed": false
+      "expertReviewed": false,
+      "renderResolution": "32x32",
+      "artDirection": "restrained dark fantasy, sculptural silhouette, hue-shifted clustered highlights"
     },
     {
       "id": "scarlet-vial",
@@ -29,20 +34,24 @@
         "L1",
         "L2",
         "glass",
+        "potion",
         "liquid"
       ],
       "frames": 8,
       "layers": [
-        "shadow",
-        "glass",
+        "ground_shadow",
+        "glass_back",
         "liquid",
-        "bubbles",
-        "reflections",
-        "stopper"
+        "inner_embers",
+        "glass_front",
+        "gold_collar",
+        "specular"
       ],
-      "author": "PixelWeave original code-authored educational reference",
+      "author": "PixelWeave original authored 32px pixel construction",
       "notLLMOutput": true,
-      "expertReviewed": false
+      "expertReviewed": false,
+      "renderResolution": "32x32",
+      "artDirection": "restrained dark fantasy, sculptural silhouette, hue-shifted clustered highlights"
     },
     {
       "id": "hearth-lantern",
@@ -51,20 +60,25 @@
       "tags": [
         "L1",
         "L2",
+        "lantern",
         "metal",
         "fire"
       ],
-      "frames": 6,
+      "frames": 8,
       "layers": [
         "shadow",
-        "frame",
-        "light",
-        "flame",
-        "highlights"
+        "metal_body",
+        "glass_chamber",
+        "fire",
+        "lattice",
+        "metal_specular",
+        "glow"
       ],
-      "author": "PixelWeave original code-authored educational reference",
+      "author": "PixelWeave original authored 32px pixel construction",
       "notLLMOutput": true,
-      "expertReviewed": false
+      "expertReviewed": false,
+      "renderResolution": "32x32",
+      "artDirection": "restrained dark fantasy, sculptural silhouette, hue-shifted clustered highlights"
     },
     {
       "id": "prism-crystal",
@@ -73,19 +87,24 @@
       "tags": [
         "L1",
         "L2",
+        "crystal",
         "facet",
         "glint"
       ],
-      "frames": 6,
+      "frames": 8,
       "layers": [
         "shadow",
-        "shape",
-        "facets",
-        "shimmer"
+        "mineral_rind",
+        "cut_crystal",
+        "facet_planes",
+        "refraction",
+        "sparkle"
       ],
-      "author": "PixelWeave original code-authored educational reference",
+      "author": "PixelWeave original authored 32px pixel construction",
       "notLLMOutput": true,
-      "expertReviewed": false
+      "expertReviewed": false,
+      "renderResolution": "32x32",
+      "artDirection": "restrained dark fantasy, sculptural silhouette, hue-shifted clustered highlights"
     },
     {
       "id": "wind-banner",
@@ -94,17 +113,24 @@
       "tags": [
         "L2",
         "L3",
+        "banner",
         "cloth"
       ],
       "frames": 8,
       "layers": [
-        "staff",
+        "ground",
+        "pole",
+        "cloth_shadow",
         "fabric",
-        "folds"
+        "folds",
+        "heraldry",
+        "embroidered_edge"
       ],
-      "author": "PixelWeave original code-authored educational reference",
+      "author": "PixelWeave original authored 32px pixel construction",
       "notLLMOutput": true,
-      "expertReviewed": false
+      "expertReviewed": false,
+      "renderResolution": "32x32",
+      "artDirection": "restrained dark fantasy, sculptural silhouette, hue-shifted clustered highlights"
     },
     {
       "id": "ember-flame",
@@ -117,14 +143,20 @@
       ],
       "frames": 8,
       "layers": [
-        "base",
-        "outer",
-        "core",
-        "sparks"
+        "ground_shadow",
+        "charred_logs",
+        "outer_fire",
+        "orange_body",
+        "gold_core",
+        "white_heart",
+        "sparks",
+        "light_on_wood"
       ],
-      "author": "PixelWeave original code-authored educational reference",
+      "author": "PixelWeave original authored 32px pixel construction",
       "notLLMOutput": true,
-      "expertReviewed": false
+      "expertReviewed": false,
+      "renderResolution": "32x32",
+      "artDirection": "restrained dark fantasy, sculptural silhouette, hue-shifted clustered highlights"
     }
   ]
 }
