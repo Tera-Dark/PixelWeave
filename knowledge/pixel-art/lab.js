@@ -54,7 +54,7 @@ $('timeline').oninput=e=>{playing=false;frame=+e.target.value;draw();};
 $('difference').onchange=e=>{overlay=e.target.checked;draw();};
 $('reset').onclick=()=>{if(!selected)return;selected.data.layers.forEach(l=>l.visible=true);renderLayers();draw();};
 async function init(){
- try{const r=await fetch('./examples/reference/index.json');if(!r.ok)throw Error('索引不可访问');const result=await r.json();index=result.examples;
+ try{const r=await fetch('./examples/reference/index.json');if(!r.ok)throw Error('索引不可访问');const result=await r.json();index=result.items||result.examples||[];
   $('library').replaceChildren(...index.map((item,i)=>{const b=document.createElement('button');b.className='library-button';const title=document.createElement('strong');title.textContent=item.id;const small=document.createElement('small');small.textContent=item.level+' · '+item.frames+' FRAMES · '+item.layers.length+' LAYERS';b.append(title,small);b.onclick=()=>choose(i);return b;}));
   await choose(1);
  }catch(e){note('无法载入教学案例：'+e.message);}
