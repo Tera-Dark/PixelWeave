@@ -45,3 +45,8 @@
 #studio-canvas{image-rendering:pixelated}
 @media(max-width:1180px){#layers-panel .layer-palette{grid-template-columns:repeat(8,1fr)}}
 @media(max-width:520px){.layer-palette{grid-template-columns:repeat(8,minmax(0,1fr))}.layer-row{min-height:49px}#layers-panel .panel-help{line-height:1.8}}
+
+/* Handbook access from the creative workstation */
+.handbook-shortcut{margin:10px 0 13px!important}
+.handbook-shortcut a{color:#e8ae91;text-decoration:underline;text-decoration-color:#e8ae9170;text-underline-offset:4px}
+.handbook-shortcut a:hover{color:#f8d5c1;text-decoration-color:currentColor}
