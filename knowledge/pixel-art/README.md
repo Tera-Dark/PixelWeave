@@ -4,6 +4,15 @@
 > 面向人类美术学习、LLM 绘画代理、PixelWeave 分层资产系统。  
 > 不是教程链接堆砌：本知识库将来源、原理、操作、练习、验收、失败处理串成一条完整路径。
 
+## 专题研究：向专业美术生产流程学习
+
+- [案例研究：Blasphemous 美术生产与动画工作流](studies/BLASPHEMOUS-CASE-STUDY.md)
+- [原创风格体系：暮烬遗物 Ashen Reliquary](styles/ASHEN-RELIQUARY.md)
+- [现有六件作品的审美诊断与下一轮重制任务](studies/V2-ASSET-CRITIQUE.md)
+- [可机读风格设定](styles/ashen-reliquary.json)
+
+**注意**：该风格是可选方向，研究制作方法而非抄袭第三方素材；它目前处于专业评审与实际模型质量 A/B 之前的实验状态。
+
 ## 开始之前：先研究精修资产的审美决定
 
 - [六件升级后的 32px 作品总览](visuals/studies-v2-contact.svg)
