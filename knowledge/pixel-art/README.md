@@ -4,6 +4,12 @@
 > 面向人类美术学习、LLM 绘画代理、PixelWeave 分层资产系统。  
 > 不是教程链接堆砌：本知识库将来源、原理、操作、练习、验收、失败处理串成一条完整路径。
 
+## 开始之前：先研究精修资产的审美决定
+
+- [六件升级后的 32px 作品总览](visuals/studies-v2-contact.svg)
+- [Nocturne Atelier 美术基调与整改设计](ART-DIRECTION-V2.md)
+- [32px 新案例库说明](examples/reference/README.md)
+
 ## 开始之前：看实物、拆图层、修改像素
 
 - **[在线交互教学实验室](lab.html)**：六个原创动画案例、可切换图层和逐帧差异对比。
