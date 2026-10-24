@@ -43,7 +43,7 @@ const all=[];
  all.push({id:a.id,tags:['L0','silhouette','key','metal'],asset:a.done()});
 }
 {
- const a=make('scarlet-vial','Vermilion Nocturne',['ground_shadow','glass_back','liquid','inner_embers','glass_front','gold_collar','specular']);
+ const a=make('scarlet-vial','Vermilion Nocturne',['ground_shadow','glass_back','liquid','bubbles','glass_front','gold_collar','specular']);
  for(let f=0;f<8;f++){
   let g=a.data.map(grid),[shadow,glass,liquid,bubbles,front,cork,shine]=g;
   oval(shadow,7,28,27,31,'N');rect(shadow,11,30,12,1,'O');
