@@ -1,0 +1,298 @@
+{
+  "version": "pixelweave-knowledge-rules-v1",
+  "philosophy": "Hard constraints, heuristic warnings and artistic advice must never be conflated.",
+  "rules": [
+    {
+      "id": "CORE-001",
+      "level": "advice",
+      "tags": [
+        "all"
+      ],
+      "stages": [
+        "director",
+        "silhouette",
+        "fill",
+        "highlights",
+        "effects"
+      ],
+      "source": "01-FOUNDATIONS.md",
+      "text": "Judge silhouette and subject recognition at final 1× size before adding microtexture; keep functional negative space."
+    },
+    {
+      "id": "CORE-002",
+      "level": "advice",
+      "tags": [
+        "all"
+      ],
+      "stages": [
+        "silhouette",
+        "fill",
+        "highlights"
+      ],
+      "source": "01-FOUNDATIONS.md",
+      "text": "Prefer readable connected pixel clusters. Single pixels must have a role; sparkles, eyes and particles are valid exceptions."
+    },
+    {
+      "id": "CORE-003",
+      "level": "advice",
+      "tags": [
+        "all"
+      ],
+      "stages": [
+        "director",
+        "fill"
+      ],
+      "source": "02-COLOR-LIGHT-MATERIAL.md",
+      "text": "Choose a dominant light direction, then group shadows, base tones and light faces. Do not fix silhouette errors by adding colors."
+    },
+    {
+      "id": "CORE-004",
+      "level": "hard",
+      "tags": [
+        "all"
+      ],
+      "stages": [
+        "all"
+      ],
+      "source": "08-LLM-PLAYBOOK.md",
+      "text": "Output only data. Palette symbols and every frame row must satisfy pixelweave/layered-v1 schema. Never output arbitrary code."
+    },
+    {
+      "id": "CORE-005",
+      "level": "hard",
+      "tags": [
+        "all"
+      ],
+      "stages": [
+        "effects",
+        "motion",
+        "repair"
+      ],
+      "source": "04-ANIMATION.md",
+      "text": "Non-target layers may not be changed during scoped repair. Every edit must use explicitly allowed frames, target layer and bounding box."
+    },
+    {
+      "id": "GLASS-001",
+      "level": "advice",
+      "tags": [
+        "potion",
+        "glass"
+      ],
+      "stages": [
+        "director",
+        "fill",
+        "highlights"
+      ],
+      "source": "02-COLOR-LIGHT-MATERIAL.md",
+      "text": "Glass needs structural wall thickness, edge-local highlights and a visible interior, not an opaque uniform white ring."
+    },
+    {
+      "id": "GLASS-002",
+      "level": "diagnostic",
+      "tags": [
+        "potion",
+        "glass"
+      ],
+      "stages": [
+        "effects",
+        "repair"
+      ],
+      "source": "03-ASSET-DESIGN.md",
+      "text": "Keep glass, stopper and shadow silhouettes static when only liquid/bubbles are requested to animate."
+    },
+    {
+      "id": "LIQUID-001",
+      "level": "hard",
+      "tags": [
+        "potion",
+        "water"
+      ],
+      "stages": [
+        "effects",
+        "motion",
+        "repair"
+      ],
+      "source": "04-ANIMATION.md",
+      "text": "Liquid and bubbles must not extend beyond the intended container/interior mask. Do not assume bbox alone is a complete containment mask."
+    },
+    {
+      "id": "LIQUID-002",
+      "level": "advice",
+      "tags": [
+        "potion",
+        "water"
+      ],
+      "stages": [
+        "effects",
+        "motion"
+      ],
+      "source": "04-ANIMATION.md",
+      "text": "Animate surface with small legible periodic changes, avoid unrelated redraw of the entire fill area; maintain plausible fill level."
+    },
+    {
+      "id": "BUBBLE-001",
+      "level": "diagnostic",
+      "tags": [
+        "potion"
+      ],
+      "stages": [
+        "effects",
+        "motion",
+        "repair"
+      ],
+      "source": "04-ANIMATION.md",
+      "text": "Bubbles need lifecycle: emerge within liquid, rise, pop or fade near surface; do not teleport outside liquid at loop boundary."
+    },
+    {
+      "id": "METAL-001",
+      "level": "advice",
+      "tags": [
+        "lantern",
+        "metal",
+        "key"
+      ],
+      "stages": [
+        "fill",
+        "highlights"
+      ],
+      "source": "02-COLOR-LIGHT-MATERIAL.md",
+      "text": "Metal highlights are localized hard high-contrast shapes aligned to geometry and light source; not random yellow dots."
+    },
+    {
+      "id": "FIRE-001",
+      "level": "diagnostic",
+      "tags": [
+        "fire",
+        "lantern"
+      ],
+      "stages": [
+        "effects",
+        "motion",
+        "repair"
+      ],
+      "source": "04-ANIMATION.md",
+      "text": "Anchor flame to wick or fuel and vary tip more strongly than base; static frame/metal should not jitter."
+    },
+    {
+      "id": "CRYSTAL-001",
+      "level": "advice",
+      "tags": [
+        "crystal"
+      ],
+      "stages": [
+        "fill",
+        "highlights"
+      ],
+      "source": "02-COLOR-LIGHT-MATERIAL.md",
+      "text": "Build crystal facets as intentional planes; keep each facet coherent and use only a few focal glints."
+    },
+    {
+      "id": "CLOTH-001",
+      "level": "diagnostic",
+      "tags": [
+        "cloth",
+        "banner",
+        "character"
+      ],
+      "stages": [
+        "motion",
+        "effects",
+        "repair"
+      ],
+      "source": "05-CHARACTER-VFX.md",
+      "text": "Freeze flagpole and root anchor; movement grows toward fabric tip, folds follow main displacement."
+    },
+    {
+      "id": "ANIM-001",
+      "level": "diagnostic",
+      "tags": [
+        "all"
+      ],
+      "stages": [
+        "effects",
+        "motion",
+        "review"
+      ],
+      "source": "04-ANIMATION.md",
+      "text": "Check F-last → F0 as another motion step; equal first/last frames are not required and may create a duplicate hold."
+    },
+    {
+      "id": "ANIM-002",
+      "level": "advice",
+      "tags": [
+        "all"
+      ],
+      "stages": [
+        "effects",
+        "motion",
+        "director"
+      ],
+      "source": "04-ANIMATION.md",
+      "text": "Plan key poses before in-betweens; more frames do not automatically improve action and can reduce energy."
+    },
+    {
+      "id": "ANIM-003",
+      "level": "diagnostic",
+      "tags": [
+        "all"
+      ],
+      "stages": [
+        "review"
+      ],
+      "source": "09-QUALITY-ASSURANCE.md",
+      "text": "Motion percentages and isolated pixel counts are diagnostics, never definitive aesthetics scores; annotate intended exceptions."
+    },
+    {
+      "id": "SHADING-001",
+      "level": "advice",
+      "tags": [
+        "all"
+      ],
+      "stages": [
+        "fill",
+        "highlights"
+      ],
+      "source": "02-COLOR-LIGHT-MATERIAL.md",
+      "text": "Avoid accidental pillow shading unless center-lit or intentionally glowing; support each brighter cluster with a light-source explanation."
+    },
+    {
+      "id": "SCENE-001",
+      "level": "advice",
+      "tags": [
+        "scene",
+        "wallpaper"
+      ],
+      "stages": [
+        "director"
+      ],
+      "source": "06-SCENE-DESIGN.md",
+      "text": "Approve a composition thumbnail, main focal point, foreground/midground/background, and negative space before detailed assets."
+    },
+    {
+      "id": "WALL-001",
+      "level": "diagnostic",
+      "tags": [
+        "wallpaper"
+      ],
+      "stages": [
+        "director",
+        "motion",
+        "review"
+      ],
+      "source": "07-WALLPAPER.md",
+      "text": "Long-running wallpapers should keep background motion unobtrusive, avoid frequent full-frame flashing, and permit reduced motion."
+    },
+    {
+      "id": "REVIEW-001",
+      "level": "hard",
+      "tags": [
+        "all"
+      ],
+      "stages": [
+        "review"
+      ],
+      "source": "09-QUALITY-ASSURANCE.md",
+      "text": "Do not claim objective art quality from structural JSON tests or machine frame-diff numbers. Require independent visual review."
+    }
+  ]
+}
