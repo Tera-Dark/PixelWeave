@@ -3,6 +3,7 @@ import {readFile,stat} from 'node:fs/promises';
 import {resolve,extname,sep} from 'node:path';
 import {modelSettings,generateWithLLM} from './src/generator.mjs';
 import {generateProgressive} from './src/progressive.mjs';
+import {refineOneLayer} from './src/refine.mjs';
 const root=process.cwd();
 const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.json':'application/json; charset=utf-8'};
 let generating=false;
@@ -26,6 +27,16 @@ http.createServer(async(req,res)=>{
    generating=true;
    try{const generator=process.env.PIXELWEAVE_PIPELINE==='oneshot'?generateWithLLM:generateProgressive;json(res,200,await generator(input.idea));}
    catch(e){json(res,502,{error:String(e.message).slice(0,1000)});}
+   finally{generating=false;}
+   return;
+  }
+  if(path==='/api/refine'&&req.method==='POST'){
+   if(generating){json(res,429,{error:'当前已有生成任务在运行'});return;}
+   const cfg=modelSettings();if(!cfg.configured){json(res,503,{error:'本地文本模型未配置'});return;}
+   let input;try{input=await body(req,200000);}catch(e){json(res,400,{error:'请求无效：'+e.message});return;}
+   generating=true;
+   try{json(res,200,await refineOneLayer(input));}
+   catch(e){json(res,422,{error:String(e.message).slice(0,1200)});}
    finally{generating=false;}
    return;
   }
