@@ -102,7 +102,7 @@
     },
     {
       "id": "LIQUID-001",
-      "level": "hard",
+      "level": "diagnostic",
       "tags": [
         "potion",
         "water"
@@ -113,7 +113,7 @@
         "repair"
       ],
       "source": "04-ANIMATION.md",
-      "text": "Liquid and bubbles must not extend beyond the intended container/interior mask. Do not assume bbox alone is a complete containment mask."
+      "text": "Liquid and bubbles must not extend beyond the intended container/interior mask. Do not assume bbox alone is a complete containment mask. Currently only bubble-liquid overlap is automatically checked; full shape masks are a future feature."
     },
     {
       "id": "LIQUID-002",
