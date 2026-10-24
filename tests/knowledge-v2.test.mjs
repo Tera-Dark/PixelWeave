@@ -17,11 +17,11 @@ test('six reference artworks are reproducible and data-valid',()=>{
 });
 test('reference art fixed layers remain exactly identical across frames',()=>{
  const expected={
-  'scarlet-vial':['shadow','glass','reflections','stopper'],
-  'hearth-lantern':['shadow','frame'],
-  'prism-crystal':['shadow','shape','facets'],
-  'wind-banner':['staff'],
-  'ember-flame':['base']
+  'scarlet-vial':['ground_shadow','glass_back','glass_front','gold_collar'],
+  'hearth-lantern':['shadow','metal_body','glass_chamber','lattice','metal_specular'],
+  'prism-crystal':['shadow','mineral_rind','cut_crystal','facet_planes','refraction'],
+  'wind-banner':['ground','pole'],
+  'ember-flame':['ground_shadow','charred_logs','light_on_wood']
  };
  for(const {id,asset} of load()){
   const statics=expected[id]||[];
@@ -65,7 +65,7 @@ test('patch disallows unauthorized layers/frames/bbox/palette/duplicate pixels',
  assert.throws(()=>applyScopedPatch(a,testPatch('glass',0,12,16,'W'),scope),/未授权图层/);
  assert.throws(()=>applyScopedPatch(a,testPatch('liquid',2,12,16,'W'),scope),/未授权帧/);
  assert.throws(()=>applyScopedPatch(a,testPatch('liquid',0,2,1,'W'),scope),/越出授权区域/);
- assert.throws(()=>applyScopedPatch(a,testPatch('liquid',0,12,16,'Z'),scope),/色板/);
+ assert.throws(()=>applyScopedPatch(a,testPatch('liquid',0,12,16,'?'),scope),/色板/);
  const dupe=testPatch('liquid',0,12,16,'W');dupe.edits.push({...dupe.edits[0]});
  assert.throws(()=>applyScopedPatch(a,dupe,scope),/多次覆盖/);
 });
