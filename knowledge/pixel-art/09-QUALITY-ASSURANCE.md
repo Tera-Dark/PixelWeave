@@ -98,3 +98,12 @@
 L0 只审剪影与像素簇；L1 加入光影材质；L2 要求动画和循环；L3 增加身体受力、走路接触点；L4 增加构图/透视/空间；L5 增加长时间观看感受、性能与壁纸发布完整度。低级练习不要被高级要求压垮。
 
 参考：[Pixel Joint 常见错误](https://pixeljoint.com/forum/forum_posts.asp?TID=11299)、[Slynyrd Intro Animation](https://www.slynyrd.com/blog/2018/8/19/pixelblog-8-intro-to-animation)、[Aseprite 时间线与 Cel](https://aseprite.org/docs/basics/)。
+
+
+## 本轮实证边界（v1.1）
+
+新增机器检测：分层资产结构、稳定层哈希等价性、气泡与液体逐帧像素叠合、单层补丁的授权区域/帧校验。它们可以客观地检查具体几类技术错误，却**不能**评判美商、构图、角色表演和视觉风格。
+
+资产库中的六个范例由项目原创代码生成，状态为“可复现并通过结构检查”；没有外部专家盲审，更不能拿来作为模型完成度的满分样板。未来对照实验必须记录：相同题目、相同文本模型、是否注入知识、生成失败重试次数、结构性告警、人工匿名评分和生成费用。未做真实盲评前，不给 v1.1 自称 90 分。
+
+[交互实验室](lab.html) · [规则目录](rules.json) · [六件原创案例](examples/reference/README.md)
