@@ -129,7 +129,7 @@
   ],
   "stageGuidance": {
     "director": "Invent a fresh object backstory, propose three materially different silhouettes, pick a coherent mood. Avoid recognizable third-party shapes.",
-    "silhouette": "Concentrate on identity, physical function, negative space, asymmetry with cause. No microtexture yet.",
+    "silhouette": "First propose three meaningfully different silhouettes (proportions, negative spaces, structural use); choose one for recognizability and material credibility. No microtexture before silhouette approval.",
     "fill": "Shade in 3 purposeful value families first; choose glass/metal/cloth/stone-specific spatial behavior.",
     "highlights": "Keep brightest cluster rare and local to material/light logic; do not spread isolated highlights.",
     "effects": "Animate semantic parts around stable anchors. No generic whole-sprite bob or random sparkle. Test last-to-first transition.",
