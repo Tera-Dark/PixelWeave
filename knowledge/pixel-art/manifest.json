@@ -1,0 +1,252 @@
+{
+  "$schemaVersion": "pixelweave-knowledge-v1",
+  "title": "PixelWeave 像素艺术与动画创作知识库",
+  "created": "2026-10-24",
+  "root": "README.md",
+  "policy": {
+    "priority": [
+      "hard-gates",
+      "core-art-grammar",
+      "task-techniques",
+      "case-specific-constraints"
+    ],
+    "retrievalOrder": [
+      "core",
+      "technique",
+      "case"
+    ],
+    "maxTechniqueChaptersPerTask": 3,
+    "llmOutputRule": "Text-only LLM outputs data-only PixelWeave layered JSON; no image/diffusion model or executing generated code",
+    "copyright": "Link and paraphrase original tutorials, never redistribute tutorial images or entire copyrighted text",
+    "distinguish": "Hard software constraints are distinct from optional pixel-art stylistic heuristics"
+  },
+  "chapters": [
+    {
+      "id": "L0",
+      "file": "01-FOUNDATIONS.md",
+      "requires": [],
+      "tags": [
+        "silhouette",
+        "jaggies",
+        "pixel-cluster",
+        "negative-space"
+      ],
+      "loadWhen": [
+        "silhouette",
+        "jaggies",
+        "pixel-cluster",
+        "negative-space"
+      ]
+    },
+    {
+      "id": "L1a",
+      "file": "02-COLOR-LIGHT-MATERIAL.md",
+      "requires": [
+        "L0"
+      ],
+      "tags": [
+        "palette",
+        "shading",
+        "glass",
+        "liquid",
+        "metal",
+        "dithering"
+      ],
+      "loadWhen": [
+        "palette",
+        "shading",
+        "glass",
+        "liquid",
+        "metal",
+        "dithering"
+      ]
+    },
+    {
+      "id": "L1b",
+      "file": "03-ASSET-DESIGN.md",
+      "requires": [
+        "L0",
+        "L1a"
+      ],
+      "tags": [
+        "item",
+        "potion",
+        "layer-plan",
+        "stable-anchors"
+      ],
+      "loadWhen": [
+        "item",
+        "potion",
+        "layer-plan",
+        "stable-anchors"
+      ]
+    },
+    {
+      "id": "L2",
+      "file": "04-ANIMATION.md",
+      "requires": [
+        "L1b"
+      ],
+      "tags": [
+        "timeline",
+        "loop",
+        "frame-duration",
+        "liquid-motion"
+      ],
+      "loadWhen": [
+        "timeline",
+        "loop",
+        "frame-duration",
+        "liquid-motion"
+      ]
+    },
+    {
+      "id": "L3",
+      "file": "05-CHARACTER-VFX.md",
+      "requires": [
+        "L2"
+      ],
+      "tags": [
+        "idle",
+        "walk-cycle",
+        "fire",
+        "cloth",
+        "smoke"
+      ],
+      "loadWhen": [
+        "idle",
+        "walk-cycle",
+        "fire",
+        "cloth",
+        "smoke"
+      ]
+    },
+    {
+      "id": "L4",
+      "file": "06-SCENE-DESIGN.md",
+      "requires": [
+        "L1a",
+        "L2"
+      ],
+      "tags": [
+        "composition",
+        "projection",
+        "tilemap",
+        "parallax",
+        "scene"
+      ],
+      "loadWhen": [
+        "composition",
+        "projection",
+        "tilemap",
+        "parallax",
+        "scene"
+      ]
+    },
+    {
+      "id": "L5",
+      "file": "07-WALLPAPER.md",
+      "requires": [
+        "L2",
+        "L4"
+      ],
+      "tags": [
+        "wallpaper",
+        "long-loop",
+        "weather",
+        "camera",
+        "lighting"
+      ],
+      "loadWhen": [
+        "wallpaper",
+        "long-loop",
+        "weather",
+        "camera",
+        "lighting"
+      ]
+    }
+  ],
+  "modules": {
+    "core": [
+      "README.md",
+      "01-FOUNDATIONS.md",
+      "09-QUALITY-ASSURANCE.md"
+    ],
+    "creativePipeline": "08-LLM-PLAYBOOK.md",
+    "curriculum": "10-CURRICULUM.md",
+    "sources": "SOURCES.md"
+  },
+  "routeProfiles": [
+    {
+      "id": "silhouette-icon",
+      "goal": "设计16px轮廓",
+      "level": "L0",
+      "techniques": [
+        "01-FOUNDATIONS.md"
+      ],
+      "case": "10-CURRICULUM.md#项目-01--一把会被认出的钥匙l0"
+    },
+    {
+      "id": "static-potion",
+      "goal": "制作玻璃瓶材质",
+      "level": "L1b",
+      "techniques": [
+        "02-COLOR-LIGHT-MATERIAL.md",
+        "03-ASSET-DESIGN.md"
+      ],
+      "case": "10-CURRICULUM.md#项目-02--一瓶静止的血药水l0l1"
+    },
+    {
+      "id": "animated-potion",
+      "goal": "生成和修复血瓶分层动画",
+      "level": "L2",
+      "techniques": [
+        "03-ASSET-DESIGN.md",
+        "04-ANIMATION.md",
+        "02-COLOR-LIGHT-MATERIAL.md"
+      ],
+      "case": "10-CURRICULUM.md#项目-04--流动的生命药剂l2pixelweave-首个关键里程碑"
+    },
+    {
+      "id": "character-idle",
+      "goal": "角色Idle和表演",
+      "level": "L3",
+      "techniques": [
+        "05-CHARACTER-VFX.md",
+        "04-ANIMATION.md"
+      ],
+      "case": "10-CURRICULUM.md#项目-07--会呼吸的角色l3"
+    },
+    {
+      "id": "rainy-station",
+      "goal": "雨夜车站层次与光影",
+      "level": "L4",
+      "techniques": [
+        "06-SCENE-DESIGN.md",
+        "02-COLOR-LIGHT-MATERIAL.md",
+        "04-ANIMATION.md"
+      ],
+      "case": "10-CURRICULUM.md#项目-09--安静的雨夜站台l4"
+    },
+    {
+      "id": "wallpaper",
+      "goal": "可循环动态像素壁纸",
+      "level": "L5",
+      "techniques": [
+        "07-WALLPAPER.md",
+        "06-SCENE-DESIGN.md",
+        "04-ANIMATION.md"
+      ],
+      "case": "10-CURRICULUM.md#项目-10--动态像素壁纸精品l5"
+    }
+  ],
+  "ruleClasses": {
+    "hard": "JSON parse, color symbol and frame/layer dimension matching",
+    "diagnostic": "frame difference, loop seam, anchor drift, isolated pixel alerts",
+    "aesthetic": "silhouette readability, cluster rhythm, volume, composition, material, emotional effect"
+  },
+  "sourceCatalog": {
+    "file": "SOURCES.md",
+    "curatedReferences": 27
+  }
+}
