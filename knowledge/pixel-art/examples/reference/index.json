@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "releaseStatus": "curriculum reference, code-authored, not externally juried",
+  "examples": [
+    {
+      "id": "readable-key",
+      "path": "readable-key.layered.json",
+      "level": "L0",
+      "tags": [
+        "L0",
+        "silhouette",
+        "metal"
+      ],
+      "frames": 1,
+      "layers": [
+        "contour",
+        "fill",
+        "glint"
+      ],
+      "author": "PixelWeave original code-authored educational reference",
+      "notLLMOutput": true,
+      "expertReviewed": false
+    },
+    {
+      "id": "scarlet-vial",
+      "path": "scarlet-vial.layered.json",
+      "level": "L1",
+      "tags": [
+        "L1",
+        "L2",
+        "glass",
+        "liquid"
+      ],
+      "frames": 8,
+      "layers": [
+        "shadow",
+        "glass",
+        "liquid",
+        "bubbles",
+        "reflections",
+        "stopper"
+      ],
+      "author": "PixelWeave original code-authored educational reference",
+      "notLLMOutput": true,
+      "expertReviewed": false
+    },
+    {
+      "id": "hearth-lantern",
+      "path": "hearth-lantern.layered.json",
+      "level": "L1",
+      "tags": [
+        "L1",
+        "L2",
+        "metal",
+        "fire"
+      ],
+      "frames": 6,
+      "layers": [
+        "shadow",
+        "frame",
+        "light",
+        "flame",
+        "highlights"
+      ],
+      "author": "PixelWeave original code-authored educational reference",
+      "notLLMOutput": true,
+      "expertReviewed": false
+    },
+    {
+      "id": "prism-crystal",
+      "path": "prism-crystal.layered.json",
+      "level": "L1",
+      "tags": [
+        "L1",
+        "L2",
+        "facet",
+        "glint"
+      ],
+      "frames": 6,
+      "layers": [
+        "shadow",
+        "shape",
+        "facets",
+        "shimmer"
+      ],
+      "author": "PixelWeave original code-authored educational reference",
+      "notLLMOutput": true,
+      "expertReviewed": false
+    },
+    {
+      "id": "wind-banner",
+      "path": "wind-banner.layered.json",
+      "level": "L2",
+      "tags": [
+        "L2",
+        "L3",
+        "cloth"
+      ],
+      "frames": 8,
+      "layers": [
+        "staff",
+        "fabric",
+        "folds"
+      ],
+      "author": "PixelWeave original code-authored educational reference",
+      "notLLMOutput": true,
+      "expertReviewed": false
+    },
+    {
+      "id": "ember-flame",
+      "path": "ember-flame.layered.json",
+      "level": "L2",
+      "tags": [
+        "L2",
+        "fire",
+        "effects"
+      ],
+      "frames": 8,
+      "layers": [
+        "base",
+        "outer",
+        "core",
+        "sparks"
+      ],
+      "author": "PixelWeave original code-authored educational reference",
+      "notLLMOutput": true,
+      "expertReviewed": false
+    }
+  ]
+}
