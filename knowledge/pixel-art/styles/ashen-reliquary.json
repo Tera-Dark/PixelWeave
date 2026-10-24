@@ -1,0 +1,161 @@
+{
+  "version": "pixelweave/art-style-v0.1",
+  "id": "ashen-reliquary",
+  "displayName": "暮烬遗物 / Ashen Reliquary",
+  "scope": "opt-in visual art direction; never infer from other users or force into unrelated requests",
+  "influencedBy": [
+    {
+      "source": "The Game Kitchen",
+      "concept": "silhouette iteration, scene readability, motion draft before pixel polish"
+    },
+    {
+      "source": "Andrey Gogiya",
+      "concept": "motion technique depends on subject, after-paint detail cleanup"
+    }
+  ],
+  "originality": {
+    "copiesThirdPartySprite": false,
+    "usesGenericMethodsOnly": true,
+    "forbidden": [
+      "Blasphemous sprites",
+      "identifiable helmets or character designs",
+      "redistributed artwork textures",
+      "third-party sprite tracing"
+    ]
+  },
+  "pillars": [
+    {
+      "id": "storied-shape",
+      "en": "history in shape",
+      "priority": 1,
+      "description": "physical wear and use reflected in intentional silhouette, not random scratches"
+    },
+    {
+      "id": "material-rhythm",
+      "en": "material specific clustering",
+      "priority": 2,
+      "description": "glass, brass, cloth, stone, flame require distinct highlight and shadow geometry"
+    },
+    {
+      "id": "quiet-contrast",
+      "en": "restrained focal hierarchy",
+      "priority": 3,
+      "description": "one dominant highlight focal area and supported secondary light"
+    },
+    {
+      "id": "designed-stillness",
+      "en": "purposeful motion",
+      "priority": 4,
+      "description": "frozen base plus independently timed semantic motion layers"
+    }
+  ],
+  "moods": {
+    "cinder": {
+      "meaning": "somber, warm, soot and brass",
+      "swatches": {
+        "dark": "#1c2230",
+        "structure": "#6b6561",
+        "brass": "#9b7055",
+        "warm": "#d66a51",
+        "light": "#ffe1b0"
+      }
+    },
+    "moonwater": {
+      "meaning": "cool glass and quiet magic",
+      "swatches": {
+        "dark": "#1c2230",
+        "stone": "#49515a",
+        "blue": "#476b76",
+        "cyan": "#82b2ba",
+        "warm": "#e8b47a"
+      }
+    },
+    "moss": {
+      "meaning": "deserted stone, plants and old craft",
+      "swatches": {
+        "dark": "#1c2230",
+        "stone": "#49515a",
+        "green": "#536b60",
+        "leaf": "#899783",
+        "light": "#e8b47a"
+      }
+    }
+  },
+  "gates": [
+    {
+      "id": "G0",
+      "name": "story",
+      "deliverable": "object origin, purpose, viewing scale"
+    },
+    {
+      "id": "G1",
+      "name": "silhouette",
+      "deliverable": "three distinguishable options, 1x comparison",
+      "humanGate": true
+    },
+    {
+      "id": "G2",
+      "name": "scene-check",
+      "deliverable": "dark, light and target environment readability",
+      "humanGate": true
+    },
+    {
+      "id": "G3",
+      "name": "material",
+      "deliverable": "three-value block-in, material-specific highlight semantics",
+      "humanGate": true
+    },
+    {
+      "id": "G4",
+      "name": "lock",
+      "deliverable": "frozen silhouettes, anchors, affected layers"
+    },
+    {
+      "id": "G5",
+      "name": "key-poses",
+      "deliverable": "motion intention and key pose frames without polish"
+    },
+    {
+      "id": "G6",
+      "name": "polish",
+      "deliverable": "cluster cleanup, motion-aware lighting, seamless loop"
+    },
+    {
+      "id": "G7",
+      "name": "jury",
+      "deliverable": "1x visible human review and comparison; structural tests do not qualify",
+      "humanGate": true
+    }
+  ],
+  "stageGuidance": {
+    "director": "Invent a fresh object backstory, propose three materially different silhouettes, pick a coherent mood. Avoid recognizable third-party shapes.",
+    "silhouette": "Concentrate on identity, physical function, negative space, asymmetry with cause. No microtexture yet.",
+    "fill": "Shade in 3 purposeful value families first; choose glass/metal/cloth/stone-specific spatial behavior.",
+    "highlights": "Keep brightest cluster rare and local to material/light logic; do not spread isolated highlights.",
+    "effects": "Animate semantic parts around stable anchors. No generic whole-sprite bob or random sparkle. Test last-to-first transition.",
+    "repair": "Edit only the selected layer, affected frames, and bounding box; keep approved silhouettes and color logic."
+  },
+  "scoring": {
+    "silhouetteAndIdentity": 25,
+    "material": 20,
+    "lightingAndHierarchy": 20,
+    "pixelCraft": 15,
+    "motion": 15,
+    "styleFit": 5
+  },
+  "status": {
+    "expertReviewed": false,
+    "modelAblationProved": false,
+    "productionCertified": false,
+    "preferredPilotAssets": [
+      "scarlet-vial",
+      "hearth-lantern"
+    ]
+  },
+  "sources": [
+    "https://blasphemous.backerkit.com/hosted_preorders/project_updates?page=7",
+    "https://skillbox.ru/media/gamedev/beseda-s-animatorom-blasphemous-o-pikselarte-payplaynakh-i-chudovishchakh-korneya-chukovskogo/",
+    "https://andrey_gogiya.artstation.com/projects/6LRbGV",
+    "https://nerkin.artstation.com/"
+  ]
+}
