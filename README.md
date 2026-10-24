@@ -7,6 +7,14 @@
 - **状态：** 像素分层、逐帧编辑已具备；LLM 自动流程需本地启动 Node.js 代理并配置文本模型。作品画廊中的示例均为手工编程示范，不伪称 AI 生成。
 
 
+## Gallery 美术升级 · Original Art Studies v2
+
+首页和工作站现已默认使用六件更细致的 32×32 原创分层像素动画，而非旧版简陋的几何教学案例。原演示保存在“查看旧版演示”中用于比较。六件作品皆为**代码手工构图与分层制作，不是 LLM 实测产物**。
+
+- [六件作品的实际数据渲染静帧总览](knowledge/pixel-art/visuals/studies-v2-contact.svg)
+- [美术基调与每件作品的形体/材质/动作逻辑](knowledge/pixel-art/ART-DIRECTION-V2.md)
+- [六个新版 32px 分层工程](knowledge/pixel-art/examples/reference/README.md)
+
 ## 📚 Pixel Art & Animation Handbook（新增独立知识库）
 
 先有系统的美术知识和经验证的创作规则，再构建 LLM 绘画代理。PixelWeave 的独立知识库现已包括 **7 级模块化课程、10 项实践任务、27 条标注来源、LLM 分层创作工作流、分级质量验收、可机读的课程路由索引与可导入的血瓶练习资产**。
