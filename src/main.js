@@ -2,7 +2,7 @@ import {DEMOS,SIZE,renderAsset,makeImported,validateMatrix} from './engine.js';
 import {LAYERED_FORMAT,createLayeredAsset,validateLayered,pixelCoordinates,paintLayerPixel,addEmptyLayer,reorderLayer,duplicateFrame,deleteFrame,createBlankLayered,metrics} from './layered.js';
 import {makeLayeredPrompt,parseModelJSON} from './llm.js';
 const $=id=>document.getElementById(id),state={items:[...DEMOS],id:'atelier',frame:0,play:true,speed:1,edits:{},tool:null,elapsed:0,last:0,activeLayer:'liquid',symbol:'K',undo:[],redo:[]};
-let cards=[],thumbs=[],painting=false,galleryTick=-1,localModelAvailable=false;
+let cards=[],thumbs=[],painting=false,galleryTick=-1,localModelAvailable=false,showArchive=false;
 const current=()=>state.items.find(a=>a.id===state.id)||DEMOS[0],layers=()=>state.edits[state.id]||{};
 const cv=()=>{const e=document.createElement('canvas');e.width=SIZE;e.height=SIZE;return e;};
 function notify(t,bad=false){$('feedback').textContent=t;$('feedback').className='feedback '+(bad?'error':'success');}
@@ -28,16 +28,18 @@ function restore(){try{
  if(d.edits&&typeof d.edits==='object')for(const [id,v] of Object.entries(d.edits))if(state.items.some(a=>a.id===id))state.edits[id]=scrub(v);
 }catch{}}
 function route(name){const studio=name==='studio';$('gallery-page').hidden=studio;$('studio-page').hidden=!studio;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));if(studio)refresh();history.replaceState(null,'','#'+name);window.scrollTo(0,0);}
-function renderGallery(){cards=[];const host=$('gallery-grid');host.replaceChildren();state.items.forEach((a,i)=>{
+function renderGallery(){cards=[];const host=$('gallery-grid');host.replaceChildren();
+ const featured=state.items.filter(a=>showArchive||!DEMOS.some(d=>d.id===a.id));
+ featured.forEach((a,i)=>{
  const b=document.createElement('button');b.className='work-card';b.type='button';b.setAttribute('aria-label','打开 '+a.name);
  const art=document.createElement('div');art.className='work-art '+a.tone;
- const no=document.createElement('span');no.className='work-number';no.textContent=String(i+1).padStart(2,'0')+' / '+String(state.items.length).padStart(2,'0');
+ const no=document.createElement('span');no.className='work-number';no.textContent=String(i+1).padStart(2,'0')+' / '+String(featured.length).padStart(2,'0');
  const live=document.createElement('span');live.className='work-live';live.textContent='● LIVE';
  const c=cv();art.append(no,c,live);
  const meta=document.createElement('div');meta.className='work-meta';const info=document.createElement('div'),title=document.createElement('strong'),small=document.createElement('small'),arrow=document.createElement('span');
  title.textContent=a.name;small.textContent=a.cn+' · '+a.frames+' FRAMES';arrow.className='work-arrow';arrow.textContent='↗';info.append(title,small);meta.append(info,arrow);b.append(art,meta);host.append(b);
  b.onclick=()=>{choose(a.id);route('studio');};cards.push({c,a});
- });$('collection-count').textContent=String(state.items.length).padStart(2,'0');}
+ });$('collection-count').textContent=String(featured.length).padStart(2,'0');}
 function choose(id){if(!state.items.some(a=>a.id===id))return;
   state.id=id;state.frame=0;state.elapsed=0;state.play=true;state.undo=[];state.redo=[];
   state.activeLayer=current().type==='layered'?(current().data.layers.find(l=>l.id==='liquid')?.id||current().data.layers.at(-1).id):null;
@@ -46,7 +48,7 @@ function choose(id){if(!state.items.some(a=>a.id===id))return;
 }
 function refresh(){
  const a=current();$('asset-name').textContent=a.name;$('asset-subline').textContent=a.cn+' · '+a.frames+' 帧循环';$('inspector-name').textContent=a.name;$('inspector-desc').textContent=a.desc;
- $('asset-size').textContent=(a.type==='matrix'?a.data.width+' × '+a.data.height:'96 × 96')+' PX';$('detail-type').textContent=a.type==='matrix'?'LLM 像素矩阵':'程序化动画';$('detail-res').textContent=a.type==='matrix'?a.data.width+' × '+a.data.height:'96 × 96';
+ $('asset-size').textContent=((a.type==='matrix'||a.type==='layered')?a.data.width+' × '+a.data.height:'96 × 96')+' PX';$('detail-type').textContent=a.type==='matrix'?'LLM 像素矩阵':a.type==='layered'?'可编辑分层像素':'程序化动画';$('detail-res').textContent=a.type==='matrix'?a.data.width+' × '+a.data.height:'96 × 96';
  $('detail-frames').textContent=a.frames;$('detail-fps').textContent=a.fps+' FPS';$('fps-label').textContent=a.fps+' FPS';$('frame-count').textContent=a.frames+' FRAMES';$('frame-range').max=a.frames-1;
  const library=$('asset-list');library.replaceChildren();state.items.forEach(item=>{
   const b=document.createElement('button');b.className='asset-option'+(item.id===state.id?' active':'');b.type='button';const c=cv();renderAsset(c,item,0,state.edits[item.id]);const text=document.createElement('div'),n=document.createElement('b'),s=document.createElement('small');n.textContent=item.name;s.textContent=item.category+' · '+item.frames+'F';text.append(n,s);b.append(c,text);b.onclick=()=>choose(item.id);library.append(b);
@@ -208,6 +210,28 @@ async function generateFromLLM(){
  }catch(e){notify('LLM 生成失败：'+e.message,true);}
  finally{button.disabled=false;button.textContent='使用本地 LLM 生成 ✳';}
 }
+async function loadCuratedStudies(){
+ try{
+  const response=await fetch('./knowledge/pixel-art/examples/reference/index.json',{cache:'no-cache'});
+  if(!response.ok)throw Error('案例目录不可访问');
+  const directory=await response.json();
+  const studies=await Promise.all(directory.items.map(async item=>{
+   const id='study-'+item.id;
+   const existing=state.items.find(a=>a.id===id);
+   if(existing)return existing;
+   const res=await fetch('./knowledge/pixel-art/examples/reference/'+item.path,{cache:'no-cache'});
+   if(!res.ok)throw Error('无法读取 '+item.id);
+   const asset=createLayeredAsset(validateLayered(await res.json()));
+   asset.id=id;asset.cn='原创精修像素研究';asset.category='ART STUDY';asset.tone=['health','mana','lantern','crystal'][directory.items.indexOf(item)%4];
+   asset.desc='32×32 · '+asset.data.layers.length+' 个语义图层 · '+asset.frames+' 帧。原创代码绘制，非 LLM 生成。';
+   return asset;
+  }));
+  state.items=[...studies,...state.items.filter(a=>!studies.some(b=>a.id===b.id))];
+  if(DEMOS.some(d=>d.id===state.id))state.id='study-scarlet-vial';
+  state.activeLayer=current().data?.layers?.find(l=>l.id==='liquid')?.id||current().data?.layers?.at(-1)?.id;
+  renderGallery();refresh();
+ }catch(e){showArchive=true;renderGallery();notify('优质案例加载失败，暂时显示旧版演示：'+e.message,true);}
+}
 async function refineSelectedLayer(){
  if(!isLayered()){notify('请先选中分层像素资产。',true);return;}
  if(!localModelAvailable){notify('局部 LLM 修复需要在本地启动已配置的模型代理。',true);return;}
@@ -245,6 +269,7 @@ function newProject(){
 }
 function events(){
  document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>route(b.dataset.page));
+ $('toggle-archive').onclick=()=>{showArchive=!showArchive;$('toggle-archive').textContent=showArchive?'隐藏旧版演示':'查看旧版演示';renderGallery();};
  $('hero-studio').onclick=()=>route('studio');$('hero-open').onclick=()=>{choose('atelier');route('studio');};
  $('principle-open').onclick=()=>route('studio');$('studio-to-gallery').onclick=()=>route('gallery');
  $('btn-play').onclick=()=>{state.play=!state.play;state.elapsed=0;draw();};$('btn-prev').onclick=()=>shift(-1);$('btn-next').onclick=()=>shift(1);
@@ -275,4 +300,4 @@ function events(){
  document.addEventListener('keydown',e=>{if($('studio-page').hidden||e.target.matches('input,textarea,button'))return;if(e.code==='Space'){e.preventDefault();state.play=!state.play;draw();}if(e.code==='ArrowLeft')shift(-1);if(e.code==='ArrowRight')shift(1);});
  window.addEventListener('hashchange',()=>{if(location.hash==='#studio'||location.hash==='#gallery')route(location.hash.slice(1));});
 }
-restore();renderGallery();refresh();events();route(location.hash==='#studio'?'studio':'gallery');beginLLMStatus();requestAnimationFrame(loop);
+restore();showArchive=true;renderGallery();refresh();events();route(location.hash==='#studio'?'studio':'gallery');beginLLMStatus();loadCuratedStudies().then(()=>{showArchive=false;renderGallery();});requestAnimationFrame(loop);
