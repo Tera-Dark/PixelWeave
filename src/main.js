@@ -202,7 +202,7 @@ async function generateFromLLM(){
  if(idea.length<4){notify('先描述你希望生成的像素动画主题。',true);return;}
  button.disabled=true;button.textContent='LLM 创作中…';notify('正在通过本地文本模型进行美术规划、分层绘制与校验。');
  try{
-  const res=await fetch('./api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idea})});
+  const res=await fetch('./api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idea,styleId:$('art-style-select').value})});
   const output=await res.json();if(!res.ok)throw Error(output.error||'生成失败');
   const a=createLayeredAsset(output.asset);state.items.push(a);choose(a.id);persist();renderGallery();
   const issues=output.warnings?.length?' 质量提示：'+output.warnings.join('；'):'';
@@ -296,7 +296,11 @@ function events(){
  $('refine-layer').onclick=refineSelectedLayer;
  $('generate-llm').onclick=generateFromLLM;
  $('toggle-json-import').onclick=()=>{$('json-import-panel').hidden=!$('json-import-panel').hidden;};$('import-json').onclick=importJson;
- $('copy-llm-prompt').onclick=async()=>{const text=makeLayeredPrompt($('idea-input').value);try{await navigator.clipboard.writeText(text);notify('完整 LLM 像素动画生成规范已复制。');}catch{$('json-import-panel').hidden=false;$('json-input').value=text;$('json-input').select();notify('复制受限：已在文本框选中提示词，请手动复制。',true);}};
+ $('copy-llm-prompt').onclick=async()=>{const chosen=$('art-style-select').value;
+ const appendix=chosen==='ashen-reliquary'
+  ?'\n\nART STYLE (original PixelWeave Ashen Reliquary): prioritize a storied functional silhouette, intentionally clustered material highlights, quiet light hierarchy, animated semantic parts anchored to a stable structure. Use no recognizable Blasphemous sprites or iconography. Favor material credibility over generic symmetrical RPG pictograms.'
+  :'';
+ const text=makeLayeredPrompt($('idea-input').value)+appendix;try{await navigator.clipboard.writeText(text);notify('完整 LLM 像素动画生成规范已复制。');}catch{$('json-import-panel').hidden=false;$('json-input').value=text;$('json-input').select();notify('复制受限：已在文本框选中提示词，请手动复制。',true);}};
  document.addEventListener('keydown',e=>{if($('studio-page').hidden||e.target.matches('input,textarea,button'))return;if(e.code==='Space'){e.preventDefault();state.play=!state.play;draw();}if(e.code==='ArrowLeft')shift(-1);if(e.code==='ArrowRight')shift(1);});
  window.addEventListener('hashchange',()=>{if(location.hash==='#studio'||location.hash==='#gallery')route(location.hash.slice(1));});
 }
