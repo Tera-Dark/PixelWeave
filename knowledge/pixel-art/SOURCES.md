@@ -50,3 +50,12 @@
 - 专业像素特效多层次合成、动画性能与不同浏览器像素采样。
 - 商业项目中美术管线、Asset Bible、迭代评审与跨美术协作。
 - 使用人工评分与多模型对照，对本项目的自动质量指标进行实证校准。
+
+
+## 本轮补充核查（2026-10-24）
+
+- [Pixel Joint / Cure 原始教学](https://pixeljoint.com/forum/forum_posts.asp?TID=11299)：专门描述像素簇、线条台阶、Banding 与噪点；本项目的四张正反例图为原创重构，非原图复制。
+- [Slynyrd Items](https://www.slynyrd.com/blog/2019/12/21/pixelblog-24-items)：验证小道具形体可读性、不同物件匹配不同 Idle 的原则；不代表所有像素动画必须同一 FPS。
+- [Slynyrd Intro Animation](https://www.slynyrd.com/blog/2018/8/19/pixelblog-8-intro-to-animation)：明确关键姿态与帧数并非越多越好，启发逐帧实验。
+- [Aseprite Linked Cels](https://www.aseprite.org/docs/linked-cels/)：确认静止 Cel 可共享图像和坐标，本项目尚未实现 linked cel 数据压缩。
+- 本项目新增的示例资产全部标明 code-authored / externalExpertReview=false；模型输出和主观美术得分不来自这些第三方文档。
