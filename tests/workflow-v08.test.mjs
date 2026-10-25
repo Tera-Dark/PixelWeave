@@ -76,6 +76,13 @@ test('moving selected pixels does not smear overlapping source/destination',()=>
  assert.equal(d.layers[0].frames[0][2].slice(2,6),'.RRR');
  assert.equal(d.layers[0].frames[1][2][3],'.');
 });
+test('selection movement refuses destructive off-canvas clipping',()=>{
+ const d=createBlankLayered('Bounds',16,16,4);
+ paintLine(d,'outline',0,14,14,15,14,'R');
+ const original=JSON.stringify(d);
+ assert.throws(()=>moveRegion(d,'outline',0,14,14,15,14,1,0),/离开画布/);
+ assert.equal(JSON.stringify(d),original);
+});
 test('playback handles forward, reverse and pingpong without repeated endpoints',()=>{
  assert.deepEqual(stepPlayback(3,4,1,'loop'),{frame:0,direction:1});
  assert.deepEqual(stepPlayback(0,4,1,'reverse'),{frame:3,direction:-1});
