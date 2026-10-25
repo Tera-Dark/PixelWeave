@@ -21,6 +21,19 @@ test('semantic program compiles genuine layers with frozen static cels and a mov
  assert.ok(d.layers[0].frames[0].some(row=>row.includes('K')));
  assert.ok(d.layers[1].frames[0].some(row=>row.includes('R')));
 });
+test('semantic span/stamp preserve local pixel clusters without reading entire ASCII canvas',()=>{
+ const p=program();
+ p.layers[0].base.push({op:'span',x:2,y:2,colors:'KRRK.'});
+ p.layers[0].base.push({op:'stamp',x:10,y:19,rows:['.KH.','KRRK','.KH.']});
+ const compiled=compileSemanticProgram(p).asset.layers[0].frames[0];
+ assert.equal(compiled[2].slice(2,7),'KRRK.');
+ assert.equal(compiled[19].slice(10,14),'.KH.');
+ assert.equal(compiled[20].slice(10,14),'KRRK');
+ const bad=program();bad.layers[0].base.push({op:'stamp',x:22,y:22,rows:['KKKK']});
+ assert.throws(()=>compileSemanticProgram(bad),/stamp 越出画布/);
+ const illegal=program();illegal.layers[0].base.push({op:'span',x:1,y:1,colors:'ABC'});
+ assert.throws(()=>compileSemanticProgram(illegal),/span 含未定义颜色/);
+});
 test('semantic clipTo strictly masks later layer against the per-frame approved predecessor',()=>{
  const p=program();p.layers[1].clipTo='cage';
  // Cage has ONLY its outline; flame does not overlap that outline.
