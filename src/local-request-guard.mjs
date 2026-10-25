@@ -24,3 +24,13 @@ export function localApiRequestAllowed(headers={},method='GET'){
  if(method==='POST'&&!/^application\/json(?:\s*;|$)/i.test(headers['content-type']||''))return false;
  return true;
 }
+
+/** Files served by the localhost preview must never include local credentials,
+ * git metadata, dependencies, test fixtures or the server implementation. */
+export function isPublicProjectPath(pathname){
+ if(typeof pathname!=='string'||!pathname.startsWith('/'))return false;
+ const parts=pathname.split('/').filter(Boolean);
+ if(parts.some(s=>s.startsWith('.')||['node_modules','tests','secrets','private'].includes(s)))return false;
+ if(parts.length===1&&['dev-server.mjs','package-lock.json','package.json'].includes(parts[0]))return false;
+ return true;
+}
