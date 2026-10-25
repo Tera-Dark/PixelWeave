@@ -32,6 +32,9 @@ jobs:
       - name: Global navigation consistency E2E
         run: node tests/e2e/navigation.mjs
         timeout-minutes: 5
+      - name: Runtime workload and loading performance E2E
+        run: node tests/e2e/performance.mjs
+        timeout-minutes: 5
       - name: Prepare minimal public-only Pages bundle
         run: |
           mkdir -p _site
