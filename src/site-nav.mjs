@@ -56,6 +56,7 @@ export function mountSiteNavigation(){
  for(const item of SITE_SECTIONS){
   const link=el('a','pw-nav-link');link.href=siteUrl(item.id);
   link.dataset.pwNav=item.id;
+  if(item.id==='gallery'||item.id==='studio')link.dataset.page=item.id;
   link.append(document.createTextNode(item.label+' '),el('span','',item.short));
   nav.append(link);
  }
