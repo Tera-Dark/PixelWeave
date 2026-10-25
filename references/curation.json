@@ -134,33 +134,58 @@
       "year": 2021,
       "mode": "sheet",
       "id": "onur-character",
-      "title": "Onur · 像素角色动作研究",
+      "title": "Onur · 四帧角色步行动画",
       "author": "ImogiaGames",
       "group": "角色动作",
       "url": "https://opengameart.org/content/pixel-character-01-onur",
       "sheet": "./media/onur-character.png",
       "sourceFile": "https://opengameart.org/sites/default/files/sheet-pixelchar-01.png",
-      "cols": 16,
+      "cols": 4,
       "rows": 8,
       "frameMap": [
-        0,
-        1,
-        2,
-        3,
         4,
         5,
         6,
         7
       ],
       "fps": 9,
-      "frames": 8,
+      "frames": 4,
       "tags": [
         "角色",
         "待机",
         "步行动势"
       ],
       "question": "头部、躯干、支撑脚的动作节奏如何分离，保持人物的体积感？",
-      "note": "原作者 ImogiaGames，基于 Frozenen 的 CC0 角色素材二次绘制。展示原始 PNG 的第一段连续帧。"
+      "note": "ImogiaGames 在 Frozenen CC0 角色基础上扩展，选取原始图集中连续的四帧行走片段。"
+    },
+    {
+      "id": "skeleton-walk",
+      "title": "Skeleton · 骷髅行走逐帧",
+      "author": "tbbk",
+      "year": 2023,
+      "group": "角色动作",
+      "license": "CC0",
+      "url": "https://opengameart.org/content/pixel-art-skeleton",
+      "mode": "sheet",
+      "sheet": "./media/skeleton-walk.png",
+      "sourceFile": "https://opengameart.org/sites/default/files/pixel_skeleton.png",
+      "cols": 3,
+      "rows": 3,
+      "frameMap": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "fps": 8,
+      "frames": 4,
+      "tags": [
+        "骷髅",
+        "角色",
+        "32px"
+      ],
+      "question": "骷髅步行动画如何通过骨盆位移、腿部交替和手臂摆动体现重心？",
+      "note": "作者原图同时包含 idle、attack 和 walk 动作；仅展示连续的行走帧。"
     }
   ]
 }
