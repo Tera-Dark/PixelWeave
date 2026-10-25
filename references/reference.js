@@ -9,6 +9,7 @@ const $=id=>document.getElementById(id);
 let entries=[],visible=[],selected=null,source=null,frame=0,playing=true,last=0,speed=1;
 let localObjectURL=null,noteTimer=null,differenceDisabled=false;
 const canvas=$('ref-canvas'),ctx=canvas.getContext('2d',{willReadFrequently:true});
+const imageCache=new Map();
 const storeKey='pixelweave.reference-atlas.v1';
 let memory={saved:[],notes:{}};
 try{const v=JSON.parse(localStorage.getItem(storeKey)||'{}');if(v&&Array.isArray(v.saved)&&v.notes)memory=v;}catch{}
@@ -25,7 +26,25 @@ function renderLibrary(){
   const strong=document.createElement('strong');strong.textContent=(favorite(item.id)?'★ ':'')+item.title;
   const small=document.createElement('small');small.textContent=item.author+' · '+item.license+' · '+(item.frames?item.frames+' 帧':'制作流程');
   const tag=document.createElement('span');tag.className='atlas-tag';tag.textContent=item.mode==='external'?'原站链接':'可逐帧播放';
-  b.append(strong,small,tag);b.onclick=()=>choose(item);
+  const thumb=document.createElement('canvas');thumb.width=66;thumb.height=66;thumb.className='atlas-source-thumb';
+  const copy=document.createElement('div');copy.className='atlas-source-copy';copy.append(strong,small,tag);
+  b.append(thumb,copy);b.onclick=()=>choose(item);
+  if(item.mode!=='external'){
+   const url=item.sheet||item.images[0];
+   cachedImage(url).then(img=>{
+    if(!thumb.isConnected)return;
+    const tc=thumb.getContext('2d');renderBackground(tc,66,66);
+    tc.imageSmoothingEnabled=false;
+    const fw=item.sheet?Math.floor(img.naturalWidth/item.cols):img.naturalWidth;
+    const fh=item.sheet?Math.floor(img.naturalHeight/item.rows):img.naturalHeight;
+    const scale=Math.max(1,Math.floor(Math.min(54/fw,54/fh)));
+    const dx=Math.round((66-fw*scale)/2),dy=Math.round((66-fh*scale)/2);
+    tc.drawImage(img,0,0,fw,fh,dx,dy,fw*scale,fh*scale);
+   }).catch(()=>{});
+  }else{
+   const tc=thumb.getContext('2d');renderBackground(tc,66,66);
+   tc.fillStyle='#e5b08a';tc.font='25px monospace';tc.fillText('◇',19,40);
+  }
   return b;
  }));
 }
@@ -44,6 +63,10 @@ function panel(item){
  field('size-label','—');
  field('asset-count',item.frames?item.frames+' FRAMES':'EXTERNAL');
  field('media-state',labelSource(item));
+}
+function cachedImage(url){
+ if(!imageCache.has(url))imageCache.set(url,loadImage(url).catch(e=>{imageCache.delete(url);throw e;}));
+ return imageCache.get(url);
 }
 function loadImage(url){
  return new Promise((resolve,reject)=>{
@@ -64,7 +87,7 @@ async function choose(item){
  }
  setStatus('正在从原作者网站读取素材预览…');drawPlaceholder('LOADING ORIGINAL FRAMES','从原作者页面读取 CC0 动画');
  try{
-  const imgs=await Promise.all((item.images||[item.sheet]).map(loadImage));
+  const imgs=await Promise.all((item.images||[item.sheet]).map(cachedImage));
   if(selected!==item)return;
   let cols=item.cols||1,rows=item.rows||1;
   const dim=frameDimensions(imgs[0].naturalWidth,imgs[0].naturalHeight,cols,rows);
