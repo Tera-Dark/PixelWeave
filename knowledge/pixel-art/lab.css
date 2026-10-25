@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+/* Font loading is non-blocking via document <link>; system fallbacks render immediately. */
 :root{color-scheme:dark;--bg:#101722;--p:#1b2635;--ink:#f1e9df;--mute:#99acbd;--line:#364459;--hot:#ebb298;--mint:#abd0c1}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.75 'Noto Sans SC',sans-serif}button,input{font:inherit}button{cursor:pointer}button,a{transition:.17s}button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--hot);outline-offset:3px}a{color:var(--hot);text-decoration:none}a:hover{color:#ffe0c6}h1,h2,h3,p{margin-top:0}
 header{max-width:1500px;margin:auto;display:flex;align-items:center;justify-content:space-between;padding:24px 32px;border-bottom:1px solid var(--line)}.logo{font:bold 24px monospace;letter-spacing:-1px;color:var(--ink)}.logo span{color:var(--hot)}nav{display:flex;gap:26px;font-size:12px}
