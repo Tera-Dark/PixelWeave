@@ -63,9 +63,12 @@ try{
  await page.locator('#cel-paste').click();
  data=await exported(page);
  assert.deepEqual(data.layers.find(l=>l.id==='inner_bubbles').frames[3],data.layers.find(l=>l.id==='crimson_liquid').frames[4],'Cel paste must use native rows');
+ const pastedRows=data.layers.find(l=>l.id==='inner_bubbles').frames[3].slice();
+ const originalFrame3=data.layers.find(l=>l.id==='crimson_liquid').frames[3].slice();
  await page.locator('#cel-move-right').click();
  data=await exported(page);
- assert.deepEqual(data.layers.find(l=>l.id==='inner_bubbles').frames[4],data.layers.find(l=>l.id==='crimson_liquid').frames[4],'whole-frame move keeps layers together');
+ assert.deepEqual(data.layers.find(l=>l.id==='inner_bubbles').frames[4],pastedRows,'moving a frame must preserve pasted Cel');
+ assert.deepEqual(data.layers.find(l=>l.id==='crimson_liquid').frames[4],originalFrame3,'whole-frame move must reorder every layer consistently');
  await page.locator('#diagnose-animation').click();
  assert.match(await page.locator('#diagnosis-output').innerText(),/平均变化/);
  await page.locator('#play-mode').selectOption('pingpong');
