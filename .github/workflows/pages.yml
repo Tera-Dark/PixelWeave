@@ -29,9 +29,17 @@ jobs:
       - name: Browser editor workflow smoke
         run: node tests/e2e/smoke.mjs
         timeout-minutes: 5
+      - name: Prepare minimal public-only Pages bundle
+        run: |
+          mkdir -p _site
+          cp index.html favicon.svg .nojekyll _site/
+          cp -R src references knowledge docs _site/
+          test ! -e _site/dev-server.mjs
+          test ! -e _site/node_modules
+          test ! -e _site/tests
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
