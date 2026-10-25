@@ -19,7 +19,7 @@
 ## Actual staged generation contract
 
 1. **Brief / director:** choose a recognizable subject, shape hierarchy, restrained palette, stable anchors, ordered layer responsibilities, and distinguish *static* from *animated* elements. The stage outputs JSON, never the image.
-2. **One layer at a time:** write a small whitelist of primitive operations (pixel, rect, line, ellipse, polygon). Each has bounded integer coordinates and named palette symbols.
+2. **One layer at a time:** write a small whitelist of primitive operations (pixel, rect, line, ellipse, polygon, span, stamp). Large shapes define mass and silhouette; short runs and small indexed pixel-cluster stamps refine stepped edges. Each has bounded integer coordinates and named palette symbols; models must not re-encode the whole canvas as rows.
 3. **Static frame lock:** the compiler renders a static base exactly once and duplicates it across the timeline. The LLM is not invited to redraw rigid components four times.
 4. **Motion as change, not recreation:** animated layers specify four transforms against the same base and optional correction strokes/erasures. The model focuses on pose/phase differences.
 5. **Reference alignment:** the model receives the director plan and a real 24×24 symbol snapshot of the already-compiled visual structure before drawing the next layer. Optional clipTo references a previously approved layer.
