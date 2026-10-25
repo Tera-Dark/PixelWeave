@@ -66,7 +66,10 @@ export function mountGuidedWorkbench({notify,onPublish,getBrief,getStyle,isModel
     list.append(item);
    });plan.append(list);
   }
-  $('guided-history').textContent='最近操作：'+view.history.slice(-4).map(h=>h.stage+' / '+h.action+' ('+h.attempts+' 次调用)').join(' · ');
+  const m=view.metrics;
+  const tech=m?'技术观察：画布覆盖 '+m.coverage+'% · 相邻帧变化 '+m.meanMotion+'% · 首末帧差 '+m.seam+'%（不是美术评分）':'';
+  const warnings=view.warnings?.length?' | 请检查：'+view.warnings.map(x=>x.message).slice(0,3).join('；'):'';
+  $('guided-history').textContent=tech+warnings+'\n最近操作：'+view.history.slice(-4).map(h=>h.stage+' / '+h.action+' ('+h.attempts+' 次调用)').join(' · ');
   paint();
  }
  async function send(action,input={}){
