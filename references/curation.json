@@ -1,38 +1,50 @@
 {
-  "format": "pixelweave/reference-v1",
+  "format": "pixelweave/reference-v2",
   "reviewed": "2026-10-25",
-  "policy": "External credited references only. No copying into the authored sprite gallery or model training.",
+  "policy": "Only real authored animated PNG frames, licensed CC0. Build-cached originals for reliable in-site playback; credit artists and link to original files. Reference study only; never part of authored gallery or ML training.",
   "items": [
     {
-      "id": "ben-fire",
-      "title": "Animated Fire · 60 帧燃烧",
-      "author": "BenHickling",
-      "year": 2018,
-      "group": "火焰特效",
       "license": "CC0",
+      "year": 2018,
+      "mode": "sheet",
+      "id": "ben-fire",
+      "title": "Animated Fire · 60 帧火焰",
+      "author": "BenHickling",
+      "group": "火焰特效",
       "url": "https://opengameart.org/content/animated-fire",
-      "sheet": "https://opengameart.org/sites/default/files/fire1_64.png",
+      "sheet": "./media/ben-fire.png",
+      "sourceFile": "https://opengameart.org/sites/default/files/fire1_64.png",
       "cols": 10,
       "rows": 6,
       "fps": 12,
       "frames": 60,
       "tags": [
-        "火舌",
+        "火焰",
         "高帧数",
-        "发光"
+        "动态像素簇"
       ],
-      "question": "热芯和边缘火舌何时同步，何时独立变化？",
-      "mode": "sheet"
+      "question": "火焰核心与外焰的相位如何交替？哪一部分保持稳定？"
     },
     {
-      "id": "crad-fire",
-      "title": "Campfire · 8 帧手绘篝火",
-      "author": "crad",
-      "year": 2024,
-      "group": "火焰特效",
       "license": "CC0",
+      "year": 2024,
+      "mode": "frames",
+      "id": "crad-fire",
+      "title": "Campfire · 八帧手绘篝火",
+      "author": "crad",
+      "group": "火焰特效",
       "url": "https://opengameart.org/content/campfire-animation",
       "images": [
+        "./media/crad-1.png",
+        "./media/crad-2.png",
+        "./media/crad-3.png",
+        "./media/crad-4.png",
+        "./media/crad-5.png",
+        "./media/crad-6.png",
+        "./media/crad-7.png",
+        "./media/crad-8.png"
+      ],
+      "sourceImages": [
         "https://opengameart.org/sites/default/files/fire1_1.png",
         "https://opengameart.org/sites/default/files/fire2_1.png",
         "https://opengameart.org/sites/default/files/fire3_0.png",
@@ -45,155 +57,110 @@
       "fps": 8,
       "frames": 8,
       "tags": [
-        "篝火",
         "逐帧",
-        "锚点"
+        "篝火",
+        "固定锚点"
       ],
-      "question": "固定薪炭后，火焰的幅度和明暗簇有哪些变化？",
-      "mode": "frames"
+      "question": "燃烧木炭为什么保持不动，而火舌逐帧重新组织？"
     },
     {
-      "id": "arlan-fire",
-      "title": "Campfire · 4 帧循环",
-      "author": "ArlanTR",
-      "year": 2024,
-      "group": "火焰特效",
       "license": "CC0",
+      "year": 2024,
+      "mode": "sheet",
+      "id": "arlan-fire",
+      "title": "Campfire · 四帧火焰循环",
+      "author": "ArlanTR",
+      "group": "火焰特效",
       "url": "https://opengameart.org/content/campfire-pixel-art-animated",
-      "sheet": "https://opengameart.org/sites/default/files/campfire-sprite-sheet.png",
+      "sheet": "./media/arlan-fire.png",
+      "sourceFile": "https://opengameart.org/sites/default/files/campfire-sprite-sheet.png",
       "cols": 4,
       "rows": 1,
       "fps": 7,
       "frames": 4,
       "tags": [
+        "四帧",
         "短循环",
         "火焰"
       ],
-      "question": "首尾衔接时怎样在极少帧里保持燃烧感？",
-      "mode": "sheet"
+      "question": "只有四帧时，轮廓和高光怎样建立连续运动感？"
     },
     {
-      "id": "jain-fire",
-      "title": "Fire · 模块化瓦片火焰",
-      "author": "i_rk_jain",
-      "year": 2021,
-      "group": "火焰特效",
       "license": "CC0",
+      "year": 2021,
+      "mode": "sheet",
+      "id": "jain-fire",
+      "title": "Fire · 模块瓦片动画",
+      "author": "i_rk_jain",
+      "group": "火焰特效",
       "url": "https://opengameart.org/content/fire-9",
-      "sheet": "https://opengameart.org/sites/default/files/fire_4.png",
+      "sheet": "./media/jain-fire.png",
+      "sourceFile": "https://opengameart.org/sites/default/files/fire_4.png",
       "cols": 4,
       "rows": 3,
       "fps": 10,
       "frames": 12,
       "tags": [
         "瓦片",
-        "效果",
-        "节奏"
+        "连通",
+        "火焰"
       ],
-      "question": "相邻帧的火焰结构如何连续地扩展成一排？",
-      "mode": "sheet"
+      "question": "不同位置的火焰如何共用一致的轮廓和颜色结构？"
     },
     {
-      "id": "chromatic",
-      "title": "Chromatic Campfires · 手绘色彩组",
-      "author": "Idylwild",
-      "year": 2025,
-      "group": "道具光影",
       "license": "CC0",
-      "url": "https://opengameart.org/content/idylwilds-chromatic-campfires",
+      "year": 2020,
+      "mode": "sheet",
+      "id": "water-strip",
+      "title": "Animated Water · 四帧流动水面",
+      "author": "InThePixel",
+      "group": "环境动画",
+      "url": "https://opengameart.org/content/animated-water-platformer-16x16",
+      "sheet": "./media/water-strip.png",
+      "sourceFile": "https://opengameart.org/sites/default/files/water_00_strip4.png",
+      "cols": 4,
+      "rows": 1,
       "fps": 8,
       "frames": 4,
       "tags": [
-        "手绘",
-        "色板",
-        "16px"
+        "水面",
+        "16px",
+        "周期"
       ],
-      "question": "五种色彩的火焰如何同时保持明度结构？",
-      "note": "原站提供原始 tilesheet 和源文件；请下载后导入 PNG。",
-      "mode": "external"
+      "question": "同一条水线如何通过小范围像素变化产生连续的流动感？"
     },
     {
-      "id": "torch",
-      "title": "Animated Pixel Torch · 源文件研究",
-      "author": "XLIVE99",
-      "year": 2020,
-      "group": "道具光影",
       "license": "CC0",
-      "url": "https://opengameart.org/content/animated-pixel-torch",
-      "fps": 8,
-      "frames": 6,
-      "tags": [
-        "Aseprite",
-        "法线贴图",
-        "火把"
-      ],
-      "question": "分解灯体稳定结构、火焰与法线贴图的关系。",
-      "note": "原站提供 .aseprite、GIF、spritesheet 和 normal map。",
-      "mode": "external"
-    },
-    {
-      "id": "pixels",
-      "title": "Pixels · 色板与待机练习",
-      "author": "Not Jam",
-      "year": 2023,
-      "group": "艺术与配色",
-      "license": "CC0",
-      "url": "https://not-jam.itch.io/pixels",
-      "tags": [
-        "配色",
-        "idle",
-        "像素簇"
-      ],
-      "question": "少量色阶如何支持不同材质，并保持像素簇完整？",
-      "note": "作者明确不认可 AI/ML 使用；本库仅做来源链接，不嵌入或训练。",
-      "mode": "external"
-    },
-    {
-      "id": "boy",
-      "title": "Pixel Boy · 待机与行走过渡",
-      "author": "Zeenaz",
+      "year": 2021,
+      "mode": "sheet",
+      "id": "onur-character",
+      "title": "Onur · 像素角色动作研究",
+      "author": "ImogiaGames",
       "group": "角色动作",
-      "license": "CC0",
-      "url": "https://zeenaz.itch.io/free-asset-pixel-boy-32x64-animation",
-      "tags": [
-        "人物",
-        "行走",
-        "关键帧"
+      "url": "https://opengameart.org/content/pixel-character-01-onur",
+      "sheet": "./media/onur-character.png",
+      "sourceFile": "https://opengameart.org/sites/default/files/sheet-pixelchar-01.png",
+      "cols": 16,
+      "rows": 8,
+      "frameMap": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
       ],
-      "question": "待机起步时，支撑脚和上半身如何调整重心？",
-      "mode": "external"
-    },
-    {
-      "id": "blasphemous",
-      "title": "Blasphemous · 逐帧创作过程",
-      "author": "The Game Kitchen / Raúl Vivar",
-      "group": "大师流程",
-      "license": "All rights reserved",
-      "url": "https://www.gameanim.com/2021/02/19/blasphemous-pixel-art-animation-time-lapses/",
+      "fps": 9,
+      "frames": 8,
       "tags": [
-        "美术导演",
-        "动作草图",
-        "逐帧"
-      ],
-      "question": "精灵剪影定稿与逐帧细节修订之间有哪些明确阶段？",
-      "note": "版权素材，仅跳转原作者展示页面。",
-      "mode": "external"
-    },
-    {
-      "id": "hyper-light",
-      "title": "Hyper Light Drifter · 手绘世界动画",
-      "author": "Heart Machine",
-      "group": "大师流程",
-      "license": "All rights reserved",
-      "url": "https://www.heartmachine.com/hyper-light-drifter",
-      "tags": [
-        "世界观",
         "角色",
-        "环境"
+        "待机",
+        "步行动势"
       ],
-      "question": "角色动势和周围环境微动画如何保持视觉主次？",
-      "note": "版权素材，仅跳转官方网页。",
-      "mode": "external"
+      "question": "头部、躯干、支撑脚的动作节奏如何分离，保持人物的体积感？",
+      "note": "原作者 ImogiaGames，基于 Frozenen 的 CC0 角色素材二次绘制。展示原始 PNG 的第一段连续帧。"
     }
   ]
 }
