@@ -66,8 +66,8 @@ function layerInstructions(plan,layer,brief,asset,guide,style){
   'TASK KNOWLEDGE: '+guide.context.slice(0,3300),
   'STYLE: '+style.context.slice(0,1200),
   'Output {"base":[...ops],'+(layer.kind==='animated'?'"motion":[{"dx":0,"dy":0,"ops":[]},{"dx":1,"dy":0,"ops":[]},{"dx":0,"dy":0,"ops":[]},{"dx":-1,"dy":0,"ops":[]}]':'"motion": OMIT THIS FIELD')+'}.',
-  'Valid ops: {"op":"pixel","x":9,"y":8,"color":"K"}, {"op":"rect","x":4,"y":5,"w":12,"h":9,"color":"R","fill":true}, {"op":"line","x":4,"y":6,"x2":16,"y2":8,"color":"K"}, {"op":"ellipse","x":4,"y":5,"w":8,"h":8,"color":"K"}, {"op":"polygon","points":[[4,8],[10,2],[18,8],[15,20],[7,20]],"color":"R"}.',
-  'ALL shapes stay strictly inside x/y 0–23. Only use palette symbols. Use polygons and grouped rects for coherent pixel CLUSTERS; do not emit hundreds of pixels.',
+  'Valid ops: {"op":"pixel","x":9,"y":8,"color":"K"}, {"op":"rect","x":4,"y":5,"w":12,"h":9,"color":"R","fill":true}, {"op":"line","x":4,"y":6,"x2":16,"y2":8,"color":"K"}, {"op":"ellipse","x":4,"y":5,"w":8,"h":8,"color":"K"}, {"op":"polygon","points":[[4,8],[10,2],[18,8],[15,20],[7,20]],"color":"R"}, {"op":"span","x":5,"y":9,"colors":"KKRRR.."}, {"op":"stamp","x":9,"y":8,"rows":[".KK.","KRRK",".KK."]}.',
+  'ALL shapes stay strictly inside x/y 0–23. Only use palette symbols. Use large polygons/rects for mass, plus small span/stamp pixel CLUSTERS for distinctive stepped edges and materials. Avoid filling the entire asset as raw rows.',
   'For animated layers, base is the stable reference drawing; 4 motion entries apply integer dx/dy to it, then optional ops overpaint (color "." erases). Plan 4 coherent poses with a natural closed loop. For static layers OMIT motion entirely, engine will freeze every frame bit-for-bit.',
   'If clipTo is specified, all your output will be deterministically clipped to that earlier layer. Respect the provided 24x24 visual guide.',
   'No markdown, no explanation, never draw any frozen previous layer again.'
