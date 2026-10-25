@@ -10,8 +10,9 @@ test('learning lab now showcases only the first authorized native potion',()=>{
  assert.ok(!js.includes('examples/reference/index.json'));
  assert.match(js,/await choose\(0\)/);
 });
-test('learning lab uses shared pixel UI theme with scoped layout fixes',()=>{
- assert.match(html,/src\/pixel-ui\.css/);
+test('learning lab uses lightweight shared foundation with scoped layout fixes',()=>{
+ assert.match(html,/src\/site-base\.css/);
+ assert.doesNotMatch(html,/src\/pixel-ui\.css/);
  assert.match(html,/lab-pixel\.css/);
  assert.match(css,/\.lab-layout/);
  assert.match(css,/@media\(max-width:740px\)/);
