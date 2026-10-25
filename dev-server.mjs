@@ -4,7 +4,7 @@ import {resolve,extname,sep} from 'node:path';
 import {modelSettings,generateWithLLM} from './src/generator.mjs';
 import {generateProgressive} from './src/progressive.mjs';
 import {refineOneLayer} from './src/refine.mjs';
-import {localRequestAllowed,localApiRequestAllowed} from './src/local-request-guard.mjs';
+import {localRequestAllowed,localApiRequestAllowed,isPublicProjectPath} from './src/local-request-guard.mjs';
 const root=process.cwd();
 const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.json':'application/json; charset=utf-8'};
 let generating=false;
@@ -45,6 +45,7 @@ http.createServer(async(req,res)=>{
   }
   if(path.startsWith('/api/')){json(res,404,{error:'Unknown API'});return;}
   if(req.method!=='GET'&&req.method!=='HEAD'){res.writeHead(405);res.end('Method Not Allowed');return;}
+  if(!isPublicProjectPath(path)){res.writeHead(403);res.end('Forbidden');return;}
   const filename=resolve(root,'.'+path.replace(/\/$/,'/index.html'));
   if(filename!==root&&!filename.startsWith(root+sep)){res.writeHead(403);res.end('Forbidden');return;}
   const s=await stat(filename);if(!s.isFile())throw Error('Not a file');
