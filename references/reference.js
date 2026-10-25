@@ -20,6 +20,8 @@ function labelSource(item){return item.mode==='external'?'SOURCE ONLY / 原站�
 function renderLibrary(){
  const q=$('search').value.trim().toLowerCase(),cat=$('category').value;
  visible=entries.filter(x=>(cat==='all'||x.group===cat)&&(!$('only-playable').checked||x.mode!=='external')&&(!$('only-saved').checked||favorite(x.id))&&(!q||[x.title,x.author,x.group,x.question,...x.tags].join(' ').toLowerCase().includes(q)));
+ if($('sort').value==='author')visible.sort((a,b)=>a.author.localeCompare(b.author));
+ if($('sort').value==='frames')visible.sort((a,b)=>(b.frames||0)-(a.frames||0));
  $('result-count').textContent=visible.length+' / '+entries.length;
  $('ref-list').replaceChildren(...visible.map(item=>{
   const b=document.createElement('button');b.type='button';b.className='atlas-ref'+(item.id===selected?.id?' active':'');
@@ -54,6 +56,7 @@ function panel(item){
  field('credit-author',item.author);field('credit-site',new URL(item.url).hostname);
  field('credit-license',item.license);field('credit-note',item.note||'保留作者署名；源图片来自作者页面。');
  $('original-link').href=item.url;
+ $('main-source-link').href=item.url;
  $('favorite').setAttribute('aria-pressed',String(favorite(item.id)));
  $('favorite').textContent=favorite(item.id)?'★ 已收藏':'☆ 收藏';
  $('study-points').replaceChildren(...[item.question,'逐帧寻找保持不变的锚点与变化的主体。','检查动作首尾是否自然衔接，以及像素簇是否完整。'].map(t=>{const li=document.createElement('li');li.textContent=t;return li;}));
@@ -189,7 +192,11 @@ for(const id of ['onion','difference','background'])$(id).onchange=()=>draw();
 $('reset').onclick=()=>{$('onion').checked=false;$('difference').checked=false;$('background').checked=true;frame=0;speed=1;$('speed').value='1';playing=!!source;tick.elapsed=0;draw();};
 $('favorite').onclick=()=>{if(!selected)return;memory.saved=favorite(selected.id)?memory.saved.filter(v=>v!==selected.id):[...memory.saved,selected.id];persist();panel(selected);renderLibrary();};
 $('study-notes').oninput=e=>{if(!selected)return;memory.notes[selected.id]=e.target.value;persist();$('save-status').textContent='已保存在此浏览器';};
-for(const id of ['search','category','only-playable','only-saved'])$(id).addEventListener(id==='search'?'input':'change',renderLibrary);
+for(const id of ['search','category','sort','only-playable','only-saved'])$(id).addEventListener(id==='search'?'input':'change',renderLibrary);
+$('clear-filters').onclick=()=>{
+ $('search').value='';$('category').value='all';$('sort').value='featured';
+ $('only-playable').checked=false;$('only-saved').checked=false;renderLibrary();
+};
 $('surprise').onclick=()=>{const pool=visible.length?visible:entries;if(!pool.length)return;const other=pool.filter(x=>x.id!==selected?.id);choose((other.length?other:pool)[Math.floor(Math.random()*(other.length||pool.length))]);};
 $('import-file').onchange=async e=>{
  const f=e.target.files?.[0];if(!f)return;
@@ -215,6 +222,58 @@ $('apply-grid').onclick=()=>{
  source={...source,cols,rows,width:img.naturalWidth/cols,height:img.naturalHeight/rows,total:cols*rows};
  frame=0;playing=false;field('size-label',source.width+' × '+source.height);field('import-status','已经按 '+cols+' 列 × '+rows+' 行重新切帧。');renderContact();draw();
 };
+// The Atlas is a workstation: the study surface stays visible while rails
+// can collapse independently. UI preferences are intentionally local only.
+const preferenceKey='pixelweave.atlas.layout.v1';
+let layoutPreference={library:true,inspector:true,tab:'notes'};
+try{
+ const stored=JSON.parse(localStorage.getItem(preferenceKey)||'null');
+ if(stored&&typeof stored==='object'){
+  layoutPreference.library=stored.library!==false;
+  layoutPreference.inspector=stored.inspector!==false;
+  layoutPreference.tab=stored.tab==='source'?'source':'notes';
+ }
+}catch{}
+function persistLayout(){try{localStorage.setItem(preferenceKey,JSON.stringify(layoutPreference));}catch{}}
+function applyLayout(){
+ const w=$('atlas-workspace');
+ w.classList.toggle('library-hidden',!layoutPreference.library);
+ w.classList.toggle('inspector-hidden',!layoutPreference.inspector);
+ $('toggle-library').setAttribute('aria-pressed',String(layoutPreference.library));
+ $('toggle-inspector').setAttribute('aria-pressed',String(layoutPreference.inspector));
+ $('toggle-library').textContent=layoutPreference.library?'☰ 素材':'☰ 显示素材';
+ $('toggle-inspector').textContent=layoutPreference.inspector?'▤ 研究':'▤ 显示研究';
+ const source=layoutPreference.tab==='source';
+ $('panel-notes').hidden=source;
+ $('panel-source').hidden=!source;
+ $('tab-notes').setAttribute('aria-selected',String(!source));
+ $('tab-source').setAttribute('aria-selected',String(source));
+ $('tab-notes').tabIndex=source?-1:0;
+ $('tab-source').tabIndex=source?0:-1;
+}
+$('toggle-library').onclick=()=>{layoutPreference.library=!layoutPreference.library;persistLayout();applyLayout();};
+$('toggle-inspector').onclick=()=>{layoutPreference.inspector=!layoutPreference.inspector;persistLayout();applyLayout();};
+$('tab-notes').onclick=()=>{layoutPreference.tab='notes';persistLayout();applyLayout();};
+$('tab-source').onclick=()=>{layoutPreference.tab='source';persistLayout();applyLayout();};
+function showShortcuts(show){
+ $('shortcut-panel').hidden=!show;
+ $('keyboard-help').setAttribute('aria-expanded',String(show));
+}
+$('keyboard-help').onclick=()=>showShortcuts($('shortcut-panel').hidden);
+$('close-shortcuts').onclick=()=>showShortcuts(false);
+document.addEventListener('keydown',e=>{
+ if(e.altKey||e.ctrlKey||e.metaKey)return;
+ const el=e.target;
+ if(el?.closest?.('input,textarea,select,[contenteditable=true]'))return;
+ if(e.key==='Escape'){showShortcuts(false);return;}
+ if(e.key==='/'){e.preventDefault();$('search').focus();return;}
+ if(e.key==='ArrowLeft'&&source){e.preventDefault();shift(-1);return;}
+ if(e.key==='ArrowRight'&&source){e.preventDefault();shift(1);return;}
+ if((e.key===' '||e.code==='Space')&&source){e.preventDefault();$('play').click();return;}
+ if((e.key==='f'||e.key==='F')&&selected){e.preventDefault();$('favorite').click();}
+});
+applyLayout();
+
 async function init(){
  try{
   const result=await fetch('./curation.json',{cache:'no-cache'});if(!result.ok)throw Error('参考索引不可访问');
