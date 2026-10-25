@@ -24,6 +24,9 @@ try{
    return el.textContent.includes('已加载作者')||el.textContent.includes('原作者 CC0 动画帧已加载');
   },{timeout:20000});
   assert.equal(await page.locator('#timeline').getAttribute('max'),String(item.frames-1),'real frame count '+item.id);
+  // The player autoplays by design. Lock at F01 before comparing F01→F02,
+  // otherwise rAF can advance between screenshots and make tests flaky.
+  await page.locator('#timeline').evaluate(el=>{el.value='0';el.dispatchEvent(new Event('input',{bubbles:true}));});
   const first=await page.locator('#ref-canvas').evaluate(el=>Array.from(el.getContext('2d',{willReadFrequently:true}).getImageData(0,0,el.width,el.height).data));
   await page.locator('#next').click();
   const second=await page.locator('#ref-canvas').evaluate(el=>Array.from(el.getContext('2d',{willReadFrequently:true}).getImageData(0,0,el.width,el.height).data));
