@@ -343,6 +343,13 @@ function events(){
   const i=layerAtPosition(x,y,a.data.layers.length,explosionSpread);
   if(i>=0){state.activeLayer=a.data.layers[i].id;renderLayers();drawExplosion();}
  });
+ $('jump-exploded').onclick=()=>{
+  $('exploded-title').scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
+ };
+ $('jump-composer').onclick=()=>{
+  $('studio-composer-drawer').open=true;
+  $('studio-composer-drawer').scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
+ };
  $('hero-studio').onclick=()=>route('studio');$('hero-open').onclick=()=>{choose(POTION_ID);route('studio');};
  $('principle-open').onclick=()=>route('studio');$('studio-to-gallery').onclick=()=>route('gallery');
  $('btn-play').onclick=()=>{state.play=!state.play;state.elapsed=0;draw();};$('btn-prev').onclick=()=>shift(-1);$('btn-next').onclick=()=>shift(1);
