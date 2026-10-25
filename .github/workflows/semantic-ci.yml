@@ -1,0 +1,24 @@
+name: Semantic LLM pipeline checks
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'dev-server.mjs'
+      - '.github/workflows/semantic-ci.yml'
+  push:
+    branches: [feat/semantic-llm-workstation]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax validation
+        run: node --check src/semantic-program.mjs && node --check src/semantic-generator.mjs && node --check src/main.js && node --check dev-server.mjs
+      - name: Node unit and regression tests
+        run: npm test
