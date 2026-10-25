@@ -355,7 +355,7 @@ function renderLayers(){
   const select=document.createElement('button');select.type='button';select.className='layer-select';
   const b=document.createElement('strong');b.textContent=layer.name;
   const sub=document.createElement('small');sub.textContent=layer.id+' · '+Math.round(layer.opacity*100)+'%';
-  select.append(b,sub);select.onclick=()=>{state.activeLayer=layer.id;renderLayers();drawExplosion();};
+  select.append(b,sub);select.onclick=()=>{state.activeLayer=layer.id;selection=null;renderLayers();draw();};
   row.append(eye,select);host.append(row);
  }
  $('layer-count').textContent=data.layers.length+' LAYERS';
@@ -377,6 +377,7 @@ function renderLayers(){
  }
  const m=metrics(data);
  $('layer-metrics').textContent='COVERAGE '+m.coverage+'%  ·  MOTION '+m.meanMotion+'%  ·  LOOP SEAM '+m.seam+'%';
+ updateCelSelection($('cel-grid'),state.frame,state.activeLayer);
  drawExplosion();
 }
 function beginLLMStatus(){
@@ -520,8 +521,13 @@ function events(){
   draw();
  };
  $('tool-pencil').onclick=()=>tool('pencil');$('tool-erase').onclick=()=>tool('erase');
- const c=$('studio-canvas');c.onpointerdown=e=>{if(!state.tool)return;if(isLayered())remember();painting=true;state.play=false;draw();c.setPointerCapture(e.pointerId);paint(e);};c.onpointermove=e=>{if(painting)paint(e);};
- const stop=()=>{if(painting){painting=false;persist();renderGallery();if(isLayered())renderLayers();}};c.onpointerup=stop;c.onpointercancel=stop;c.onlostpointercapture=stop;
+ for(const name of ['line','rect','rectfill','fill','select'])$('tool-'+name).onclick=()=>tool(name);
+ const directionMap=[['selection-left',-1,0],['selection-right',1,0],['selection-up',0,-1],['selection-down',0,1]];
+ for(const [id,dx,dy] of directionMap)$(id).onclick=()=>moveSelection(dx,dy);
+ const c=$('studio-canvas');
+ c.onpointerdown=e=>{if(e.button!==0&&e.pointerType==='mouse')return;beginStroke(e);};
+ c.onpointermove=e=>updateStroke(e);
+ c.onpointerup=endStroke;c.onpointercancel=endStroke;c.onlostpointercapture=endStroke;
  $('export-png').onclick=()=>exportPng().catch(e=>notify(e.message,true));$('export-sheet').onclick=()=>exportSheet().catch(e=>notify(e.message,true));
  $('export-json').onclick=exportJson;$('export-webm').onclick=exportVideo;
  $('layer-name').onchange=e=>mutateLayer(()=>{selectedLayer().name=e.target.value.trim().slice(0,40)||selectedLayer().id;});
@@ -534,6 +540,47 @@ function events(){
  $('layer-frame-add').onclick=()=>mutateLayer(d=>{duplicateFrame(d,state.frame);state.frame++;});
  $('layer-frame-delete').onclick=()=>mutateLayer(d=>{deleteFrame(d,state.frame);state.frame=Math.min(state.frame,d.layers[0].frames.length-1);});
  $('layer-undo').onclick=()=>timeTravel('undo');$('layer-redo').onclick=()=>timeTravel('redo');
+
+ // Layer × frame Cel commands operate on native rows, not composited images.
+ $('cel-copy').onclick=()=>{
+  if(!isLayered())return;
+  celClipboard=copyCel(current().data,state.activeLayer,state.frame);
+  notify('已复制 '+state.activeLayer+' / F'+(state.frame+1)+' 的 Cel。');
+ };
+ $('cel-paste').onclick=()=>{
+  if(!isLayered()||!celClipboard){notify('先复制一个 Cel。',true);return;}
+  mutateLayer(d=>pasteCel(d,state.activeLayer,state.frame,celClipboard));
+ };
+ $('cel-clear').onclick=()=>{if(isLayered())mutateLayer(d=>clearCel(d,state.activeLayer,state.frame));};
+ $('cel-insert').onclick=()=>{if(!isLayered())return;mutateLayer(d=>{insertFrame(d,state.frame+1);state.frame++;});};
+ $('cel-move-left').onclick=()=>{
+  if(!isLayered()||state.frame===0)return;
+  mutateLayer(d=>moveFrame(d,state.frame,state.frame-1));state.frame--;draw();
+ };
+ $('cel-move-right').onclick=()=>{
+  if(!isLayered()||state.frame>=current().frames-1)return;
+  mutateLayer(d=>moveFrame(d,state.frame,state.frame+1));state.frame++;draw();
+ };
+ $('cel-height').oninput=e=>{$('cel-scroll').style.maxHeight=e.target.value+'px';};
+ $('play-mode').onchange=e=>{
+  state.mode=e.target.value;state.direction=state.mode==='reverse'?-1:1;
+  $('play-mode-readout').textContent=state.mode.toUpperCase();state.elapsed=0;
+ };
+ $('onion-prev').onchange=e=>{onionPrevious=e.target.checked;draw();};
+ $('onion-next').onchange=e=>{onionFollowing=e.target.checked;draw();};
+ $('onion-opacity').oninput=e=>{$('onion-canvas').style.opacity=String(Number(e.target.value)/100);};
+ $('diagnose-animation').onclick=()=>{
+  if(!isLayered())return;
+  const d=current().data;
+  const stable=d.layers.filter(l=>/shadow|back_glass|glass_body|copper|cork|neck|metal|seal|front_rim/i.test(l.id)).map(l=>l.id);
+  const report=inspectAnimation(d,{stableLayers:stable});
+  const msg='帧数 '+report.frames+' · 平均变化 '+report.meanDelta+'px / 相邻帧 · 首尾差异 '+report.seamPixels+
+   'px ('+report.seamRatio+'%) · 静止层异常 '+report.warnings.length+' 项。'+
+   (report.warnings.length?' 请检查 '+report.warnings.slice(0,3).map(w=>w.layer+' F'+(w.frame+1)).join('、'):' 锁定层保持稳定。')+
+   ' 本面板不评价艺术质量。';
+  $('diagnosis-output').textContent=msg;notify('已完成结构和循环诊断；最终审美由你判断。');
+ };
+
  $('new-layer-project').onclick=newProject;
  $('refine-layer').onclick=refineSelectedLayer;
  $('generate-llm').onclick=generateFromLLM;
@@ -543,7 +590,7 @@ function events(){
   ?'\n\nART STYLE (original PixelWeave Ashen Reliquary): prioritize a storied functional silhouette, intentionally clustered material highlights, quiet light hierarchy, animated semantic parts anchored to a stable structure. Use no recognizable Blasphemous sprites or iconography. Favor material credibility over generic symmetrical RPG pictograms.'
   :'';
  const text=makeLayeredPrompt($('idea-input').value)+appendix;try{await navigator.clipboard.writeText(text);notify('完整 LLM 像素动画生成规范已复制。');}catch{$('json-import-panel').hidden=false;$('json-input').value=text;$('json-input').select();notify('复制受限：已在文本框选中提示词，请手动复制。',true);}};
- document.addEventListener('keydown',e=>{if($('studio-page').hidden||e.target.matches('input,textarea,button'))return;if(e.code==='Space'){e.preventDefault();state.play=!state.play;draw();}if(e.code==='ArrowLeft')shift(-1);if(e.code==='ArrowRight')shift(1);if(e.code==='KeyO')$('toggle-onion').click();});
+ document.addEventListener('keydown',e=>{if($('studio-page').hidden||e.target.matches('input,textarea,button'))return;if(e.code==='Space'){e.preventDefault();state.play=!state.play;draw();}if(e.code==='ArrowLeft')shift(-1);if(e.code==='ArrowRight')shift(1);if(e.code==='KeyO')$('toggle-onion').click();if((e.ctrlKey||e.metaKey)&&e.code==='KeyZ'){e.preventDefault();timeTravel(e.shiftKey?'redo':'undo');}if((e.ctrlKey||e.metaKey)&&e.code==='KeyY'){e.preventDefault();timeTravel('redo');}});
  window.addEventListener('hashchange',()=>{if(location.hash==='#studio'||location.hash==='#gallery')route(location.hash.slice(1));});
 }
 events();beginLLMStatus();loadCuratedStudies().then(()=>route(location.hash==='#studio'?'studio':'gallery'));requestAnimationFrame(loop);
