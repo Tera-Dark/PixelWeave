@@ -10,7 +10,7 @@ export function renderCelTimeline(host,data,{frame=0,layerId=null,onSelect=()=>{
  for(const layer of data.layers.slice().reverse()){
   const name=document.createElement('button');name.type='button';name.className='cel-row-title';
   const label=document.createElement('span');label.textContent=layer.name;
-  name.append(label);name.title=layer.name;name.onclick=()=>onSelect(layer.id,frame);grid.append(name);
+  name.append(label);name.title=layer.name;name.dataset.layer=layer.id;name.onclick=()=>onSelect(layer.id,frame);grid.append(name);
   for(let i=0;i<n;i++){
    const b=document.createElement('button');b.type='button';b.className='cel-cell';b.dataset.frame=String(i);b.dataset.layer=layer.id;
    const stats=celStats(data,layer.id,i);b.classList.toggle('filled',!stats.empty);
@@ -30,5 +30,5 @@ export function updateCelSelection(host,frame,layerId){
   b.classList.toggle('selected-cel',both);
   if(b.classList.contains('cel-cell'))b.setAttribute('aria-pressed',String(both));
  }
- for(const b of host.querySelectorAll('.cel-row-title'))b.classList.toggle('selected-layer',b.title===host.querySelector('.cel-cell.selected-cel')?.getAttribute('aria-label')?.split('，')[0]);
+ for(const b of host.querySelectorAll('.cel-row-title'))b.classList.toggle('selected-layer',b.dataset.layer===layerId);
 }
