@@ -33,7 +33,7 @@ try{const v=JSON.parse(localStorage.getItem(storeKey)||'{}');if(v&&Array.isArray
 function persist(){try{localStorage.setItem(storeKey,JSON.stringify(memory));}catch{$('save-status').textContent='浏览器禁止本地保存：可手动复制笔记';}}
 function setStatus(message){$('remote-info').textContent=message;}
 function favorite(id){return memory.saved.includes(id);}
-function labelSource(item){return item.mode==='external'?'SOURCE ONLY / 原站阅读':item.mode==='frames'?'FRAME SET / 原作者 8 帧':'SPRITESHEET / 原作者原图';}
+function labelSource(item){return item.mode==='frames'?'ARTIST FRAMES / 作者逐帧原稿':'ARTIST SPRITESHEET / 作者原始帧表';}
 function renderLibrary(){
  const q=$('search').value.trim().toLowerCase(),cat=$('category').value;
  visible=entries.filter(x=>(cat==='all'||x.group===cat)&&(!$('only-playable').checked||x.mode!=='external')&&(!$('only-saved').checked||favorite(x.id))&&(!q||[x.title,x.author,x.group,x.question,...x.tags].join(' ').toLowerCase().includes(q)));
@@ -44,7 +44,7 @@ function renderLibrary(){
   const b=document.createElement('button');b.type='button';b.className='atlas-ref'+(item.id===selected?.id?' active':'');b.dataset.id=item.id;
   const strong=document.createElement('strong');strong.textContent=(favorite(item.id)?'★ ':'')+item.title;
   const small=document.createElement('small');small.textContent=item.author+' · '+item.license+' · '+(item.frames?item.frames+' 帧':'制作流程');
-  const tag=document.createElement('span');tag.className='atlas-tag';tag.textContent=item.mode==='external'?'原站链接':'可逐帧播放';
+  const tag=document.createElement('span');tag.className='atlas-tag';tag.textContent='● 已核验 · 可逐帧';
   const thumb=document.createElement('canvas');thumb.width=66;thumb.height=66;thumb.className='atlas-source-thumb';
   const copy=document.createElement('div');copy.className='atlas-source-copy';copy.append(strong,small,tag);
   b.append(thumb,copy);b.onclick=()=>choose(item);
@@ -81,10 +81,10 @@ function panel(item){
  $('favorite').textContent=favorite(item.id)?'★ 已收藏':'☆ 收藏';
  $('study-points').replaceChildren(...[item.question,'逐帧寻找保持不变的锚点与变化的主体。','检查动作首尾是否自然衔接，以及像素簇是否完整。'].map(t=>{const li=document.createElement('li');li.textContent=t;return li;}));
  $('study-notes').value=memory.notes[item.id]||'';field('save-status','笔记仅在此浏览器保存');
- field('mode-label',item.mode==='external'?'原站研究':'逐帧画面');
+ field('mode-label','作者真实帧 · 可研究');
  field('fps-label',item.fps?item.fps+' FPS*':'以原站为准');
  field('size-label','—');
- field('asset-count',item.frames?item.frames+' FRAMES':'EXTERNAL');
+ field('asset-count',item.frames+' REAL FRAMES');
  field('media-state',labelSource(item));
 }
 function cachedImage(url){
@@ -110,24 +110,21 @@ async function choose(item){
  $('speed').value='1';speed=1;
  panel(item);
  for(const b of $('ref-list').children)b.classList.toggle('active',b.dataset.id===item.id);
- if(item.mode==='external'){
-  playing=false;ctx.clearRect(0,0,canvas.width,canvas.height);
-  drawPlaceholder('原作保留在作者网站','点击「查看原作者页面」浏览；下载合法源文件后可导入下方工具逐帧研究。');
-  setStatus(item.note||'版权或素材结构不适合直接在本站播放；可以在作者网站查看。');
-  updateControls();renderContact();return;
- }
- setStatus('正在从原作者网站读取素材预览…');drawPlaceholder('LOADING ORIGINAL FRAMES','从原作者页面读取 CC0 动画');
+ setStatus('正在加载经许可核验的原作者动画帧…');drawPlaceholder('LOADING REAL ANIMATION','读取作者原始 CC0 像素帧');
  try{
   const imgs=await Promise.all((item.images||[item.sheet]).map(cachedImage));
   if(selected!==item||serial!==loadSerial)return;
   let cols=item.cols||1,rows=item.rows||1;
   const dim=frameDimensions(imgs[0].naturalWidth,imgs[0].naturalHeight,cols,rows);
-  source={imgs,cols,rows,width:item.images?imgs[0].naturalWidth:dim.width,height:item.images?imgs[0].naturalHeight:dim.height,total:item.images?imgs.length:cols*rows,isLocal:false};
+  if(item.frameMap&&(!Array.isArray(item.frameMap)||item.frameMap.length<2||item.frameMap.some(x=>!Number.isInteger(x)||x<0||x>=cols*rows)))throw Error('帧索引超出精灵表范围');
+  const total=item.images?imgs.length:(item.frameMap?.length||cols*rows);
+  if(total<2||item.frames!==total)throw Error('帧数量或帧布局与原始文件不一致');
+  source={imgs,cols,rows,frameMap:item.frameMap||null,width:item.images?imgs[0].naturalWidth:dim.width,height:item.images?imgs[0].naturalHeight:dim.height,total,isLocal:true};
   $('import-cols').value=item.cols||1;$('import-rows').value=item.rows||1;
   field('size-label',source.width+' × '+source.height);
-  setStatus('已加载作者原始精灵帧；没有复制进 PixelWeave 仓库。演示速度为参考库建议值。若跨域限制阻止像素读取，请用下方本地导入功能。');
+  setStatus('原作者 CC0 动画帧已加载，可暂停、逐帧、洋葱皮和像素差分；图片由本站从作者原始文件构建缓存，未使用 AI 生成，亦不进入原创作品库。');
   renderContact();draw();updateControls();
- }catch(e){if(selected!==item)return;playing=false;drawPlaceholder('SOURCE NOT AVAILABLE','图片跨域、外站限制或离线。请打开原作者页面或导入源精灵表。');setStatus(e.message);updateControls();}
+ }catch(e){if(selected!==item||serial!==loadSerial)return;playing=false;drawPlaceholder('ANIMATION UNAVAILABLE','本条动画加载失败，请报告问题；不会以占位图冒充动画。');setStatus('作品资源缺失：'+e.message);updateControls();}
 }
 function drawPlaceholder(title,sub){
  const c=ctx,w=canvas.width,h=canvas.height;c.clearRect(0,0,w,h);c.fillStyle='#101b2a';c.fillRect(0,0,w,h);
@@ -137,7 +134,8 @@ function drawPlaceholder(title,sub){
 }
 function sourcePart(s,index){
  if(s.imgs.length>1)return {img:s.imgs[index%s.imgs.length],sx:0,sy:0,width:s.width,height:s.height};
- const point=framePosition(index,s.cols,s.rows);
+ const sourceIndex=s.frameMap?s.frameMap[((index%s.frameMap.length)+s.frameMap.length)%s.frameMap.length]:index;
+ const point=framePosition(sourceIndex,s.cols,s.rows);
  return {img:s.imgs[0],sx:point.x*s.width,sy:point.y*s.height,width:s.width,height:s.height};
 }
 function drawSourceFrame(c,s,index,x,y,scale,alpha=1){
@@ -313,7 +311,13 @@ applyLayout();
 async function init(){
  try{
   const result=await fetch('./curation.json',{cache:'no-cache'});if(!result.ok)throw Error('参考索引不可访问');
-  const json=await result.json();entries=json.items||[];field('source-total',entries.length);renderLibrary();
+  const json=await result.json();
+  entries=json.items||[];
+  if(entries.some(x=>!['sheet','frames'].includes(x.mode)||x.license!=='CC0'||x.frames<2||(!x.sheet&&!x.images)))throw Error('素材目录含有未可播放的占位条目，已拒绝加载');
+  const category=$('category');
+  category.replaceChildren(new Option('全部领域','all'));
+  for(const name of [...new Set(entries.map(x=>x.group))])category.add(new Option(name,name));
+  field('source-total',entries.length);renderLibrary();
   if(entries.length)await choose(entries.find(item=>item.id===memory.lastId)||entries[0]);
  }catch(e){setStatus('无法加载参考库：'+e.message);drawPlaceholder('LIBRARY UNAVAILABLE','检查 GitHub Pages 的 references/curation.json 文件');}
  requestAnimationFrame(tick);
