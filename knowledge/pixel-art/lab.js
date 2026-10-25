@@ -1,5 +1,7 @@
 import {validateLayered,renderLayered,metrics} from '../../src/layered.js';
 import {buildNativePotion} from '../../src/native-potion.mjs';
+import {mountSiteNavigation} from '../../src/site-nav.mjs';
+mountSiteNavigation();
 const $=id=>document.getElementById(id);
 let selected=null,index=[],frame=0,playing=true,last=0,overlay=false,assetObjectURL=null;
 const cv=$('art'),ctx=cv.getContext('2d',{willReadFrequently:true});
