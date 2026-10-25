@@ -21,7 +21,8 @@ function persist(){try{
   const custom=state.items.filter(a=>a.type==='matrix').map(a=>({id:a.id,data:a.data}));
   const layered=state.items.filter(a=>a.type==='layered').map(a=>({id:a.id,data:a.data}));
   localStorage.setItem('pixelweave.v04',JSON.stringify({custom,layered,edits:state.edits}));
- }catch{notify('本地存储已满，请导出 JSON 备份。',true);}}
+  return true;
+ }catch{notify('本地存储无法写入：请立即导出 JSON 工程备份。',true);return false;}}
 function restore(){try{
  const d=JSON.parse(localStorage.getItem('pixelweave.v04')||'null');if(!d)return;
  for(const v of (Array.isArray(d.custom)?d.custom:[]).slice(0,12)){
@@ -198,11 +199,13 @@ function beginStroke(e){
  if(isSelection){
   selection={...{x0:start.x,y0:start.y,x1:start.x,y1:start.y},layerId:state.activeLayer,frame:state.frame};
   drawSelection();
- }else remember();
+ }
+ const redoBefore=state.redo.slice();
+ if(!isSelection)remember();
  activeStroke={
   tool:state.tool,layerId:state.activeLayer,frame:state.frame,start,last:start,
   rows:a.data.layers.find(l=>l.id===state.activeLayer).frames[state.frame].slice(),
-  before:isSelection?null:state.undo.at(-1),changed:false,pointerId:e.pointerId
+  before:isSelection?null:state.undo.at(-1),redoBefore,changed:false,pointerId:e.pointerId
  };
  painting=true;c.setPointerCapture(e.pointerId);
  updateStroke(e);
@@ -243,10 +246,10 @@ function endStroke(e){
  // A no-op drag should not consume undo history or clear the redo chain.
  const unchanged=JSON.stringify(a.data)===st.before;
  if(unchanged){
-  state.undo.pop();
+  state.undo.pop();state.redo.push(...st.redoBefore);
  }else{
-  persist();renderGallery();
-  $('save-indicator').textContent='● 已保存 · 本地';
+  const stored=persist();renderGallery();
+  $('save-indicator').textContent=stored?'● 已保存 · 本地':'⚠ 请导出备份';
  }
  refresh();draw();
 }
@@ -337,7 +340,8 @@ function remember(){
 function updateLayered(){
  const a=current(),d=a.data;
  a.name=d.name;a.frames=d.layers[0].frames.length;a.fps=d.fps;a.desc=d.layers.length+' 层 / '+a.frames+' 帧分层像素艺术。';
- refresh();renderGallery();persist();
+ refresh();renderGallery();
+ $('save-indicator').textContent=persist()?'● 已保存 · 本地':'⚠ 请导出备份';
 }
 function timeTravel(direction){
  if(!isLayered())return;
@@ -350,9 +354,19 @@ function timeTravel(direction){
 }
 function mutateLayer(callback){
  if(!isLayered())return;
+ const before=JSON.stringify(current().data),redoBefore=state.redo.slice();
  remember();
- try{callback(current().data);updateLayered();}
- catch(e){current().data=JSON.parse(state.undo.pop());notify(e.message,true);renderLayers();}
+ try{
+  callback(current().data);
+  current().data=validateLayered(current().data);
+  if(JSON.stringify(current().data)===before){
+   state.undo.pop();state.redo.push(...redoBefore);renderLayers();return;
+  }
+  updateLayered();
+ }catch(e){
+  current().data=JSON.parse(before);state.undo.pop();
+  state.redo.push(...redoBefore);notify(e.message,true);refresh();
+ }
 }
 function renderLayers(){
  const active=isLayered(),panel=$('layers-panel');
