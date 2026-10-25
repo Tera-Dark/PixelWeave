@@ -712,9 +712,7 @@ watchArt($('hero-canvas'));
 let modelStatusRequested=false;
 const composer=$('studio-composer-drawer');
 composer.addEventListener('toggle',()=>{
- if(composer.open){
-  mountGuidedOnDemand();
-  if(!modelStatusRequested){modelStatusRequested=true;beginLLMStatus();}
- }
+ if(composer.open)mountGuidedOnDemand();
+ if(composer.open&&!modelStatusRequested){modelStatusRequested=true;beginLLMStatus();}
 });
 loadCuratedStudies().then(()=>route(location.hash==='#studio'?'studio':'gallery',{record:false,scroll:false}));requestAnimationFrame(loop);
