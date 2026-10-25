@@ -94,7 +94,9 @@ function directorContext(d){
  return directorInstructions(d.brief,pickKnowledge(d.brief,'director',{enabled}),artDirection(d.styleId,'director'));
 }
 async function generateDirector(d,env,transport,feedback=''){
- const p=await propose(directorContext(d),validatedPlan,env,transport,feedback);
+ const earlier=d.pending?.kind==='director'?d.pending.plan:null;
+ const review=earlier?'\n\nPREVIOUS DIRECTOR PLAN (rejected by the human; revise this proposal instead of silently switching subjects): '+JSON.stringify(earlier).slice(0,5500):'';
+ const p=await propose(directorContext(d)+review,validatedPlan,env,transport,feedback);
  d.pending={kind:'director',plan:p.value};
  d.phase='review-director';
  stageLog(d,'director',feedback?'retry':'propose',p.attempts,p.errors);
@@ -108,7 +110,16 @@ async function generateNextLayer(d,env,transport,feedback=''){
  const enabled=true;
  const guide=pickKnowledge(d.brief+' '+layer.purpose,layer.kind==='animated'?'effects':'fill',{enabled,limit:10});
  const style=artDirection(d.styleId,layer.kind==='animated'?'effects':index===0?'silhouette':'fill');
- const instruction=layerInstructions(plan,layer,d.brief,compiled?.asset,guide,style);
+ const previousCandidate=d.phase==='review-layer'&&d.pending?.kind==='layer'?d.pending.layer:null;
+ let reviewContext='';
+ if(previousCandidate){
+  const rejectedAsset=compileSemanticProgram({...p,layers:[...p.layers,previousCandidate]}).asset;
+  const id=previousCandidate.id;
+  const rejectedRows=rejectedAsset.layers.find(l=>l.id===id).frames;
+  reviewContext='\n\nREJECTED CANDIDATE (keep parts not mentioned in human feedback, do NOT alter accepted previous layers): '+JSON.stringify(previousCandidate).slice(0,9500)+
+   '\n\nREJECTED CANDIDATE REAL RENDERED PIXELS (one 24x24 symbol grid per frame, edit precisely):\n'+rejectedRows.map((rows,i)=>'FRAME '+(i+1)+'\n'+rows.join('\n')).join('\n---\n');
+ }
+ const instruction=layerInstructions(plan,layer,d.brief,compiled?.asset,guide,style)+reviewContext;
  const result=await propose(instruction,output=>{
   if(!output||typeof output!=='object'||Array.isArray(output)||!Array.isArray(output.base))throw Error('缺少 base 指令数组');
   if(layer.kind==='static'&&own(output,'motion'))throw Error('静态图层不能生成 motion');
