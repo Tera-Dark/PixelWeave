@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101722">
+<title>Animation Atlas · PixelWeave</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../src/style.css">
+<link rel="stylesheet" href="../src/pixel-ui.css">
+<link rel="stylesheet" href="./reference.css">
+</head>
+<body>
+<header class="atlas-header">
+ <a href="../index.html" class="atlas-brand">▩ <b>pixel<span>weave</span></b><small> / ANIMATION ATLAS</small></a>
+ <nav><a href="../index.html">← 作品画廊</a><a href="../index.html#studio">创作工作站</a><a href="../knowledge/pixel-art/lab.html">教学实验室</a></nav>
+</header>
+<main class="atlas-layout">
+ <section class="atlas-intro">
+  <div><div class="atlas-eyebrow">EXTERNAL ART REFERENCES / RESEARCH ONLY</div>
+  <h1>像素动画<span>参考档案室</span></h1>
+  <p>收藏优秀创作者的动画，研究动作节奏、像素簇、材质和光照。独立于正式作品画廊；全部标注出处与许可。能逐帧观察的作品可慢放、叠帧与查看差异。</p></div>
+  <div class="atlas-intro-actions"><button id="surprise" type="button">✳ 随机复习一件</button><span>VERIFIED SOURCES · <b id="source-total">10</b></span></div>
+ </section>
+ <section class="atlas-overview"><span>01 / CURATED SOURCES</span><span>02 / FRAME STUDY</span><span>03 / ARTIST CREDIT</span></section>
+ <div class="atlas-body">
+  <aside class="atlas-library" aria-label="像素动画素材列表">
+   <div class="atlas-filter">
+    <label for="search">检索动画 / 作者 / 技法</label>
+    <input id="search" type="search" placeholder="例如：火焰、关键帧、像素簇">
+    <label for="category">研究领域</label>
+    <select id="category"><option value="all">全部领域</option><option value="火焰特效">火焰特效</option><option value="道具光影">道具光影</option><option value="角色动作">角色动作</option><option value="艺术与配色">艺术与配色</option><option value="大师流程">大师流程</option></select>
+    <div class="atlas-filterrow"><label><input id="only-playable" type="checkbox"> 可逐帧播放</label><label><input id="only-saved" type="checkbox"> 只看收藏</label></div>
+   </div>
+   <div class="atlas-listhead"><strong>参考条目</strong><span id="result-count">—</span></div>
+   <div id="ref-list" class="atlas-list" aria-label="参考资料条目"></div>
+  </aside>
+  <section class="atlas-main" aria-labelledby="study-title">
+   <div class="atlas-studyhead">
+    <div><div class="atlas-eyebrow">SINGLE WORK / DECONSTRUCTION</div><h2 id="study-title">选择参考作品</h2><p id="study-author">ARTIST &amp; SOURCE</p></div>
+    <button id="favorite" class="atlas-fav" type="button" aria-pressed="false" title="收藏当前作品">☆ 收藏</button>
+   </div>
+   <div class="atlas-stage"><div class="atlas-stagebar"><span id="media-state">SOURCE PREVIEW</span><span id="asset-count">—</span></div>
+    <canvas id="ref-canvas" width="544" height="384" role="img" aria-label="原创作者精灵表的逐帧像素动画预览"></canvas>
+    <div id="remote-info" class="atlas-media-info">正在准备原作者预览…</div>
+   </div>
+   <div class="atlas-controls">
+    <button id="prev" title="上一帧">◀</button><button id="play" class="atlas-play" title="播放或暂停">Ⅱ</button><button id="next" title="下一帧">▶</button>
+    <input id="timeline" type="range" min="0" max="0" value="0" aria-label="动画当前帧">
+    <span id="frame-label">F01 / 01</span>
+    <label class="atlas-speed">速度 <select id="speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label>
+   </div>
+   <div class="atlas-switches">
+    <label><input id="onion" type="checkbox"> 洋葱皮 / 上一帧</label>
+    <label><input id="difference" type="checkbox"> 帧差分 / 变化像素</label>
+    <label><input id="background" type="checkbox" checked> 透明棋盘</label>
+    <button id="reset" type="button">↺ 重置观察</button>
+   </div>
+   <div class="atlas-framegrid"><div class="atlas-rowtitle"><span>FRAME CONTACT SHEET / 关键帧索引</span><span id="contact-label"></span></div><div id="contact" class="atlas-contact"></div></div>
+   <div class="atlas-analysismeta">
+    <div><span>VIEW</span><b id="mode-label">—</b></div><div><span>FRAME SIZE</span><b id="size-label">—</b></div><div><span>PLAYBACK</span><b id="fps-label">—</b></div><div><span>ANALYSIS</span><b id="analysis-label">—</b></div>
+   </div>
+   <div class="atlas-bottom">
+    <section class="atlas-insights"><h3>从这件作品学什么？</h3><ol id="study-points"></ol><label for="study-notes">我的拆解笔记 <small>仅保存到此浏览器，不上传</small></label><textarea id="study-notes" rows="5" placeholder="例如：固定火芯位置；第 3、5 帧的火舌出现明显错位…"></textarea><span id="save-status" role="status" aria-live="polite">笔记自动保存在本机</span></section>
+    <aside class="atlas-provenance"><h3>来源与授权</h3><dl><dt>创作者</dt><dd id="credit-author">—</dd><dt>原网站</dt><dd id="credit-site">—</dd><dt>授权状态</dt><dd id="credit-license">—</dd><dt>资料备注</dt><dd id="credit-note">—</dd></dl><a id="original-link" target="_blank" rel="noopener noreferrer">查看原作者页面 ↗</a><p>版权归原作者或相应权利人。本站不把参考动画包装成原创素材，也不自动作为模型训练数据。</p></aside>
+   </div>
+  </section>
+ </div>
+ <section class="atlas-import" aria-labelledby="import-title">
+  <div><div class="atlas-eyebrow">OPTIONAL · LOCAL FRAME INSPECTION</div><h2 id="import-title">导入本地原始精灵表深度拆帧</h2>
+  <p>部分外站图片不允许跨域读取像素。你可以从作者原站合法下载 PNG / WebP 精灵表，然后在本地导入；无需上传服务器。导入后可使用洋葱皮、像素帧差分与帧尺寸检查。</p></div>
+  <div class="atlas-import-controls"><label for="import-file" class="atlas-filelabel">选择本地 PNG / WebP</label><input id="import-file" type="file" accept="image/png,image/webp"><label>每行帧数<input id="import-cols" type="number" min="1" max="64" value="4"></label><label>行数<input id="import-rows" type="number" min="1" max="64" value="1"></label><button id="apply-grid" type="button">应用网格并预览</button></div>
+  <p id="import-status" class="atlas-muted" role="status" aria-live="polite">不将外部像素作为 PixelWeave 的新资产，也不会修改作者源图。</p>
+ </section>
+ <footer class="atlas-footer"><span>PIXELWEAVE / REFERENCE ARCHIVE · COPYRIGHT-RESPECTING</span><a href="../index.html#studio">返回创作工作站 ↗</a></footer>
+</main>
+<script type="module" src="./reference.js"></script>
+</body></html>
