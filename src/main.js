@@ -80,7 +80,15 @@ function draw(){
 function drawExplosion(){
  const a=current();if(!a||a.type!=='layered'||!explosionVisible)return;
  const d=a.data;
- renderExploded($('exploded-canvas'),d,state.frame,{activeLayer:state.activeLayer,spread:explosionSpread,solo:explosionSolo});
+ const plates=explodedLayout(d.layers.length,explosionSpread);
+ const lastPlate=plates.at(-1);
+ const requiredWidth=Math.max(1280,Math.ceil(lastPlate.x+lastPlate.width+48));
+ const explosionCanvas=$('exploded-canvas');
+ if(explosionCanvas.width!==requiredWidth){
+  explosionCanvas.width=requiredWidth;
+  explosionCanvas.style.width=requiredWidth+'px';
+ }
+ renderExploded(explosionCanvas,d,state.frame,{activeLayer:state.activeLayer,spread:explosionSpread,solo:explosionSolo});
  $('exploded-frame').textContent='F'+String(state.frame+1).padStart(2,'0')+' / '+a.frames;
  $('exploded-total').textContent=d.layers.length+' REAL LAYERS';
  const index=d.layers.findIndex(l=>l.id===state.activeLayer);
