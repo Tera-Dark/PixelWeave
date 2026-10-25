@@ -51,7 +51,8 @@ try{
  assert.equal(modelRequests,1,'opening the LLM assistant requests local proxy status only on demand');
  await page.goto(origin+'/references/',{waitUntil:'domcontentloaded'});
  await page.locator('#ref-list .atlas-ref').first().waitFor({timeout:20000});
- assert.equal(await page.locator('#ref-list .atlas-ref').count(),10,'reference catalog retains curated ten-item navigation');
+ const refCatalog=await page.evaluate(async()=>await(await fetch('./curation.json')).json());
+ assert.equal(await page.locator('#ref-list .atlas-ref').count(),refCatalog.items.length,'reference catalog shows all verified playable assets');
  assert.deepEqual(jsErrors,[],'runtime JS errors: '+jsErrors.join('; '));
  console.log('PixelWeave Chromium performance regression: PASS (lazy Studio, inactive surfaces, visibility rendering, deferred API, Atlas)');
 }finally{if(browser)await browser.close();server.kill('SIGTERM');}
