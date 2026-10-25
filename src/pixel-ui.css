@@ -527,3 +527,57 @@ button:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.3)}
  background-image:linear-gradient(#ffffff16 1px,transparent 1px),linear-gradient(90deg,#ffffff16 1px,transparent 1px);
 }
 .studio-stage.grid-mode #onion-canvas{background:none!important}
+
+
+/* v0.8 — actual Cel workflow; 1 layer × 1 frame = 1 independently editable Cel.
+ * Density and workspace legibility prioritized over decorative widgets. */
+.cel-panel{padding:11px 12px!important;background:#142335}
+.cel-panel-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:9px 0 8px}
+.cel-edit-actions{display:flex;flex-wrap:wrap;gap:5px}
+.cel-edit-actions button,.pixel-tool-grid button,.pixel-selection-actions button,.diagnostic-card button{
+ min-height:32px;padding:5px 9px;border:1px solid #596e82;color:#d6e2e8;
+ background:#24384a;font-size:11px;border-radius:0;cursor:pointer;
+}
+.cel-edit-actions button:hover,.pixel-tool-grid button:hover,.pixel-selection-actions button:hover,.diagnostic-card button:hover{
+ background:#39495e;border-color:#edb78f;color:#ffe5cb
+}
+.cel-edit-actions button:disabled{opacity:.35;cursor:not-allowed}
+.cel-height{display:flex;align-items:center;gap:7px;color:#aebfcc;font-size:10px;white-space:nowrap}
+.cel-height input{width:74px;accent-color:#e3b087}
+.cel-scroll{overflow:auto;max-height:210px;resize:vertical;scrollbar-width:thin;scrollbar-color:#536b7b #132234;border:1px solid #455e72;background:#0e1c2d}
+.cel-grid{display:grid;grid-template-columns:minmax(120px,158px) repeat(var(--frames),minmax(36px,1fr));width:max-content;min-width:100%;gap:1px;background:#2d4155;font:10px var(--mono)}
+.cel-corner,.cel-frame-head,.cel-row-title,.cel-cell{height:33px;background:#1b2c3e;color:#acbdcc;border:0;border-radius:0;display:flex;align-items:center;justify-content:center}
+.cel-corner{position:sticky;left:0;top:0;z-index:4;background:#273a4c;color:#e2b99a;font-size:9px;white-space:nowrap}
+.cel-frame-head{position:sticky;top:0;z-index:2;background:#26394c;min-width:36px;color:#b0c1d0}
+.cel-row-title{position:sticky;left:0;z-index:3;justify-content:start;padding:0 7px;max-width:158px;background:#20344a;text-align:left}
+.cel-row-title span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cel-row-title.selected-layer{color:#eec8a8;background:#393c4b}
+.cel-cell{min-width:36px;position:relative;font-size:13px;color:#566a7e}
+.cel-cell.filled{color:#a3c1b2;background:#1b3840}
+.cel-cell.current-frame,.cel-frame-head.current-frame{background:#4a414a;color:#f4d6b5}
+.cel-cell.selected-cel{background:#a56853;color:#fff0d6;outline:2px solid #ffd3a2;outline-offset:-3px;z-index:1}
+.cel-cell:focus-visible,.cel-row-title:focus-visible,.cel-frame-head:focus-visible{outline:2px solid #f5d0aa;outline-offset:-2px;z-index:5}
+.cel-footer{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:7px 2px 0;color:#b4c2c8;font-size:10px}
+#save-indicator{color:#9bc9ad}
+.frame-legacy{display:none}
+.pixel-tool-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:9px 0}
+.pixel-tool-grid button{min-width:0;padding:6px 3px}
+.pixel-tool-grid button.active{background:#785143;color:#fff1d8;border-color:#f1c498}
+.pixel-selection-actions{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin:7px 0;color:#9daebc}
+.pixel-selection-actions #selection-hint{font-size:10px;flex:1;min-width:85px}
+.pixel-selection-actions button{min-height:29px;min-width:28px;padding:4px}
+.studio-canvas-wrap>#selection-canvas{
+ grid-area:1 / 1;align-self:center;justify-self:center;
+ width:320px;height:320px;pointer-events:none;filter:none;
+ image-rendering:pixelated;background:transparent!important;
+}
+.studio-canvas-wrap>canvas[hidden]{display:none!important}
+.onion-settings{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:8px 0;color:#bec7cd;font-size:10px}
+.onion-settings label{display:flex;align-items:center;gap:3px}
+.onion-settings input[type=range]{width:65px;accent-color:#e9b18c}
+.onion-settings input[type=checkbox]{accent-color:#efb58c}
+#play-mode{font-size:11px;padding:7px;background:#132437;border:1px solid #536b7f;color:#e9d9c7}
+.diagnostic-card{border:1px solid #486177;background:#192b3d;padding:10px;margin-top:10px}
+.diagnostic-card button{margin:9px 0;min-height:37px;width:100%;color:#e6bea0}
+#diagnosis-output{font-size:11px;line-height:1.75;color:#bdcbcf}
+@media(max-width:800px){.cel-edit-actions{flex-wrap:wrap}.cel-scroll{max-height:190px}.cel-grid{grid-template-columns:125px repeat(var(--frames),minmax(38px,1fr))}}
