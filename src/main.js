@@ -51,7 +51,7 @@ function choose(id){if(!state.items.some(a=>a.id===id))return;
 }
 function refresh(){
  const a=current();$('asset-name').textContent=a.name;$('asset-subline').textContent=a.cn+' · '+a.frames+' 帧循环';$('inspector-name').textContent=a.name;$('inspector-desc').textContent=a.desc;
- $('asset-size').textContent=((a.type==='matrix'||a.type==='layered')?a.data.width+' × '+a.data.height:'96 × 96')+' PX';$('detail-type').textContent=a.type==='matrix'?'LLM 像素矩阵':a.type==='layered'?'可编辑分层像素':'程序化动画';$('detail-res').textContent=a.type==='matrix'?a.data.width+' × '+a.data.height:'96 × 96';
+ $('asset-size').textContent=((a.type==='matrix'||a.type==='layered')?a.data.width+' × '+a.data.height:'96 × 96')+' PX';$('detail-type').textContent=a.type==='matrix'?'LLM 像素矩阵':a.type==='layered'?'可编辑分层像素':'程序化动画';$('detail-res').textContent=(a.type==='matrix'||a.type==='layered')?a.data.width+' × '+a.data.height:'96 × 96';
  $('detail-frames').textContent=a.frames;$('detail-fps').textContent=a.fps+' FPS';$('fps-label').textContent=a.fps+' FPS';$('frame-count').textContent=a.frames+' FRAMES';$('frame-range').max=a.frames-1;
  const library=$('asset-list');library.replaceChildren();state.items.forEach(item=>{
   const b=document.createElement('button');b.className='asset-option'+(item.id===state.id?' active':'');b.type='button';const c=cv();renderAsset(c,item,0,state.edits[item.id]);const text=document.createElement('div'),n=document.createElement('b'),s=document.createElement('small');n.textContent=item.name;s.textContent=item.category+' · '+item.frames+'F';text.append(n,s);b.append(c,text);b.onclick=()=>choose(item.id);library.append(b);
@@ -99,9 +99,25 @@ function paint(e){
 function download(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2500);}
 const png=c=>new Promise((ok,fail)=>c.toBlob(b=>b?ok(b):fail(Error('PNG 生成失败')),'image/png'));
 const fileName=()=>current().name.toLowerCase().replace(/[^a-z0-9]+/g,'-');
-async function exportPng(){const c=cv();renderAsset(c,current(),state.frame,layers());download(await png(c),fileName()+'-frame-'+(state.frame+1)+'.png');notify('PNG 当前帧已下载。');}
-async function exportSheet(){const a=current(),c=document.createElement('canvas');c.width=384;c.height=96*Math.ceil(a.frames/4);const context=c.getContext('2d');context.imageSmoothingEnabled=false;const frame=cv();
- for(let i=0;i<a.frames;i++){renderAsset(frame,a,i,layers());context.drawImage(frame,(i%4)*96,Math.floor(i/4)*96);}download(await png(c),fileName()+'-spritesheet.png');notify('完整帧序列精灵图已下载。');}
+async function exportPng(){
+ const a=current(),c=document.createElement('canvas');
+ c.width=a.type==='layered'?a.data.width:SIZE;c.height=a.type==='layered'?a.data.height:SIZE;
+ renderAsset(c,a,state.frame,layers());
+ download(await png(c),fileName()+'-frame-'+(state.frame+1)+'.png');
+ notify('当前帧已按原生像素分辨率下载 PNG。');
+}
+async function exportSheet(){
+ const a=current(),w=a.type==='layered'?a.data.width:SIZE,h=a.type==='layered'?a.data.height:SIZE;
+ const c=document.createElement('canvas');c.width=w*4;c.height=h*Math.ceil(a.frames/4);
+ const context=c.getContext('2d');context.imageSmoothingEnabled=false;
+ const frame=document.createElement('canvas');frame.width=w;frame.height=h;
+ for(let i=0;i<a.frames;i++){
+  renderAsset(frame,a,i,layers());
+  context.drawImage(frame,(i%4)*w,Math.floor(i/4)*h);
+ }
+ download(await png(c),fileName()+'-spritesheet.png');
+ notify('已按原生像素尺寸导出 4 列精灵图；没有二次采样。');
+}
 function exportJson(){
  const a=current();
  const data=isLayered()?a.data:{format:'pixelweave-project/v0.2',asset:a.type==='matrix'?a.data:{demoId:a.id},patches:layers(),fps:a.fps};
@@ -289,7 +305,7 @@ function events(){
  $('btn-play').onclick=()=>{state.play=!state.play;state.elapsed=0;draw();};$('btn-prev').onclick=()=>shift(-1);$('btn-next').onclick=()=>shift(1);
  $('btn-restart').onclick=()=>{state.frame=0;state.play=true;state.elapsed=0;draw();};$('frame-range').oninput=e=>{state.frame=+e.target.value;state.play=false;draw();};
  $('speed-control').oninput=e=>{state.speed=+e.target.value;$('speed-value').textContent=state.speed+'×';};
- $('zoom-control').oninput=e=>{const v=+e.target.value;$('zoom-value').textContent=v+'×';$('studio-canvas').style.width=v*96+'px';$('studio-canvas').style.height=v*96+'px';};
+ $('zoom-control').oninput=e=>{const v=+e.target.value;$('zoom-value').textContent=v+'×';$('studio-canvas').style.width=v*64+'px';$('studio-canvas').style.height=v*64+'px';};
  $('toggle-grid').onclick=()=>{const on=$('studio-stage').classList.toggle('grid-mode');$('toggle-grid').classList.toggle('active',on);};
  $('tool-pencil').onclick=()=>tool('pencil');$('tool-erase').onclick=()=>tool('erase');
  const c=$('studio-canvas');c.onpointerdown=e=>{if(!state.tool)return;if(isLayered())remember();painting=true;state.play=false;draw();c.setPointerCapture(e.pointerId);paint(e);};c.onpointermove=e=>{if(painting)paint(e);};
