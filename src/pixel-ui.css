@@ -601,3 +601,13 @@ button:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.3)}
 /* Non-destructive canvas pan shared by live frame and transparent overlays. */
 .studio-canvas-wrap>canvas{transform:translate(var(--pan-x,0px),var(--pan-y,0px))}
 #reset-pan{font-size:15px}
+
+
+/* Performance containment: offscreen decorative/inspection sections do not
+ * participate in paint/layout until scrolled into view. Intrinsic estimates
+ * preserve anchor positions and avoid large layout jumps. */
+@supports (content-visibility:auto){
+ .collection{content-visibility:auto;contain-intrinsic-size:auto 470px}
+ .principle{content-visibility:auto;contain-intrinsic-size:auto 150px}
+ .exploded-panel{content-visibility:auto;contain-intrinsic-size:auto 760px}
+}
