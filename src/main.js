@@ -524,7 +524,7 @@ function events(){
   },{rootMargin:'180px'});
   observer.observe(document.querySelector('.exploded-panel'));
  }else explosionVisible=true;
- document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>route(b.dataset.page));
+ document.querySelectorAll('[data-page]').forEach(b=>b.onclick=e=>{e.preventDefault();route(b.dataset.page);});
  $('focus-prev').onclick=()=>selectFocusLayer(-1);
  $('focus-next').onclick=()=>selectFocusLayer(1);
  $('focus-fit').onclick=()=>{
