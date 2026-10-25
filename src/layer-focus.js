@@ -19,10 +19,11 @@ export function layerBounds(asset,layerId,frame=0){
 export function layerView(asset,layerId,frame=0,{fit=true,canvasWidth=320,canvasHeight=320}={}){
  const bounds=layerBounds(asset,layerId,frame);
  if(!bounds)return {bounds:null,scale:1,originX:0,originY:0};
+ const x0=Math.max(0,bounds.x-3),y0=Math.max(0,bounds.y-3);
+ const x1=Math.min(asset.width,bounds.x+bounds.width+3);
+ const y1=Math.min(asset.height,bounds.y+bounds.height+3);
  const selected=fit?{
-  x:Math.max(0,bounds.x-3),y:Math.max(0,bounds.y-3),
-  width:Math.min(asset.width-bounds.x+3,bounds.width+6),
-  height:Math.min(asset.height-bounds.y+3,bounds.height+6)
+  x:x0,y:y0,width:x1-x0,height:y1-y0
  }:{x:0,y:0,width:asset.width,height:asset.height};
  const scale=Math.max(1,Math.min(fit?24:999,Math.floor(Math.min(canvasWidth/selected.width,canvasHeight/selected.height))));
  const centerX=selected.x+selected.width/2,centerY=selected.y+selected.height/2;
