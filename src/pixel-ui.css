@@ -512,3 +512,9 @@ button:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.3)}
  .focus-panel{display:flex}
  .focus-preview{min-height:0}
 }
+
+
+/* Actual cel-onion preview; previous frame never modifies editable data. */
+.studio-canvas-wrap>#studio-canvas,.studio-canvas-wrap>#onion-canvas{grid-area:1 / 1;align-self:center;justify-self:center;}
+.studio-canvas-wrap>#onion-canvas{pointer-events:none;opacity:.28;filter:none;image-rendering:pixelated;background:transparent!important}
+#toggle-onion.active{color:#181f2c;background:#dfbe95;border-color:#ffe2b2}
