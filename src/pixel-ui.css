@@ -360,3 +360,19 @@ button:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.3)}
 @media(prefers-reduced-motion:reduce){
  .hero-work-card,.work-card,.work-art canvas{transition:none}
 }
+
+
+/* Focus inspector: browsing layers must work without hunting in the distant stack. */
+.focus-switch{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.focus-switch button{
+ min-height:38px;padding:7px;border:1px solid #5a7084;border-radius:0;
+ background:#22374a;color:#e1e8e7;font:11px var(--sans);cursor:pointer;
+}
+.focus-switch button:hover{background:#364b60;border-color:#eab58c;color:#ffe0c0}
+.focus-switch button:focus-visible{outline:2px solid #ffd2a8;outline-offset:2px}
+@media(min-width:611px) and (max-width:820px){
+ .focus-switch{grid-column:2;grid-row:4}
+ .focus-toolrow{grid-row:5}
+ .focus-export{grid-row:6}
+ .focus-note{grid-row:7}
+}
