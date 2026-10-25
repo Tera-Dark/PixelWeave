@@ -93,10 +93,13 @@
     <button id="guided-retry" type="button" class="btn btn-line" hidden>↻ 只重做当前候选</button>
     <div id="guided-history" class="guided-history"></div>
   </div>
-  <details class="guided-backup"><summary>草稿备份 · 导出或重新导入</summary>
-    <div class="guided-actions"><button id="guided-export" type="button" class="btn btn-line">导出草稿 JSON</button><button id="guided-import" type="button" class="btn btn-line">验证并恢复下方 JSON</button></div>
-    <textarea id="guided-backup-input" rows="3" placeholder="在此粘贴此前导出的 pixelweave/guided-v1 草稿 JSON"></textarea>
-  </details>
+  <section class="guided-backup" aria-label="引导式工程备份">
+    <button id="guided-backup-toggle" type="button" class="btn btn-quiet" aria-expanded="false" aria-controls="guided-backup-content">草稿备份 · 展开导入与导出</button>
+    <div id="guided-backup-content" hidden>
+      <div class="guided-actions"><button id="guided-export" type="button" class="btn btn-line">导出草稿 JSON</button><button id="guided-import" type="button" class="btn btn-line">验证并恢复下方 JSON</button></div>
+      <textarea id="guided-backup-input" rows="3" placeholder="在此粘贴此前导出的 pixelweave/guided-v1 草稿 JSON"></textarea>
+    </div>
+  </section>
   <div class="guided-status" id="guided-status" role="status" aria-live="polite">所有模型调用均需手动触发；无模型时仍可使用普通 JSON 导入。</div>
 </section><div id="json-import-panel" hidden><label for="json-input" class="label">粘贴 LLM 生成的资产 JSON</label><textarea id="json-input" rows="5" placeholder='{"name":"Potion","width":16,"height":16,"palette":{".":"transparent","R":"#e54d5a"},"frames":[["................","....RRRR........", "..."]]}'></textarea><button class="btn btn-primary" id="import-json">验证并导入资产 ↗</button></div><div class="llm-status" id="llm-status">正在检测本地模型接口…</div><div class="feedback" id="feedback" role="status" aria-live="polite">已就绪。试着选择一件作品，或者生成你自己的像素资产。</div></section></details>
       </section>
