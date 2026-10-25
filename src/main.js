@@ -45,7 +45,7 @@ function restore(){try{
  }
  if(d.edits&&typeof d.edits==='object')for(const [id,v] of Object.entries(d.edits))if(state.items.some(a=>a.id===id))state.edits[id]=scrub(v);
 }catch{}}
-function route(name){const studio=name==='studio';$('gallery-page').hidden=studio;$('studio-page').hidden=!studio;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));if(studio&&current())refresh();history.replaceState(null,'','#'+name);syncSiteNavigation();window.scrollTo(0,0);}
+function route(name,{record=true,scroll=true}={}){const studio=name==='studio';$('gallery-page').hidden=studio;$('studio-page').hidden=!studio;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));if(studio&&current())refresh();if(record&&location.hash!=='#'+name)history.pushState(null,'','#'+name);syncSiteNavigation();if(scroll)window.scrollTo(0,0);}
 function renderGallery(){cards=[];const host=$('gallery-grid');host.replaceChildren();
  const featured=state.items.filter(a=>a.id===POTION_ID);
  featured.forEach((a,i)=>{
@@ -652,6 +652,7 @@ function events(){
   :'';
  const text=makeLayeredPrompt($('idea-input').value)+appendix;try{await navigator.clipboard.writeText(text);notify('完整 LLM 像素动画生成规范已复制。');}catch{$('json-import-panel').hidden=false;$('json-input').value=text;$('json-input').select();notify('复制受限：已在文本框选中提示词，请手动复制。',true);}};
  document.addEventListener('keydown',e=>{if($('studio-page').hidden||e.target.matches('input,textarea,button'))return;if(e.code==='Space'){e.preventDefault();state.play=!state.play;draw();}if(e.code==='ArrowLeft')shift(-1);if(e.code==='ArrowRight')shift(1);if(e.code==='KeyO')$('toggle-onion').click();if((e.ctrlKey||e.metaKey)&&e.code==='KeyZ'){e.preventDefault();timeTravel(e.shiftKey?'redo':'undo');}if((e.ctrlKey||e.metaKey)&&e.code==='KeyY'){e.preventDefault();timeTravel('redo');}});
- window.addEventListener('hashchange',()=>{if(location.hash==='#studio'||location.hash==='#gallery')route(location.hash.slice(1));});
+ window.addEventListener('hashchange',()=>{if(location.hash==='#studio'||location.hash==='#gallery')route(location.hash.slice(1),{record:false,scroll:false});});
+ window.addEventListener('popstate',()=>route(location.hash==='#studio'?'studio':'gallery',{record:false,scroll:false}));
 }
-mountSiteNavigation();events();beginLLMStatus();loadCuratedStudies().then(()=>route(location.hash==='#studio'?'studio':'gallery'));requestAnimationFrame(loop);
+mountSiteNavigation();events();beginLLMStatus();loadCuratedStudies().then(()=>route(location.hash==='#studio'?'studio':'gallery',{record:false,scroll:false}));requestAnimationFrame(loop);
