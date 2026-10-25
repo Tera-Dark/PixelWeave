@@ -10,7 +10,7 @@ import {renderCelTimeline,updateCelSelection} from './cel-timeline.mjs';
 import {paintLine,paintRectangle,paintFill,moveRegion} from './pixel-tools.mjs';
 import {stepPlayback,inspectAnimation} from './animation-analysis.mjs';
 const $=id=>document.getElementById(id),state={items:[],id:POTION_ID,frame:0,play:true,speed:1,edits:{},tool:null,elapsed:0,last:0,activeLayer:'liquid',symbol:'K',undo:[],redo:[],mode:'loop',direction:1};
-let cards=[],thumbs=[],painting=false,galleryTick=-1,localModelAvailable=false,explosionSpread=65,explosionSolo=false,focusFit=true,focusChecker=true,explosionVisible=false,onionEnabled=false,activeStroke=null,selection=null,celClipboard=null,onionPrevious=true,onionFollowing=false;
+let cards=[],thumbs=[],painting=false,galleryTick=-1,localModelAvailable=false,explosionSpread=65,explosionSolo=false,focusFit=true,focusChecker=true,explosionVisible=false,onionEnabled=false,activeStroke=null,selection=null,celClipboard=null,onionPrevious=true,onionFollowing=false,panDrag=null,panX=0,panY=0;
 const current=()=>state.items.find(a=>a.id===state.id)||state.items[0],layers=()=>state.edits[state.id]||{};
 const historyByAsset=new Map();
 function activateHistory(id){if(!historyByAsset.has(id))historyByAsset.set(id,{undo:[],redo:[]});const h=historyByAsset.get(id);state.undo=h.undo;state.redo=h.redo;}
@@ -192,6 +192,27 @@ function repaintActiveCel(){
  if(thumbs[state.frame])renderAsset(thumbs[state.frame],a,state.frame,layers());
  drawExplosion();
  drawSelection();
+}
+function setCanvasPan(x,y){
+ panX=Math.max(-150,Math.min(150,Math.round(x)));
+ panY=Math.max(-150,Math.min(150,Math.round(y)));
+ const host=$('studio-canvas').parentElement;
+ host.style.setProperty('--pan-x',panX+'px');host.style.setProperty('--pan-y',panY+'px');
+}
+function beginPan(e){
+ if(!isLayered())return;
+ e.preventDefault();state.play=false;
+ panDrag={id:e.pointerId,x:e.clientX,y:e.clientY,panX,panY};
+ $('studio-canvas').setPointerCapture(e.pointerId);
+ $('studio-canvas').style.cursor='grabbing';
+}
+function updatePan(e){
+ if(!panDrag||e.pointerId!==panDrag.id)return;
+ setCanvasPan(panDrag.panX+e.clientX-panDrag.x,panDrag.panY+e.clientY-panDrag.y);
+}
+function endPan(e){
+ if(!panDrag||e.pointerId!==panDrag.id)return;
+ panDrag=null;$('studio-canvas').style.cursor='crosshair';
 }
 function beginStroke(e){
  if(!state.tool)return;
@@ -557,9 +578,15 @@ function events(){
  const directionMap=[['selection-left',-1,0],['selection-right',1,0],['selection-up',0,-1],['selection-down',0,1]];
  for(const [id,dx,dy] of directionMap)$(id).onclick=()=>moveSelection(dx,dy);
  const c=$('studio-canvas');
- c.onpointerdown=e=>{if(e.button!==0&&e.pointerType==='mouse')return;beginStroke(e);};
- c.onpointermove=e=>updateStroke(e);
- c.onpointerup=endStroke;c.onpointercancel=endStroke;c.onlostpointercapture=endStroke;
+ c.onpointerdown=e=>{
+  if(e.button===1||e.altKey){beginPan(e);return;}
+  if(e.button!==0&&e.pointerType==='mouse')return;beginStroke(e);
+ };
+ c.onpointermove=e=>panDrag?updatePan(e):updateStroke(e);
+ c.onpointerup=e=>panDrag?endPan(e):endStroke(e);
+ c.onpointercancel=e=>panDrag?endPan(e):endStroke(e);
+ c.onlostpointercapture=e=>panDrag?endPan(e):endStroke(e);
+ $('reset-pan').onclick=()=>setCanvasPan(0,0);
  $('export-png').onclick=()=>exportPng().catch(e=>notify(e.message,true));$('export-sheet').onclick=()=>exportSheet().catch(e=>notify(e.message,true));
  $('export-json').onclick=exportJson;$('export-webm').onclick=exportVideo;
  $('layer-name').onchange=e=>mutateLayer(()=>{selectedLayer().name=e.target.value.trim().slice(0,40)||selectedLayer().id;});
