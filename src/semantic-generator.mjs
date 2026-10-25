@@ -103,7 +103,7 @@ export async function generateSemantic(idea,env=process.env,fetchImpl=fetch){
  let last=null;
  for(const layer of plan.layers){
   const knowledge=pickKnowledge(brief+' '+layer.purpose,layer.kind==='animated'?'effects':'fill',{enabled,limit:10});
-  const step=layerInstructions(plan,layer,brief,last?.asset,knowledge,artDirection(style.id,layer.id));
+  const step=layerInstructions(plan,layer,brief,last?.asset,knowledge,artDirection(style.id,layer.kind==='animated'?'effects':program.layers.length===0?'silhouette':'fill'));
   const candidate=await attempt('layer:'+layer.id,step,output=>{
    if(!output||typeof output!=='object'||Array.isArray(output))throw Error('需要图层指令对象');
    if(!Array.isArray(output.base))throw Error('缺少 base 形状指令');
