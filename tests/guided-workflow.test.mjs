@@ -60,7 +60,10 @@ test('retry respects user feedback, replaces ONLY the pending proposal, and carr
  d=await actGuidedDraft(d,'retry',{feedback:'让火焰的亮部更有层次，保留原本笼身',env,transport:m.transport});
  assert.equal(d.phase,'review-layer');
  assert.equal(JSON.stringify(d.program.layers),accepted);
- assert.ok(m.prompts.at(-1).includes('让火焰的亮部更有层次'));
+ assert.ok(m.prompts.at(-1).includes('让火焰的亮部更有层次'))
+ assert.ok(m.prompts.at(-1).includes('REJECTED CANDIDATE REAL RENDERED PIXELS'));
+ assert.ok(m.prompts.at(-1).includes('FRAME 4'));
+ assert.ok(m.prompts.at(-1).includes('PREVIOUS COMPILED ART'));;
  assert.equal(d.history.at(-1).action,'retry');
 });
 test('draft is portable between JSON saves and validates complete/pending programs before restore',async()=>{
