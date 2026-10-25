@@ -179,6 +179,8 @@ export function inspectGuidedDraft(source){
   preview:proposed?.asset||accepted?.asset||null,
   approvedAsset:accepted?.asset||null,
   warnings:(proposed||accepted)?.issues||[],
+  metrics:(proposed||accepted)?.metrics||null,
+  note:'Technical heuristics only; a schema-valid sprite is not a human-approved artwork.',
   readyToPublish:d.phase==='complete',
   history:d.history
  };
