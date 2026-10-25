@@ -2,7 +2,7 @@ import {DEMOS,SIZE,renderAsset,makeImported,validateMatrix} from './engine.js';
 import {LAYERED_FORMAT,createLayeredAsset,validateLayered,pixelCoordinates,paintLayerPixel,addEmptyLayer,reorderLayer,duplicateFrame,deleteFrame,createBlankLayered,metrics} from './layered.js';
 import {makeLayeredPrompt,parseModelJSON} from './llm.js';
 import {loadPotionAsset} from './potion-loader.js';
-import {renderExploded,layerAtPosition} from './exploded.js';
+import {renderExploded,layerAtPosition,explodedLayout} from './exploded.js';
 import {renderSingleLayer} from './layer-focus.js';
 import {POTION_ID} from './native-potion.mjs';
 const $=id=>document.getElementById(id),state={items:[],id:POTION_ID,frame:0,play:true,speed:1,edits:{},tool:null,elapsed:0,last:0,activeLayer:'liquid',symbol:'K',undo:[],redo:[]};
@@ -84,6 +84,16 @@ function drawExplosion(){
  $('focus-bounds').textContent=b?b.width+' × '+b.height:'EMPTY';
  $('focus-layer-state').textContent=layer.visible===false?'HIDDEN':Math.round(layer.opacity*100)+'%';
  $('focus-zoom').textContent=(focusFit?'AUTO FIT':'FULL CANVAS')+' · '+inspection.scale+'×';
+}
+function selectFocusLayer(direction){
+ const a=current();if(!a||a.type!=='layered')return;
+ const d=a.data,index=d.layers.findIndex(l=>l.id===state.activeLayer);
+ const next=(index+direction+d.layers.length)%d.layers.length;
+ state.activeLayer=d.layers[next].id;
+ renderLayers();
+ const scroller=$('exploded-scroller'),plate=explodedLayout(d.layers.length,explosionSpread)[next];
+ const left=Math.max(0,plate.x+plate.width/2-scroller.clientWidth/2);
+ scroller.scrollTo({left,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
 }
 function shift(n){state.frame=(state.frame+n+current().frames)%current().frames;state.play=false;state.elapsed=0;draw();}
 function loop(now){if(!state.last)state.last=now;const dt=Math.min(100,now-state.last);state.last=now;
@@ -305,6 +315,8 @@ function newProject(){
 }
 function events(){
  document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>route(b.dataset.page));
+ $('focus-prev').onclick=()=>selectFocusLayer(-1);
+ $('focus-next').onclick=()=>selectFocusLayer(1);
  $('focus-fit').onclick=()=>{
   focusFit=!focusFit;$('focus-fit').classList.toggle('active',focusFit);
   $('focus-fit').setAttribute('aria-pressed',String(focusFit));drawExplosion();
