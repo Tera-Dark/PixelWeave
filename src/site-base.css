@@ -1,0 +1,21 @@
+/* Minimal shared foundations for lightweight Atlas/Lab pages.
+ * Do not import editor/gallery layout rules here. */
+:root{
+ color-scheme:dark;
+ --bg:#0d141e;--panel:#172334;--panel2:#1b2b3b;
+ --line:#455a70;--text:#f2e9da;--muted:#a5b9c9;
+ --accent:#e6ad83;--mint:#9fc9ad;
+ --mono:'Silkscreen','DM Mono',ui-monospace,monospace;
+ --sans:'DM Sans','Noto Sans SC',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font:14px/1.6 var(--sans);background:#0d141e;color:var(--text)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.48;cursor:not-allowed}
+a{color:inherit;text-decoration:none}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
+ outline:2px solid #f5c59d;outline-offset:2px;
+}
+[hidden]{display:none!important}
