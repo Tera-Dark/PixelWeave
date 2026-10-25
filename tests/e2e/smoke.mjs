@@ -40,12 +40,23 @@ try{
  assert.equal(await page.locator('#cel-grid .cel-cell.selected-cel').count(),1);
  // Choose palette symbol m and draw into an otherwise transparent corner.
  await page.locator('#layer-palette .palette-swatch[title^="m "]').click();
+ await page.evaluate(()=>{window.__pointerLog=[];document.getElementById('studio-canvas').addEventListener('pointerdown',e=>window.__pointerLog.push({type:'down',x:e.clientX,y:e.clientY,target:e.target.id}),true);document.getElementById('studio-canvas').addEventListener('pointermove',e=>{if(e.buttons)window.__pointerLog.push({type:'move',x:e.clientX,y:e.clientY,target:e.target.id});},true);});
  const drawing=page.locator('#studio-canvas');
  const rect=await drawing.boundingBox();
  assert.ok(rect,'drawing canvas must be visible');
  const xp=rect.x+rect.width*(2.5/64),yp=rect.y+rect.height*(2.5/64);
  await page.mouse.move(xp,yp);await page.mouse.down();await page.mouse.move(xp+rect.width*3/64,yp);await page.mouse.up();
  let data=await exported(page);
+ const trace=await page.evaluate(({x,y})=>({
+  cursorElement:document.elementFromPoint(x,y)?.id||document.elementFromPoint(x,y)?.className,
+  pointerLog:window.__pointerLog,
+  brush:document.getElementById('tool-pencil').getAttribute('aria-pressed'),
+  palette:[...document.querySelectorAll('.palette-swatch.selected')].map(e=>e.title),
+  selectedCel:document.querySelector('.cel-cell.selected-cel')?.dataset,
+  canvasRect:document.getElementById('studio-canvas').getBoundingClientRect().toJSON(),
+  save:document.getElementById('save-indicator').textContent
+ }),{x:xp,y:yp});
+ console.log('PAINT TRACE',JSON.stringify({trace,rows:data.layers.find(l=>l.id==='crimson_liquid').frames[4].slice(0,6)}));
  assert.equal(data.layers.find(l=>l.id==='crimson_liquid').frames[4][2].slice(2,6),'mmmm','brush line must not skip pixel positions');
  await page.locator('#layer-undo').click();
  data=await exported(page);
