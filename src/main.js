@@ -153,25 +153,113 @@ function tool(t){
   const el=$('tool-'+v);el.classList.toggle('active',state.tool===v);el.setAttribute('aria-pressed',String(state.tool===v));
  }
 }
-function paint(e){
+function drawSelection(){
+ const overlay=$('selection-canvas'),ctx=overlay.getContext('2d'),a=current();
+ ctx.clearRect(0,0,overlay.width,overlay.height);
+ const active=selection&&a?.type==='layered'&&selection.layerId===state.activeLayer&&selection.frame===state.frame;
+ overlay.hidden=!active;
+ if(!active)return;
+ const d=a.data,scale=Math.floor(Math.min(overlay.width/d.width,overlay.height/d.height));
+ const ox=Math.floor((overlay.width-d.width*scale)/2),oy=Math.floor((overlay.height-d.height*scale)/2);
+ const xa=Math.min(selection.x0,selection.x1),ya=Math.min(selection.y0,selection.y1);
+ const w=Math.abs(selection.x1-selection.x0)+1,h=Math.abs(selection.y1-selection.y0)+1;
+ ctx.strokeStyle='#ffcb8a';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+ ctx.strokeRect(ox+xa*scale+.5,oy+ya*scale+.5,w*scale-1,h*scale-1);ctx.setLineDash([]);
+ $('selection-hint').textContent='选区 '+w+'×'+h+' @ '+xa+','+ya;
+}
+function repaintActiveCel(){
+ const a=current();
+ renderAsset($('studio-canvas'),a,state.frame,layers());
+ if(thumbs[state.frame])renderAsset(thumbs[state.frame],a,state.frame,layers());
+ drawExplosion();
+ drawSelection();
+}
+function beginStroke(e){
  if(!state.tool)return;
- const c=$('studio-canvas');
- if(isLayered()){
-  const data=current().data,pt=pixelCoordinates(c,data,e.clientX,e.clientY);
-  if(!pt)return;
-  const symbol=state.tool==='erase'?'.':state.symbol;
-  if(paintLayerPixel(data,state.activeLayer,state.frame,pt.x,pt.y,symbol)){
-   renderAsset(c,current(),state.frame);renderAsset(thumbs[state.frame],current(),state.frame);drawExplosion();
-  }
-  return;
+ const c=$('studio-canvas'),a=current();
+ if(!a||a.type!=='layered'){painting=true;state.play=false;c.setPointerCapture(e.pointerId);paint(e);return;}
+ const start=pixelCoordinates(c,a.data,e.clientX,e.clientY);
+ if(!start)return;
+ state.play=false;draw();
+ const isSelection=state.tool==='select';
+ if(isSelection){
+  selection={...{x0:start.x,y0:start.y,x1:start.x,y1:start.y},layerId:state.activeLayer,frame:state.frame};
+  drawSelection();
+ }else remember();
+ activeStroke={
+  tool:state.tool,layerId:state.activeLayer,frame:state.frame,start,last:start,
+  rows:a.data.layers.find(l=>l.id===state.activeLayer).frames[state.frame].slice(),
+  before:isSelection?null:state.undo.at(-1),changed:false,pointerId:e.pointerId
+ };
+ painting=true;c.setPointerCapture(e.pointerId);
+ updateStroke(e);
+}
+function updateStroke(e){
+ if(!painting)return;
+ const a=current(),c=$('studio-canvas');
+ if(!a||a.type!=='layered'){paint(e);return;}
+ const st=activeStroke;if(!st||st.pointerId!==e.pointerId)return;
+ const end=pixelCoordinates(c,a.data,e.clientX,e.clientY);
+ if(!end)return;
+ const d=a.data,symbol=st.tool==='erase'?'.':state.symbol;
+ if(st.tool==='select'){
+  selection.x1=end.x;selection.y1=end.y;drawSelection();return;
  }
- const r=c.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/r.width*96),y=Math.floor((e.clientY-r.top)/r.height*96);
+ const l=d.layers.find(v=>v.id===st.layerId);
+ let changed=0;
+ if(st.tool==='pencil'||st.tool==='erase'){
+  changed=paintLine(d,st.layerId,st.frame,st.last.x,st.last.y,end.x,end.y,symbol);
+ }else if(st.tool==='fill'){
+  if(!st.didFill){changed=paintFill(d,st.layerId,st.frame,end.x,end.y,symbol);st.didFill=true;}
+ }else{
+  // Rebuild geometric previews from their original Cel, so dragging the
+  // endpoint never accumulates stray pixels from intermediate previews.
+  l.frames[st.frame]=st.rows.slice();
+  if(st.tool==='line')changed=paintLine(d,st.layerId,st.frame,st.start.x,st.start.y,end.x,end.y,symbol);
+  if(st.tool==='rect'||st.tool==='rectfill')changed=paintRectangle(d,st.layerId,st.frame,st.start.x,st.start.y,end.x,end.y,symbol,{filled:st.tool==='rectfill'});
+ }
+ st.last=end;st.changed=st.changed||changed>0;
+ repaintActiveCel();
+}
+function endStroke(e){
+ if(!painting)return;
+ const a=current(),st=activeStroke;painting=false;activeStroke=null;
+ if(!a||a.type!=='layered'){persist();renderGallery();return;}
+ if(st?.tool==='select'){drawSelection();return;}
+ if(!st)return;
+ // A no-op drag should not consume undo history or clear the redo chain.
+ const unchanged=JSON.stringify(a.data)===st.before;
+ if(unchanged){
+  state.undo.pop();
+ }else{
+  persist();renderGallery();
+  $('save-indicator').textContent='● 已保存 · 本地';
+ }
+ refresh();draw();
+}
+function paint(e){
+ // Retained compatibility for explicitly imported legacy matrix projects.
+ if(!state.tool)return;
+ const c=$('studio-canvas'),r=c.getBoundingClientRect();
+ const x=Math.floor((e.clientX-r.left)/r.width*96),y=Math.floor((e.clientY-r.top)/r.height*96);
  if(x<0||x>95||y<0||y>95)return;
  if(!state.edits[state.id])state.edits[state.id]={};const f=String(state.frame);
  if(!state.edits[state.id][f])state.edits[state.id][f]={};
  if(state.tool==='erase')delete state.edits[state.id][f][x+','+y];
  else state.edits[state.id][f][x+','+y]=$('brush-color').value;
- renderAsset(c,current(),state.frame,layers());renderAsset(thumbs[state.frame],current(),state.frame,layers());
+ renderAsset(c,current(),state.frame,layers());
+ if(thumbs[state.frame])renderAsset(thumbs[state.frame],current(),state.frame,layers());
+}
+function moveSelection(dx,dy){
+ if(!isLayered()||!selection||selection.layerId!==state.activeLayer||selection.frame!==state.frame){
+  notify('请先使用「选区」工具在当前图层框选一个区域。',true);return;
+ }
+ mutateLayer(d=>{
+  const changed=moveRegion(d,state.activeLayer,state.frame,selection.x0,selection.y0,selection.x1,selection.y1,dx,dy);
+  if(!changed)throw Error('选中区域没有可移动的像素');
+  selection.x0+=dx;selection.x1+=dx;selection.y0+=dy;selection.y1+=dy;
+ });
+ drawSelection();
 }
 function download(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2500);}
 const png=c=>new Promise((ok,fail)=>c.toBlob(b=>b?ok(b):fail(Error('PNG 生成失败')),'image/png'));
