@@ -6,7 +6,7 @@ import {renderExploded,layerAtPosition,explodedLayout} from './exploded.js';
 import {renderSingleLayer} from './layer-focus.js';
 import {POTION_ID} from './native-potion.mjs';
 const $=id=>document.getElementById(id),state={items:[],id:POTION_ID,frame:0,play:true,speed:1,edits:{},tool:null,elapsed:0,last:0,activeLayer:'liquid',symbol:'K',undo:[],redo:[]};
-let cards=[],thumbs=[],painting=false,galleryTick=-1,localModelAvailable=false,explosionSpread=65,explosionSolo=false,focusFit=true,focusChecker=true;
+let cards=[],thumbs=[],painting=false,galleryTick=-1,localModelAvailable=false,explosionSpread=65,explosionSolo=false,focusFit=true,focusChecker=true,explosionVisible=false;
 const current=()=>state.items.find(a=>a.id===state.id)||state.items[0],layers=()=>state.edits[state.id]||{};
 const cv=()=>{const e=document.createElement('canvas');e.width=256;e.height=256;return e;};
 function notify(t,bad=false){$('feedback').textContent=t;$('feedback').className='feedback '+(bad?'error':'success');}
@@ -73,7 +73,7 @@ function draw(){renderAsset($('studio-canvas'),current(),state.frame,layers());c
  drawExplosion();
 }
 function drawExplosion(){
- const a=current();if(!a||a.type!=='layered')return;
+ const a=current();if(!a||a.type!=='layered'||!explosionVisible)return;
  const d=a.data;
  renderExploded($('exploded-canvas'),d,state.frame,{activeLayer:state.activeLayer,spread:explosionSpread,solo:explosionSolo});
  $('exploded-frame').textContent='F'+String(state.frame+1).padStart(2,'0')+' / '+a.frames;
@@ -324,6 +324,15 @@ function newProject(){
  }catch(e){notify(e.message,true);}
 }
 function events(){
+ // Heavy exploded-layer geometry is only drawn when that part of the
+ // editor is onscreen. IntersectionObserver wakes it on scrolling.
+ if('IntersectionObserver' in window){
+  const observer=new IntersectionObserver(entries=>{
+   const visible=entries.some(entry=>entry.isIntersecting&&!$('studio-page').hidden);
+   if(visible!==explosionVisible){explosionVisible=visible;if(visible)drawExplosion();}
+  },{rootMargin:'180px'});
+  observer.observe(document.querySelector('.exploded-panel'));
+ }else explosionVisible=true;
  document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>route(b.dataset.page));
  $('focus-prev').onclick=()=>selectFocusLayer(-1);
  $('focus-next').onclick=()=>selectFocusLayer(1);
