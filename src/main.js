@@ -10,7 +10,9 @@ import {copyCel,pasteCel,clearCel,insertFrame,moveFrame,celStats} from './cel-op
 import {renderCelTimeline,updateCelSelection} from './cel-timeline.mjs';
 import {paintLine,paintRectangle,paintFill,moveRegion} from './pixel-tools.mjs';
 import {stepPlayback,inspectAnimation} from './animation-analysis.mjs';
+import {mountGuidedWorkbench} from './guided-ui.mjs';
 const $=id=>document.getElementById(id),state={items:[],id:POTION_ID,frame:0,play:true,speed:1,edits:{},tool:null,elapsed:0,last:0,activeLayer:'liquid',symbol:'K',undo:[],redo:[],mode:'loop',direction:1};
+let guidedController=null;
 let cards=[],thumbs=[],painting=false,galleryTick=-1,localModelAvailable=false,explosionSpread=65,explosionSolo=false,focusFit=true,focusChecker=true,explosionVisible=false,onionEnabled=false,activeStroke=null,selection=null,celClipboard=null,onionPrevious=true,onionFollowing=false,panDrag=null,panX=0,panY=0,studioInitialized=false;
 const current=()=>state.items.find(a=>a.id===state.id)||state.items[0],layers=()=>state.edits[state.id]||{};
 const historyByAsset=new Map();
@@ -468,7 +470,7 @@ function beginLLMStatus(){
   localModelAvailable=false;$('refine-layer').disabled=true;
   $('llm-status').textContent='当前为 GitHub Pages 静态模式：复制 LLM 提示词，在任意文本模型中生成 JSON 后粘贴导入。';
   $('generate-llm').disabled=true;
- });
+ }).finally(()=>guidedController?.refreshAvailability());
 }
 async function generateFromLLM(){
  const button=$('generate-llm'),idea=$('idea-input').value.trim();
@@ -686,6 +688,17 @@ function events(){
  window.addEventListener('popstate',()=>route(location.hash==='#studio'?'studio':'gallery',{record:false,scroll:false}));
 }
 mountSiteNavigation();events();
+guidedController=mountGuidedWorkbench({
+ notify,
+ getBrief:()=>$('idea-input').value.trim(),
+ getStyle:()=>$('art-style-select').value,
+ isModelAvailable:()=>localModelAvailable,
+ onPublish:(data)=>{
+  const a=createLayeredAsset(validateLayered(data));state.items.push(a);choose(a.id);persist();renderGallery();
+  notify('已发布为 Studio 的私人分层工程，可继续逐像素编辑并导出。');route('studio');
+ }
+});
+guidedController?.refreshAvailability();
 watchArt($('hero-canvas'));
 // The optional model proxy is irrelevant to landing-page visitors.
 let modelStatusRequested=false;
