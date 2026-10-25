@@ -376,3 +376,139 @@ button:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.3)}
  .focus-export{grid-row:6}
  .focus-note{grid-row:7}
 }
+
+
+/* v0.7 · dense working-first site hierarchy.
+   Core: editor at first glance, authoring helpers available on demand. */
+.site-header{height:62px;padding-left:max(16px,calc((100vw - 1660px)/2));padding-right:max(16px,calc((100vw - 1660px)/2))}
+.top-nav{gap:6px}
+.nav-link{min-height:39px;padding:7px 12px 5px}
+.header-actions{gap:9px}
+.layout-width{width:min(1600px,calc(100% - 38px))}
+.hero{min-height:435px;grid-template-columns:minmax(0,1fr) minmax(320px,480px);gap:42px;padding-top:32px;padding-bottom:38px}
+.hero h1{font-size:clamp(39px,4.2vw,66px);margin:15px 0 18px}
+.hero-desc{line-height:1.85;max-width:620px;font-size:13px}
+.hero-actions{margin-top:21px;gap:8px;flex-wrap:wrap}
+.hero-actions .btn{padding:10px 13px;min-height:38px}
+.hero-foot{margin-top:25px}
+.hero-visual{height:360px}
+.hero-visual:before{width:350px;height:350px}
+.hero-work-card{width:283px;height:330px;box-shadow:6px 6px 0 #0a121d,inset 3px 3px 0 #344457}
+.card-upper,.card-lower{padding:9px 12px}
+.hero-art{margin:5px 9px}
+.hero-art canvas{width:210px;max-width:92%}
+.card-lower b{font-size:13px}
+.card-lower small{font-size:9px}
+.note-left,.note-right{display:none}
+.collection{padding-top:27px;padding-bottom:48px}
+.section-top{margin-bottom:17px}
+.section-top h2{font-size:30px;margin:5px 0}
+.section-top p{font-size:12px}
+.gallery-grid{grid-template-columns:repeat(auto-fit,minmax(235px,290px));gap:12px}
+.work-card{padding:9px}
+.work-art{height:190px}
+.work-art canvas{width:172px}
+.work-meta strong{font-size:13px}
+.principle{padding:20px 0;gap:15px;min-height:0}
+.principle h2{font-size:20px;margin:6px 0}
+.principle p{font-size:12px;max-width:800px}
+.principle-icon{width:55px;height:55px}
+.footer{padding:18px 0}
+.studio-page .layout-width{width:min(1690px,calc(100% - 30px))}
+.studio-head{padding-top:15px;padding-bottom:12px;gap:13px}
+.studio-head h1{font-size:27px;margin:2px 0 4px}
+.studio-head p{font-size:11px;margin:0}
+.studio-head .eyebrow{font-size:9px}
+.studio-head-actions{gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.studio-head-actions .btn{padding:8px 10px;min-height:33px;font-size:10px}
+.studio-head-actions .local-tag{font-size:9px}
+.studio-shell{grid-template-columns:minmax(148px,180px) minmax(0,1fr) minmax(252px,280px);gap:10px}
+.studio-left,.studio-right{padding:12px}
+.studio-left .panel-help{font-size:10px;margin:7px 0}
+.studio-left .asset-option{min-height:56px;padding:7px}
+.studio-canvas-header{margin-bottom:8px}
+.studio-canvas-header h2{font-size:19px}
+.studio-canvas-header .asset-subline{font-size:10px}
+.studio-stage{height:342px}
+.stage-top,.stage-bottom{font-size:9px}
+.transport{margin-top:8px;min-height:45px;padding:6px}
+.frame-panel{margin-top:8px;padding:10px 11px}
+.frame-heading{padding-bottom:5px}
+.frame-heading b{font-size:12px}
+.frame-track{padding-top:9px}
+.frame-button{flex-basis:51px;min-width:51px;padding:3px}
+.frame-button canvas{width:42px;height:42px}
+.inspector-block{padding:10px 0}
+.detail-list{gap:5px}
+.layer-row{min-height:40px}
+.layer-eye{min-height:33px;height:33px}
+.studio-composer-drawer{
+ margin-top:10px;background:#19283a;border:1px solid #54687c;
+ box-shadow:inset 2px 2px 0 #2c3c50;
+}
+.studio-composer-drawer>summary{
+ display:flex;align-items:center;justify-content:space-between;gap:10px;
+ cursor:pointer;padding:11px 14px;list-style:none;font-size:12px;font-weight:700;color:#f3dac5;
+}
+.studio-composer-drawer>summary::-webkit-details-marker{display:none}
+.studio-composer-drawer>summary:before{content:'▸';color:#e2b18a;margin-right:5px}
+.studio-composer-drawer[open]>summary:before{content:'▾'}
+.studio-composer-drawer>summary span{margin-left:auto;font-size:10px;color:#9fb2c0;font-weight:400}
+.studio-composer-drawer .composer{margin:0;border-top:1px solid #516377;border-left:0;border-right:0;border-bottom:0;box-shadow:none;padding:14px}
+.exploded-panel{margin-top:16px;padding:16px;margin-bottom:20px;scroll-margin-top:24px}
+.exploded-head{margin-bottom:10px;padding-bottom:9px}
+.exploded-head h3{font-size:20px;margin:4px 0}
+.exploded-head p{font-size:11px;margin:0}
+.exploded-workspace{grid-template-columns:minmax(0,1fr) minmax(245px,300px);gap:10px}
+.focus-panel{padding:10px;gap:9px}
+.focus-preview{min-height:250px;max-width:300px}
+.exploded-controls{margin-top:10px;padding-top:10px}
+@media(max-width:1120px){
+ .studio-shell{grid-template-columns:150px minmax(0,1fr) 245px}
+ .studio-head-actions .local-tag{display:none}
+ .hero{grid-template-columns:minmax(0,1fr) 350px}
+}
+@media(max-width:920px){
+ .studio-shell{grid-template-columns:minmax(0,1fr) 255px}
+ .studio-left{grid-column:1/-1}
+ .studio-center{grid-column:1}
+ .studio-right{grid-column:2}
+ .studio-left .panel-help,.studio-left .panel-bottom{display:none}
+ .studio-left .asset-list{padding-top:6px}
+ .studio-stage{height:370px}
+}
+@media(max-width:820px){
+ .site-header{height:65px}
+ .hero{grid-template-columns:1fr;min-height:0;padding:32px 0 25px}
+ .hero-visual{height:330px}
+ .hero-work-card{height:308px;width:265px}
+ .studio-shell{grid-template-columns:1fr}
+ .studio-left,.studio-center,.studio-right{grid-column:1}
+ .studio-right{padding:13px}
+ .studio-head h1{font-size:25px}
+ .studio-head-actions .btn{font-size:10px}
+ .studio-stage{height:340px}
+ .exploded-workspace{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+ .site-header{padding:0 10px;height:64px}
+ .nav-link{padding:6px 7px;font-size:11px}
+ .nav-link span{display:none}
+ .header-version{display:none}
+ .header-gh{display:none}
+ .layout-width{width:calc(100% - 22px)}
+ .hero{gap:0}
+ .hero h1{font-size:clamp(40px,10vw,58px)}
+ .hero-desc{font-size:12px}
+ .hero-visual{height:320px}
+ .hero-foot{margin-top:16px}
+ .collection{padding-top:16px}
+ .section-top h2{font-size:27px}
+ .studio-page .layout-width{width:calc(100% - 18px)}
+ .studio-head{align-items:flex-start;flex-wrap:wrap}
+ .studio-head-actions{width:100%;justify-content:flex-start}
+ .studio-stage{height:320px}
+ .exploded-panel{padding:10px}
+ .focus-panel{display:flex}
+ .focus-preview{min-height:0}
+}
