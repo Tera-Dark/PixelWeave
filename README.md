@@ -3,9 +3,22 @@
 **Pixels with a pulse.** 开源像素动画工作站 + 在线作品展示站。**不使用 Diffusion、生图模型或图像 API**；生成动画资产时仅使用普通文本 LLM 返回的结构化像素数据，浏览器负责确定性绘制。
 
 - **作品站（GitHub Pages）：** https://tera-dark.github.io/PixelWeave/
-- **最新实验版本：** v0.3
-- **状态：** 像素分层、逐帧编辑已具备；LLM 自动流程需本地启动 Node.js 代理并配置文本模型。作品画廊中的示例均为手工编程示范，不伪称 AI 生成。
+- **最新实验版本：** v0.6 — Pixel UI / Native Layer Focus
+- **状态：** 画廊只展示一件文本模型原生编写整数像素结构的药瓶（64×64、11 层、12 帧）；无生图、抠图或像素化源图片。该案例尚在人工审美评审中。通用 LLM 自动流程仍需本地启动 Node.js 代理并配置文本模型。
 
+
+## 最新：Pixel UI v0.6 + 独立图层观察器
+
+本轮专注于编辑体验：**不更改药瓶动画**，重新统一画廊、创作工作站、时间轴、工具、导航、图层面板及教学实验室的像素风 UI。使用低噪点深色像素网格、硬边界和有限强调色，而非依赖图片素材或粗糙的 8-bit 装饰。
+
+- [在 Pages 打开图层工作站](https://tera-dark.github.io/PixelWeave/#studio)
+- 斜向展开图与主时间轴同步；**点击任何板块即可选中图层**。
+- 同区域新增独立的**选中图层预览**：自适应整数放大 / 原画布视图、透明网格切换、图层尺寸与像素数量显示。
+- 当前帧选中图层可以**原始尺寸、透明背景 PNG** 独立导出，保持可编辑像素数据与展示一致。
+- [教学实验室](https://tera-dark.github.io/PixelWeave/knowledge/pixel-art/lab.html) 现在也只展示当前原生药瓶，其余被否决的试作品不再出现在正式展示中。
+- 样式入口：`src/pixel-ui.css`；渲染核心：`src/layer-focus.js`；使用规范：[UI/UX Pixel Design System](docs/PIXEL-UI-SYSTEM.md)。
+
+旧版 V2 示例仍保留在 Git 提交历史及教学研究资料里，以便追溯制作过程，**不应误解为本轮正式画廊内容**。
 
 ## 最新美术研究：暮烬遗物 / Ashen Reliquary（可选）
 
@@ -16,11 +29,11 @@
 - [六件现有 v2 资产的针对性审美复盘](knowledge/pixel-art/studies/V2-ASSET-CRITIQUE.md)
 - [机器可读的风格规范](knowledge/pixel-art/styles/ashen-reliquary.json)
 
-本地 Studio 已新增**美术方向（可选）**下拉菜单，选择后才会在文本 LLM 的分层创作阶段注入相应指引。不选时继续使用通用流程。**研究阶段不等于真实模型审美 A/B 已验证**；当前 v2 六件素材保留，后续先改药瓶和提灯，再经过静帧与动画人工审核后决定是否替换。
+本地 Studio 已新增**美术方向（可选）**下拉菜单，选择后才会在文本 LLM 的分层创作阶段注入相应指引。不选时继续使用通用流程。**研究阶段不等于真实模型审美 A/B 已验证**；当前仅继续改进已经单独试制的药瓶；其他素材不进入正式展示，待用户批准后再制作下一件。
 
 ## Gallery 美术升级 · Original Art Studies v2
 
-首页和工作站现已默认使用六件更细致的 32×32 原创分层像素动画，而非旧版简陋的几何教学案例。原演示保存在“查看旧版演示”中用于比较。六件作品皆为**代码手工构图与分层制作，不是 LLM 实测产物**。
+**本节是已归档的 v2 历史研究记录**，不是当前在线画廊说明。六件 32×32 教学样品均未获得审美通过，现已全部退出公开画廊。六件作品皆为**代码手工构图与分层制作，不是 LLM 实测产物**。
 
 - [六件作品的实际数据渲染静帧总览](knowledge/pixel-art/visuals/studies-v2-contact.svg)
 - [美术基调与每件作品的形体/材质/动作逻辑](knowledge/pixel-art/ART-DIRECTION-V2.md)
@@ -30,7 +43,7 @@
 
 先有系统的美术知识和经验证的创作规则，再构建 LLM 绘画代理。PixelWeave 的独立知识库现已包括 **7 级模块化课程、10 项实践任务、27 条标注来源、LLM 分层创作工作流、分级质量验收、可机读的课程路由索引与可导入的血瓶练习资产**。
 
-- **[进入交互式像素教学实验室：6 个可拆层/逐帧观察的原创资产](knowledge/pixel-art/lab.html)**
+- **[进入交互式像素教学实验室：当前唯一的原生药瓶练习](knowledge/pixel-art/lab.html)**
 - **[完整独立合订版：像素艺术与动画创作指南](knowledge/pixel-art/PIXEL-ART-ANIMATION-GUIDE.md)**
 - [分章检索与教学入口](knowledge/pixel-art/README.md)
 - [基础：像素与轮廓](knowledge/pixel-art/01-FOUNDATIONS.md) → [色彩材质](knowledge/pixel-art/02-COLOR-LIGHT-MATERIAL.md) → [道具结构](knowledge/pixel-art/03-ASSET-DESIGN.md)
@@ -40,15 +53,16 @@
 - [六件可编辑原创案例](knowledge/pixel-art/examples/reference/README.md) / [知识规则表](knowledge/pixel-art/rules.json)
 - [教程来源与证据登记](knowledge/pixel-art/SOURCES.md) / [可机读知识路由](knowledge/pixel-art/manifest.json) / [分层药瓶练习工程](knowledge/pixel-art/examples/learning-potion.layered.json)
 
-**状态说明**：知识库已整理、链接与示例进行程序测试；具体审美规范是可迭代实践建议，并非全行业的统一定理。当前知识库尚未自动注入线上 LLM 生成流程，接入时应使用 Core → Technique → Case 按需加载。
+**状态说明**：知识库已整理、链接与示例进行程序测试；具体审美规范是可迭代实践建议，并非全行业的统一定理。按需检索已接入本地文本 LLM 生成流程；公开静态 Pages 不包含云端密钥和自动模型调用。
 
 ## 已经完成的主要功能
 
 | 功能 | 说明 |
 |---|---|
-| Gallery | 5 件可播放像素资产，包括最新七图层、10 帧的 Crimson Atelier |
-| Layer Stack | 选择/隐藏图层、重命名、透明度、X/Y 偏移、移动上下顺序、新建图层 |
-| Pixel Editor | 根据有限色板在选定图层的指定帧绘制 / 擦除像素，撤销重做 |
+| Gallery | **1 件**待审美确认的原生药瓶，64×64 / 11 层 / 12 帧；其他历史样例退出画廊 |
+| Layer Stack | 选择/隐藏图层、重命名、透明度、X/Y 偏移、移动顺序、新建图层；斜向展开实时交互 |
+| Pixel Editor | 根据有限色板在选定图层指定帧绘制 / 擦除像素，撤销重做；选中图层独立放大与透明导出 |
+| Pixel UI | 独立 CSS 主题覆盖整个站点与教学实验室，像素边界、统一色板、明确交互状态、响应式布局 |
 | Timeline | 逐帧播放、暂停、调速、复制帧、删除帧、无缝循环预览 |
 | Pixel Asset JSON | 完整分层 JSON 可导入/导出，严格验证画布、调色板、层数和帧数 |
 | Export | PNG 当前帧、Spritesheet PNG、WebM 循环录制、工程 JSON |
