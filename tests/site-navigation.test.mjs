@@ -45,7 +45,7 @@ test('SPA route state can use real history without full document navigation',()=
  assert.match(s,/e\.preventDefault\(\);route\(b\.dataset\.page\)/);
  assert.match(s,/syncSiteNavigation\(\)/);
  assert.match(shell,/aria-current/);
- assert.match(shell,/data\.pwNav/);
+ assert.match(shell,/dataset\.pwNav/);
 });
 test('global shared styles are scoped and have mobile rail overflow handling',()=>{
  const css=read('src/site-nav.css');
