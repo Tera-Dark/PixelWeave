@@ -9,18 +9,11 @@
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./src/style.css">
   <link rel="stylesheet" href="./src/pixel-ui.css">
+  <link rel="stylesheet" href="./src/site-nav.css">
 </head>
 <body>
 <div class="shell">
-  <header class="site-header">
-    <a class="brand" href="#gallery" aria-label="PixelWeave 首页"><span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span>pixel<span class="brand-accent">weave</span><small>ANIMATION LAB</small></span></a>
-    <nav class="top-nav" aria-label="主导航">
-      <button class="nav-link active" data-page="gallery">作品画廊 <span>GALLERY</span></button>
-      <button class="nav-link" data-page="studio">创作工作站 <span>STUDIO</span></button>
-      <a class="nav-link atlas-link" href="./references/">参考档案室 <span>ATLAS</span></a>
-    </nav>
-    <div class="header-actions"><span class="header-version"><i class="status-dot"></i> PIXELWEAVE · WORKSPACE v0.8</span><a class="btn btn-line header-gh" href="https://github.com/Tera-Dark/PixelWeave" target="_blank" rel="noopener noreferrer">GITHUB <span aria-hidden="true">↗</span></a></div>
-  </header>
+  <header class="pw-header" data-pw-header aria-label="PixelWeave 全站导航"></header>
   <main id="gallery-page" class="page">
     <section class="hero layout-width">
       <div class="hero-copy">
