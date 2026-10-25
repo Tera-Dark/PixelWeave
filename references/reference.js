@@ -5,6 +5,8 @@
  * All analysis remains in the user's browser; nothing is uploaded or trained.
  */
 import {framePosition,previewIndices,validGrid,frameDimensions} from './viewer-core.mjs';
+import {mountSiteNavigation} from '../src/site-nav.mjs';
+mountSiteNavigation();
 const $=id=>document.getElementById(id);
 let entries=[],visible=[],selected=null,source=null,frame=0,playing=true,last=0,speed=1;
 let localObjectURL=null,noteTimer=null,differenceDisabled=false,loadSerial=0;
