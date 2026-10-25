@@ -11,7 +11,7 @@ import {renderCelTimeline,updateCelSelection} from './cel-timeline.mjs';
 import {paintLine,paintRectangle,paintFill,moveRegion} from './pixel-tools.mjs';
 import {stepPlayback,inspectAnimation} from './animation-analysis.mjs';
 const $=id=>document.getElementById(id),state={items:[],id:POTION_ID,frame:0,play:true,speed:1,edits:{},tool:null,elapsed:0,last:0,activeLayer:'liquid',symbol:'K',undo:[],redo:[],mode:'loop',direction:1};
-let cards=[],thumbs=[],painting=false,galleryTick=-1,localModelAvailable=false,explosionSpread=65,explosionSolo=false,focusFit=true,focusChecker=true,explosionVisible=false,onionEnabled=false,activeStroke=null,selection=null,celClipboard=null,onionPrevious=true,onionFollowing=false,panDrag=null,panX=0,panY=0;
+let cards=[],thumbs=[],painting=false,galleryTick=-1,localModelAvailable=false,explosionSpread=65,explosionSolo=false,focusFit=true,focusChecker=true,explosionVisible=false,onionEnabled=false,activeStroke=null,selection=null,celClipboard=null,onionPrevious=true,onionFollowing=false,panDrag=null,panX=0,panY=0,studioInitialized=false;
 const current=()=>state.items.find(a=>a.id===state.id)||state.items[0],layers=()=>state.edits[state.id]||{};
 const historyByAsset=new Map();
 function activateHistory(id){if(!historyByAsset.has(id))historyByAsset.set(id,{undo:[],redo:[]});const h=historyByAsset.get(id);state.undo=h.undo;state.redo=h.redo;}
@@ -45,7 +45,7 @@ function restore(){try{
  }
  if(d.edits&&typeof d.edits==='object')for(const [id,v] of Object.entries(d.edits))if(state.items.some(a=>a.id===id))state.edits[id]=scrub(v);
 }catch{}}
-function route(name,{record=true,scroll=true}={}){const studio=name==='studio';$('gallery-page').hidden=studio;$('studio-page').hidden=!studio;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));if(studio&&current())draw();if(record&&location.hash!=='#'+name)history.pushState(null,'','#'+name);syncSiteNavigation();if(scroll)window.scrollTo(0,0);}
+function route(name,{record=true,scroll=true}={}){const studio=name==='studio';$('gallery-page').hidden=studio;$('studio-page').hidden=!studio;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));if(studio&&current()){if(!studioInitialized){refresh();studioInitialized=true;}else draw();}if(record&&location.hash!=='#'+name)history.pushState(null,'','#'+name);syncSiteNavigation();if(scroll)window.scrollTo(0,0);}
 function renderGallery(){cards=[];const host=$('gallery-grid');host.replaceChildren();
  const featured=state.items.filter(a=>a.id===POTION_ID);
  featured.forEach((a,i)=>{
@@ -62,7 +62,7 @@ function choose(id){if(!state.items.some(a=>a.id===id))return;
   state.id=id;state.frame=0;state.elapsed=0;state.play=true;selection=null;activateHistory(id);
   state.activeLayer=current().type==='layered'?(current().data.layers.find(l=>l.id==='liquid')?.id||current().data.layers.at(-1).id):null;
   if(current().type==='layered')state.symbol=(current().data.palette.m?'m':Object.keys(current().data.palette).find(k=>k!=='.')||'.');
-  refresh();
+  refresh();studioInitialized=true;
 }
 function refresh(){
  const a=current();$('asset-name').textContent=a.name;$('asset-subline').textContent=a.cn+' · '+a.frames+' 帧循环';$('inspector-name').textContent=a.name;$('inspector-desc').textContent=a.desc;
@@ -494,7 +494,9 @@ async function loadCuratedStudies(){
   state.activeLayer=state.items[0].data.layers.some(l=>l.id==='crimson_liquid')?'crimson_liquid':state.items[0].data.layers.at(-1).id;
   state.frame=0;state.play=true;state.id=POTION_ID;
   state.symbol=asset.data.palette.m?'m':Object.keys(asset.data.palette).find(k=>k!=='.')||'.';
-  renderGallery();refresh();
+  // Gallery visitors should never initialize 132 Cel controls, 11 layer
+  // inspectors and palette widgets until they actually open Studio.
+  renderGallery();
  }catch(e){
   document.getElementById('gallery-grid').textContent='药瓶动画加载失败：'+e.message;
   console.error('Vermilion load error',e);
