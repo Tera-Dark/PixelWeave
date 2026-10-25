@@ -3,9 +3,10 @@ import {LAYERED_FORMAT,createLayeredAsset,validateLayered,pixelCoordinates,paint
 import {makeLayeredPrompt,parseModelJSON} from './llm.js';
 import {loadPotionAsset} from './potion-loader.js';
 import {renderExploded,layerAtPosition} from './exploded.js';
+import {renderSingleLayer} from './layer-focus.js';
 import {POTION_ID} from './native-potion.mjs';
 const $=id=>document.getElementById(id),state={items:[],id:POTION_ID,frame:0,play:true,speed:1,edits:{},tool:null,elapsed:0,last:0,activeLayer:'liquid',symbol:'K',undo:[],redo:[]};
-let cards=[],thumbs=[],painting=false,galleryTick=-1,localModelAvailable=false,explosionSpread=65,explosionSolo=false;
+let cards=[],thumbs=[],painting=false,galleryTick=-1,localModelAvailable=false,explosionSpread=65,explosionSolo=false,focusFit=true,focusChecker=true;
 const current=()=>state.items.find(a=>a.id===state.id)||state.items[0],layers=()=>state.edits[state.id]||{};
 const cv=()=>{const e=document.createElement('canvas');e.width=256;e.height=256;return e;};
 function notify(t,bad=false){$('feedback').textContent=t;$('feedback').className='feedback '+(bad?'error':'success');}
@@ -67,9 +68,22 @@ function draw(){renderAsset($('studio-canvas'),current(),state.frame,layers());c
 }
 function drawExplosion(){
  const a=current();if(!a||a.type!=='layered')return;
- renderExploded($('exploded-canvas'),a.data,state.frame,{activeLayer:state.activeLayer,spread:explosionSpread,solo:explosionSolo});
+ const d=a.data;
+ renderExploded($('exploded-canvas'),d,state.frame,{activeLayer:state.activeLayer,spread:explosionSpread,solo:explosionSolo});
  $('exploded-frame').textContent='F'+String(state.frame+1).padStart(2,'0')+' / '+a.frames;
- $('exploded-active').textContent=a.data.layers.find(l=>l.id===state.activeLayer)?.name||'选择图层';
+ $('exploded-total').textContent=d.layers.length+' REAL LAYERS';
+ const index=d.layers.findIndex(l=>l.id===state.activeLayer);
+ const layer=d.layers[index];if(!layer)return;
+ $('exploded-active').textContent=layer.name;
+ const inspection=renderSingleLayer($('focus-canvas'),d,layer.id,state.frame,{fit:focusFit,background:focusChecker?'checker':'dark'});
+ const b=inspection.bounds;
+ $('focus-layer-index').textContent=String(index+1).padStart(2,'0')+' / '+String(d.layers.length).padStart(2,'0');
+ if($('focus-layer-name').textContent!==layer.name)$('focus-layer-name').textContent=layer.name;
+ if($('focus-layer-id').textContent!==layer.id)$('focus-layer-id').textContent=layer.id;
+ $('focus-pixels').textContent=b?String(b.pixels):'0';
+ $('focus-bounds').textContent=b?b.width+' × '+b.height:'EMPTY';
+ $('focus-layer-state').textContent=layer.visible===false?'HIDDEN':Math.round(layer.opacity*100)+'%';
+ $('focus-zoom').textContent=(focusFit?'AUTO FIT':'FULL CANVAS')+' · '+inspection.scale+'×';
 }
 function shift(n){state.frame=(state.frame+n+current().frames)%current().frames;state.play=false;state.elapsed=0;draw();}
 function loop(now){if(!state.last)state.last=now;const dt=Math.min(100,now-state.last);state.last=now;
@@ -291,6 +305,23 @@ function newProject(){
 }
 function events(){
  document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>route(b.dataset.page));
+ $('focus-fit').onclick=()=>{
+  focusFit=!focusFit;$('focus-fit').classList.toggle('active',focusFit);
+  $('focus-fit').setAttribute('aria-pressed',String(focusFit));drawExplosion();
+ };
+ $('focus-bg').onclick=()=>{
+  focusChecker=!focusChecker;$('focus-bg').classList.toggle('active',focusChecker);
+  $('focus-bg').setAttribute('aria-pressed',String(focusChecker));drawExplosion();
+ };
+ $('focus-export').onclick=async()=>{
+  try{
+   const a=current();if(!a||a.type!=='layered')throw Error('请先打开分层作品');
+   const native=document.createElement('canvas');native.width=a.data.width;native.height=a.data.height;
+   renderSingleLayer(native,a.data,state.activeLayer,state.frame,{native:true});
+   download(await png(native),fileName()+'-'+state.activeLayer+'-f'+String(state.frame+1).padStart(2,'0')+'.png');
+   notify('已下载「'+state.activeLayer+'」的原尺寸透明 PNG。');
+  }catch(e){notify(e.message,true);}
+ };
  $('exploded-spread').oninput=e=>{explosionSpread=Number(e.target.value);$('exploded-distance').textContent=explosionSpread+'%';drawExplosion();};
  $('exploded-solo').onclick=()=>{explosionSolo=!explosionSolo;$('exploded-solo').classList.toggle('active',explosionSolo);$('exploded-solo').setAttribute('aria-pressed',String(explosionSolo));$('exploded-solo').textContent=explosionSolo?'恢复完整展开':'聚焦当前图层';drawExplosion();};
  $('exploded-canvas').addEventListener('click',e=>{
