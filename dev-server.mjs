@@ -4,6 +4,7 @@ import {resolve,extname,sep} from 'node:path';
 import {modelSettings,generateWithLLM} from './src/generator.mjs';
 import {generateProgressive} from './src/progressive.mjs';
 import {refineOneLayer} from './src/refine.mjs';
+import {localRequestAllowed,localApiRequestAllowed} from './src/local-request-guard.mjs';
 const root=process.cwd();
 const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.json':'application/json; charset=utf-8'};
 let generating=false;
@@ -16,6 +17,8 @@ async function body(req,max=8000){
 http.createServer(async(req,res)=>{
  try{
   const path=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
+  if(!localRequestAllowed(req.headers)){json(res,403,{error:'本地服务仅接受来自 localhost 的同源请求'});return;}
+  if(path.startsWith('/api/')&&!localApiRequestAllowed(req.headers,req.method)){json(res,403,{error:'拒绝跨站或非 JSON 的 API 请求'});return;}
   if(path==='/api/status'&&req.method==='GET'){
    const cfg=modelSettings();json(res,200,{available:cfg.configured,model:cfg.configured?cfg.model:null,mode:'local-proxy',pipeline:process.env.PIXELWEAVE_PIPELINE==='oneshot'?'oneshot':'progressive'});return;
   }
