@@ -14,7 +14,7 @@ import {compileSemanticProgram,SEMANTIC_FORMAT} from './semantic-program.mjs';
 const W=24,H=24,FRAMES=4,FPS=8;
 const validId=/^[A-Za-z][A-Za-z0-9_-]{0,31}$/;
 const hex=/^#[0-9a-f]{6}$/i;
-function validatedPlan(input){
+export function validatedPlan(input){
  if(!input||typeof input!=='object'||Array.isArray(input))throw Error('导演必须输出结构化 plan');
  if(typeof input.name!=='string'||!input.name.trim()||input.name.length>64)throw Error('缺少有效作品名称');
  const palette=input.palette;
@@ -41,7 +41,7 @@ function composePreview(asset){
  for(const layer of asset.layers)for(let y=0;y<asset.height;y++)for(let x=0;x<asset.width;x++)if(layer.frames[0][y][x]!=='.')board[y][x]=layer.frames[0][y][x];
  return board.map(row=>row.join('')).join('\n');
 }
-function directorInstructions(brief,guide,style){
+export function directorInstructions(brief,guide,style){
  return [
   'ROLE: award-caliber pixel art director and production planner. No image generators, no output other than strict JSON.',
   'CREATIVE BRIEF: '+brief,
@@ -55,7 +55,7 @@ function directorInstructions(brief,guide,style){
   'JSON ONLY.'
  ].join('\n\n');
 }
-function layerInstructions(plan,layer,brief,asset,guide,style){
+export function layerInstructions(plan,layer,brief,asset,guide,style){
  const mask=composePreview(asset);
  return [
   'ROLE: specialist human-caliber pixel artist. Output only a small JSON drawing PROGRAM for the requested layer, not a 24x24 ASCII grid.',
