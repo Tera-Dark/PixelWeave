@@ -5,9 +5,15 @@ import {loadPotionAsset} from './potion-loader.js';
 import {renderExploded,layerAtPosition,explodedLayout} from './exploded.js';
 import {renderSingleLayer} from './layer-focus.js';
 import {POTION_ID} from './native-potion.mjs';
-const $=id=>document.getElementById(id),state={items:[],id:POTION_ID,frame:0,play:true,speed:1,edits:{},tool:null,elapsed:0,last:0,activeLayer:'liquid',symbol:'K',undo:[],redo:[]};
-let cards=[],thumbs=[],painting=false,galleryTick=-1,localModelAvailable=false,explosionSpread=65,explosionSolo=false,focusFit=true,focusChecker=true,explosionVisible=false,onionEnabled=false;
+import {copyCel,pasteCel,clearCel,insertFrame,moveFrame,celStats} from './cel-ops.mjs';
+import {renderCelTimeline,updateCelSelection} from './cel-timeline.mjs';
+import {paintLine,paintRectangle,paintFill,moveRegion} from './pixel-tools.mjs';
+import {stepPlayback,inspectAnimation} from './animation-analysis.mjs';
+const $=id=>document.getElementById(id),state={items:[],id:POTION_ID,frame:0,play:true,speed:1,edits:{},tool:null,elapsed:0,last:0,activeLayer:'liquid',symbol:'K',undo:[],redo:[],mode:'loop',direction:1};
+let cards=[],thumbs=[],painting=false,galleryTick=-1,localModelAvailable=false,explosionSpread=65,explosionSolo=false,focusFit=true,focusChecker=true,explosionVisible=false,onionEnabled=false,activeStroke=null,selection=null,celClipboard=null,onionPrevious=true,onionFollowing=false;
 const current=()=>state.items.find(a=>a.id===state.id)||state.items[0],layers=()=>state.edits[state.id]||{};
+const historyByAsset=new Map();
+function activateHistory(id){if(!historyByAsset.has(id))historyByAsset.set(id,{undo:[],redo:[]});const h=historyByAsset.get(id);state.undo=h.undo;state.redo=h.redo;}
 const cv=()=>{const e=document.createElement('canvas');e.width=256;e.height=256;return e;};
 function notify(t,bad=false){$('feedback').textContent=t;$('feedback').className='feedback '+(bad?'error':'success');}
 function scrub(o){const r={};if(!o||typeof o!=='object')return r;for(const [i,obj] of Object.entries(o)){if(!/^\d{1,2}$/.test(i)||+i>15||!obj||typeof obj!=='object')continue;const p={};let n=0;for(const [xy,color] of Object.entries(obj)){const m=/^(\d{1,2}),(\d{1,2})$/.exec(xy);if(m&&+m[1]<96&&+m[2]<96&&/^#[0-9a-f]{6}$/i.test(color)&&n++<10000)p[xy]=color;}r[i]=p;}return r;}
@@ -51,7 +57,7 @@ function renderGallery(){cards=[];const host=$('gallery-grid');host.replaceChild
  b.onclick=()=>{choose(a.id);route('studio');};cards.push({c,a});
  });$('collection-count').textContent=String(featured.length).padStart(2,'0');}
 function choose(id){if(!state.items.some(a=>a.id===id))return;
-  state.id=id;state.frame=0;state.elapsed=0;state.play=true;state.undo=[];state.redo=[];
+  state.id=id;state.frame=0;state.elapsed=0;state.play=true;selection=null;activateHistory(id);
   state.activeLayer=current().type==='layered'?(current().data.layers.find(l=>l.id==='liquid')?.id||current().data.layers.at(-1).id):null;
   if(current().type==='layered')state.symbol=(current().data.palette.m?'m':Object.keys(current().data.palette).find(k=>k!=='.')||'.');
   refresh();
@@ -63,6 +69,12 @@ function refresh(){
  const library=$('asset-list');library.replaceChildren();state.items.forEach(item=>{
   const b=document.createElement('button');b.className='asset-option'+(item.id===state.id?' active':'');b.type='button';const c=cv();renderAsset(c,item,0,state.edits[item.id]);const text=document.createElement('div'),n=document.createElement('b'),s=document.createElement('small');n.textContent=item.name;s.textContent=item.category+' · '+item.frames+'F';text.append(n,s);b.append(c,text);b.onclick=()=>choose(item.id);library.append(b);
  });$('asset-counter').textContent=String(state.items.length).padStart(2,'0');
+ const grid=$('cel-grid');
+ grid.hidden=a.type!=='layered';
+ if(a.type==='layered'){
+  renderCelTimeline(grid,a.data,{frame:state.frame,layerId:state.activeLayer,onSelect:selectCel});
+  $('cel-selection').textContent='CEL · '+state.activeLayer+' / F'+String(state.frame+1).padStart(2,'0');
+ }
  const track=$('frame-track');track.replaceChildren();thumbs=[];
  for(let i=0;i<a.frames;i++){const b=document.createElement('button');b.type='button';b.className='frame-button';const c=cv();renderAsset(c,a,i,layers());const label=document.createElement('span');label.textContent='F'+String(i+1).padStart(2,'0');b.append(c,label);b.onclick=()=>{state.frame=i;state.play=false;draw();};track.append(b);thumbs.push(c);}
  renderLayers();draw();
@@ -75,6 +87,8 @@ function draw(){
  if(showOnion)renderAsset(onion,current(),(state.frame+current().frames-1)%current().frames,layers());const f=String(state.frame+1).padStart(2,'0'),count=String(current().frames).padStart(2,'0');
  $('stage-frame-label').textContent='FRAME '+f+' / '+count;$('transport-label').textContent=f+' / '+count;$('frame-range').value=state.frame;$('btn-play').textContent=state.play?'Ⅱ':'▶';
  $('frame-track').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('active',i===state.frame));
+ if(isLayered())updateCelSelection($('cel-grid'),state.frame,state.activeLayer);
+ drawSelection();
  drawExplosion();
 }
 function drawExplosion(){
@@ -114,11 +128,31 @@ function selectFocusLayer(direction){
  const left=Math.max(0,plate.x+plate.width/2-scroller.clientWidth/2);
  scroller.scrollTo({left,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
 }
-function shift(n){state.frame=(state.frame+n+current().frames)%current().frames;state.play=false;state.elapsed=0;draw();}
+function selectCel(layerId,frame){
+ if(!isLayered())return;
+ const a=current();
+ if(!a.data.layers.some(l=>l.id===layerId)||!Number.isInteger(frame)||frame<0||frame>=a.frames)return;
+ state.activeLayer=layerId;state.frame=frame;state.play=false;state.elapsed=0;
+ selection=null;renderLayers();draw();
+ $('cel-selection').textContent='CEL · '+layerId+' / F'+String(frame+1).padStart(2,'0');
+}
+function shift(n){state.frame=(state.frame+n+current().frames)%current().frames;state.play=false;state.elapsed=0;selection=null;draw();}
 function loop(now){if(!state.last)state.last=now;const dt=Math.min(100,now-state.last);state.last=now;
- if(state.play&&current()){state.elapsed+=dt*state.speed;const pace=1000/current().fps;if(state.elapsed>=pace){state.frame=(state.frame+Math.floor(state.elapsed/pace))%current().frames;state.elapsed%=pace;draw();}}
+ if(state.play&&current()){
+ state.elapsed+=dt*state.speed;const pace=1000/current().fps;
+ if(state.elapsed>=pace){
+  const steps=Math.min(100,Math.floor(state.elapsed/pace));state.elapsed%=pace;
+  for(let i=0;i<steps;i++){const next=stepPlayback(state.frame,current().frames,state.direction,state.mode);state.frame=next.frame;state.direction=next.direction;}
+  draw();
+ }
+}
  const tick=Math.floor(now/125);if(tick!==galleryTick){galleryTick=tick;for(const x of cards)renderAsset(x.c,x.a,tick%x.a.frames,state.edits[x.a.id]);const hero=state.items.find(a=>a.id===POTION_ID);if(hero)renderAsset($('hero-canvas'),hero,tick%hero.frames,state.edits[hero.id]);}requestAnimationFrame(loop);}
-function tool(t){state.tool=state.tool===t?null:t;for(const v of ['pencil','erase']){$('tool-'+v).classList.toggle('active',state.tool===v);$('tool-'+v).setAttribute('aria-pressed',String(state.tool===v));}}
+function tool(t){
+ state.tool=state.tool===t?null:t;
+ for(const v of ['pencil','erase','line','rect','rectfill','fill','select']){
+  const el=$('tool-'+v);el.classList.toggle('active',state.tool===v);el.setAttribute('aria-pressed',String(state.tool===v));
+ }
+}
 function paint(e){
  if(!state.tool)return;
  const c=$('studio-canvas');
@@ -289,7 +323,7 @@ async function loadCuratedStudies(){
   asset.category='SOLE ART STUDY';
   asset.tone='health';
   asset.desc='文本 LLM 原生绘制的 64×64 像素矩阵：11 个可编辑语义图层、12 帧循环，不使用图片抠图或图片转像素。';
-  state.items=[asset];state.id=asset.id;
+  state.items=[asset];state.id=asset.id;activateHistory(asset.id);
   // Restore previously edited native art and private local projects only after
   // the authoritative bundled sprite has been created.
   restore();
