@@ -1,19 +1,20 @@
 import {DEMOS,SIZE,renderAsset,makeImported,validateMatrix} from './engine.js';
 import {LAYERED_FORMAT,createLayeredAsset,validateLayered,pixelCoordinates,paintLayerPixel,addEmptyLayer,reorderLayer,duplicateFrame,deleteFrame,createBlankLayered,metrics} from './layered.js';
 import {makeLayeredPrompt,parseModelJSON} from './llm.js';
-const $=id=>document.getElementById(id),state={items:[...DEMOS],id:'atelier',frame:0,play:true,speed:1,edits:{},tool:null,elapsed:0,last:0,activeLayer:'liquid',symbol:'K',undo:[],redo:[]};
-let cards=[],thumbs=[],painting=false,galleryTick=-1,localModelAvailable=false,showArchive=false;
-const current=()=>state.items.find(a=>a.id===state.id)||DEMOS[0],layers=()=>state.edits[state.id]||{};
+import {loadPotionAsset} from './potion-loader.js';
+const $=id=>document.getElementById(id),state={items:[],id:'potion-v3',frame:0,play:true,speed:1,edits:{},tool:null,elapsed:0,last:0,activeLayer:'liquid',symbol:'K',undo:[],redo:[]};
+let cards=[],thumbs=[],painting=false,galleryTick=-1,localModelAvailable=false;
+const current=()=>state.items.find(a=>a.id===state.id)||state.items[0],layers=()=>state.edits[state.id]||{};
 const cv=()=>{const e=document.createElement('canvas');e.width=SIZE;e.height=SIZE;return e;};
 function notify(t,bad=false){$('feedback').textContent=t;$('feedback').className='feedback '+(bad?'error':'success');}
 function scrub(o){const r={};if(!o||typeof o!=='object')return r;for(const [i,obj] of Object.entries(o)){if(!/^\d{1,2}$/.test(i)||+i>15||!obj||typeof obj!=='object')continue;const p={};let n=0;for(const [xy,color] of Object.entries(obj)){const m=/^(\d{1,2}),(\d{1,2})$/.exec(xy);if(m&&+m[1]<96&&+m[2]<96&&/^#[0-9a-f]{6}$/i.test(color)&&n++<10000)p[xy]=color;}r[i]=p;}return r;}
 function persist(){try{
   const custom=state.items.filter(a=>a.type==='matrix').map(a=>({id:a.id,data:a.data}));
   const layered=state.items.filter(a=>a.type==='layered').map(a=>({id:a.id,data:a.data}));
-  localStorage.setItem('pixelweave.v03',JSON.stringify({custom,layered,edits:state.edits}));
+  localStorage.setItem('pixelweave.v04',JSON.stringify({custom,layered,edits:state.edits}));
  }catch{notify('本地存储已满，请导出 JSON 备份。',true);}}
 function restore(){try{
- const d=JSON.parse(localStorage.getItem('pixelweave.v03')||localStorage.getItem('pixelweave.v02')||'null');if(!d)return;
+ const d=JSON.parse(localStorage.getItem('pixelweave.v04')||'null');if(!d)return;
  for(const v of (Array.isArray(d.custom)?d.custom:[]).slice(0,12)){
   try{const a=makeImported(validateMatrix(v.data));if(/^custom-[0-9-]+$/.test(v.id||''))a.id=v.id;state.items.push(a);}catch{}
  }
@@ -27,9 +28,9 @@ function restore(){try{
  }
  if(d.edits&&typeof d.edits==='object')for(const [id,v] of Object.entries(d.edits))if(state.items.some(a=>a.id===id))state.edits[id]=scrub(v);
 }catch{}}
-function route(name){const studio=name==='studio';$('gallery-page').hidden=studio;$('studio-page').hidden=!studio;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));if(studio)refresh();history.replaceState(null,'','#'+name);window.scrollTo(0,0);}
+function route(name){const studio=name==='studio';$('gallery-page').hidden=studio;$('studio-page').hidden=!studio;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));if(studio&&current())refresh();history.replaceState(null,'','#'+name);window.scrollTo(0,0);}
 function renderGallery(){cards=[];const host=$('gallery-grid');host.replaceChildren();
- const featured=state.items.filter(a=>showArchive||!DEMOS.some(d=>d.id===a.id));
+ const featured=state.items.filter(a=>a.id==='potion-v3');
  featured.forEach((a,i)=>{
  const b=document.createElement('button');b.className='work-card';b.type='button';b.setAttribute('aria-label','打开 '+a.name);
  const art=document.createElement('div');art.className='work-art '+a.tone;
@@ -64,7 +65,7 @@ function draw(){renderAsset($('studio-canvas'),current(),state.frame,layers());c
 function shift(n){state.frame=(state.frame+n+current().frames)%current().frames;state.play=false;state.elapsed=0;draw();}
 function loop(now){if(!state.last)state.last=now;const dt=Math.min(100,now-state.last);state.last=now;
  if(state.play){state.elapsed+=dt*state.speed;const pace=1000/current().fps;if(state.elapsed>=pace){state.frame=(state.frame+Math.floor(state.elapsed/pace))%current().frames;state.elapsed%=pace;draw();}}
- const tick=Math.floor(now/125);if(tick!==galleryTick){galleryTick=tick;for(const x of cards)renderAsset(x.c,x.a,tick%x.a.frames,state.edits[x.a.id]);const hero=state.items.find(a=>a.id==='study-scarlet-vial')||DEMOS[0];renderAsset($('hero-canvas'),hero,tick%hero.frames,state.edits[hero.id]);}requestAnimationFrame(loop);}
+ const tick=Math.floor(now/125);if(tick!==galleryTick){galleryTick=tick;for(const x of cards)renderAsset(x.c,x.a,tick%x.a.frames,state.edits[x.a.id]);const hero=state.items.find(a=>a.id==='potion-v3');if(hero)renderAsset($('hero-canvas'),hero,tick%hero.frames,state.edits[hero.id]);}requestAnimationFrame(loop);}
 function tool(t){state.tool=state.tool===t?null:t;for(const v of ['pencil','erase']){$('tool-'+v).classList.toggle('active',state.tool===v);$('tool-'+v).setAttribute('aria-pressed',String(state.tool===v));}}
 function paint(e){
  if(!state.tool)return;
@@ -110,7 +111,7 @@ function exportVideo(){if(!window.MediaRecorder||!HTMLCanvasElement.prototype.ca
 }
 function importJson(){
  const raw=$('json-input').value;
- if(raw.length>350000){notify('输入超过 350KB 限制。',true);return;}
+ if(raw.length>950000){notify('输入超过 950KB 限制。',true);return;}
  try{
   const j=parseModelJSON(raw);let a;
   if(j.format===LAYERED_FORMAT){a=createLayeredAsset(validateLayered(j));state.items.push(a);}
@@ -212,25 +213,20 @@ async function generateFromLLM(){
 }
 async function loadCuratedStudies(){
  try{
-  const response=await fetch('./knowledge/pixel-art/examples/reference/index.json',{cache:'no-cache'});
-  if(!response.ok)throw Error('案例目录不可访问');
-  const directory=await response.json();
-  const studies=await Promise.all(directory.items.map(async item=>{
-   const id='study-'+item.id;
-   const existing=state.items.find(a=>a.id===id);
-   if(existing)return existing;
-   const res=await fetch('./knowledge/pixel-art/examples/reference/'+item.path,{cache:'no-cache'});
-   if(!res.ok)throw Error('无法读取 '+item.id);
-   const asset=createLayeredAsset(validateLayered(await res.json()));
-   asset.id=id;asset.cn='原创精修像素研究';asset.category='ART STUDY';asset.tone=['health','mana','lantern','crystal'][directory.items.indexOf(item)%4];
-   asset.desc='32×32 · '+asset.data.layers.length+' 个语义图层 · '+asset.frames+' 帧。原创代码绘制，非 LLM 生成。';
-   return asset;
-  }));
-  state.items=[...studies,...state.items.filter(a=>!studies.some(b=>a.id===b.id))];
-  if(DEMOS.some(d=>d.id===state.id))state.id='study-scarlet-vial';
-  state.activeLayer=current().data?.layers?.find(l=>l.id==='liquid')?.id||current().data?.layers?.at(-1)?.id;
+  const data=validateLayered(await loadPotionAsset());
+  const asset=createLayeredAsset(data);
+  asset.id='potion-v3';
+  asset.cn='修补封存药剂 · 首件评审样品';
+  asset.category='SOLE ART STUDY';
+  asset.tone='health';
+  asset.desc='真正可编辑的 64×64 像素资产：10 个语义图层、12 帧循环。已将旧素材从当前画廊与工作站清空。';
+  state.items=[asset];state.id=asset.id;
+  state.activeLayer='crimson_liquid';state.frame=0;state.play=true;
   renderGallery();refresh();
- }catch(e){showArchive=true;renderGallery();notify('优质案例加载失败，暂时显示旧版演示：'+e.message,true);}
+ }catch(e){
+  document.getElementById('gallery-grid').textContent='药瓶动画加载失败：'+e.message;
+  console.error('Vermilion load error',e);
+ }
 }
 async function refineSelectedLayer(){
  if(!isLayered()){notify('请先选中分层像素资产。',true);return;}
@@ -269,8 +265,7 @@ function newProject(){
 }
 function events(){
  document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>route(b.dataset.page));
- $('toggle-archive').onclick=()=>{showArchive=!showArchive;$('toggle-archive').textContent=showArchive?'隐藏旧版演示':'查看旧版演示';renderGallery();};
- $('hero-studio').onclick=()=>route('studio');$('hero-open').onclick=()=>{choose(state.items.some(a=>a.id==='study-scarlet-vial')?'study-scarlet-vial':'atelier');route('studio');};
+ $('hero-studio').onclick=()=>route('studio');$('hero-open').onclick=()=>{choose('potion-v3');route('studio');};
  $('principle-open').onclick=()=>route('studio');$('studio-to-gallery').onclick=()=>route('gallery');
  $('btn-play').onclick=()=>{state.play=!state.play;state.elapsed=0;draw();};$('btn-prev').onclick=()=>shift(-1);$('btn-next').onclick=()=>shift(1);
  $('btn-restart').onclick=()=>{state.frame=0;state.play=true;state.elapsed=0;draw();};$('frame-range').oninput=e=>{state.frame=+e.target.value;state.play=false;draw();};
@@ -304,4 +299,4 @@ function events(){
  document.addEventListener('keydown',e=>{if($('studio-page').hidden||e.target.matches('input,textarea,button'))return;if(e.code==='Space'){e.preventDefault();state.play=!state.play;draw();}if(e.code==='ArrowLeft')shift(-1);if(e.code==='ArrowRight')shift(1);});
  window.addEventListener('hashchange',()=>{if(location.hash==='#studio'||location.hash==='#gallery')route(location.hash.slice(1));});
 }
-restore();showArchive=true;renderGallery();refresh();events();route(location.hash==='#studio'?'studio':'gallery');beginLLMStatus();loadCuratedStudies().then(()=>{showArchive=false;renderGallery();});requestAnimationFrame(loop);
+events();beginLLMStatus();loadCuratedStudies().then(()=>route(location.hash==='#studio'?'studio':'gallery'));requestAnimationFrame(loop);
