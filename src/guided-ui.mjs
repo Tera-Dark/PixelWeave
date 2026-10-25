@@ -83,6 +83,10 @@ export function mountGuidedWorkbench({notify,onPublish,getBrief,getStyle,isModel
   }catch(e){note(e.message,true);notify(e.message,true);}
   finally{setBusy(false);}
  }
+ $('guided-backup-toggle').onclick=()=>{
+  const pane=$('guided-backup-content');pane.hidden=!pane.hidden;
+  $('guided-backup-toggle').setAttribute('aria-expanded',String(!pane.hidden));
+ };
  $('guided-start').onclick=()=>{
   if(draft&&!confirm('从新主题开始会替换当前浏览器草稿，请先通过「导出草稿 JSON」备份。确定继续吗？'))return;
   send('start');
