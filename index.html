@@ -8,6 +8,7 @@
   <title>PixelWeave — Pixels with a pulse.</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./src/style.css">
+  <link rel="stylesheet" href="./src/pixel-ui.css">
 </head>
 <body>
 <div class="shell">
@@ -17,7 +18,7 @@
       <button class="nav-link active" data-page="gallery">作品画廊 <span>GALLERY</span></button>
       <button class="nav-link" data-page="studio">创作工作站 <span>STUDIO</span></button>
     </nav>
-    <div class="header-actions"><span class="header-version"><i class="status-dot"></i> VERMILION / NATIVE 01</span><a class="btn btn-line header-gh" href="https://github.com/Tera-Dark/PixelWeave" target="_blank" rel="noopener noreferrer">GITHUB <span aria-hidden="true">↗</span></a></div>
+    <div class="header-actions"><span class="header-version"><i class="status-dot"></i> PIXEL SYSTEM · v0.6</span><a class="btn btn-line header-gh" href="https://github.com/Tera-Dark/PixelWeave" target="_blank" rel="noopener noreferrer">GITHUB <span aria-hidden="true">↗</span></a></div>
   </header>
   <main id="gallery-page" class="page">
     <section class="hero layout-width">
@@ -46,13 +47,13 @@
     <div class="studio-head layout-width"><div><div class="eyebrow">02 / CREATIVE WORKSPACE</div><h1>像素<span class="serif">动画工作站</span></h1><p>设计、预览、绘制与导出。所有画面在浏览器中实时生成。</p></div><div class="studio-head-actions"><span class="local-tag"><i class="status-dot"></i> BROWSER FIRST · LLM OPTIONAL</span><button class="btn btn-line" id="studio-to-gallery">返回画廊 ↗</button></div></div>
     <div class="studio-shell layout-width">
       <aside class="studio-left panel">
-        <div class="panel-top"><span>ASSET LIBRARY</span><span class="counter" id="asset-counter">01</span></div><p class="panel-help">选择一个资产，进入可编辑的逐帧视图。</p><div id="asset-list" class="asset-list"></div>
+        <div class="panel-top"><span>01 / ASSET LIBRARY</span><span class="counter" id="asset-counter">01</span></div><p class="panel-help">选择一个资产，进入可编辑的逐帧视图。</p><div id="asset-list" class="asset-list"></div>
         <div class="panel-bottom"><span>✳</span><p><strong>CODE, NOT DIFFUSION</strong><small>本地确定性绘制引擎</small></p></div>
       </aside>
       <section class="studio-center">
         <div class="studio-canvas-header"><div><span class="eyebrow">LIVE PREVIEW / ASSET</span><h2 id="asset-name">Vermilion Nocturne</h2><div class="asset-subline" id="asset-subline">修补封存药剂 · 12 帧循环</div></div><div class="tag-stack"><span class="tag" id="asset-size">64 × 64 PX</span><span class="tag tag-accent">PIXEL ART</span></div></div>
         <div class="studio-stage" id="studio-stage">
-          <div class="stage-top"><span>PREVIEW / 01</span><div class="stage-top-right"><span class="stage-live"><i class="status-dot"></i> LIVE RENDER</span><button class="stage-icon" id="toggle-grid" title="显示/隐藏像素网格" aria-label="切换像素网格">▦</button></div></div>
+          <div class="stage-top"><span>02 / LIVE PREVIEW</span><div class="stage-top-right"><span class="stage-live"><i class="status-dot"></i> LIVE RENDER</span><button class="stage-icon" id="toggle-grid" title="显示/隐藏像素网格" aria-label="切换像素网格">▦</button></div></div>
           <div class="studio-canvas-wrap"><canvas id="studio-canvas" width="320" height="320" aria-label="可编辑像素动画画布"></canvas></div>
           <div class="stage-bottom"><span id="stage-frame-label">FRAME 01 / 12</span><span>TEXT-AUTHORED PIXELS · NO IMAGE CUTOUT</span></div>
         </div>
@@ -64,7 +65,7 @@
 <p class="art-style-note"><a href="./knowledge/pixel-art/styles/ASHEN-RELIQUARY.md" target="_blank" rel="noopener noreferrer">阅读制作规范与视觉门槛 ↗</a> · 只指导创作，不会调用生图模型。</p>
 <div class="composer-actions"><button class="btn btn-line" id="copy-llm-prompt">复制 LLM 绘图规范 <span>↗</span></button><button class="btn btn-primary" id="generate-llm">使用本地 LLM 生成 ✳</button><button class="btn btn-quiet" id="toggle-json-import">导入 JSON ↓</button><button class="btn btn-quiet" id="new-layer-project">＋ 新建分层画布</button></div><div id="json-import-panel" hidden><label for="json-input" class="label">粘贴 LLM 生成的资产 JSON</label><textarea id="json-input" rows="5" placeholder='{"name":"Potion","width":16,"height":16,"palette":{".":"transparent","R":"#e54d5a"},"frames":[["................","....RRRR........", "..."]]}'></textarea><button class="btn btn-primary" id="import-json">验证并导入资产 ↗</button></div><div class="llm-status" id="llm-status">正在检测本地模型接口…</div><div class="feedback" id="feedback" role="status" aria-live="polite">已就绪。试着选择一件作品，或者生成你自己的像素资产。</div></section>
       </section>
-      <aside class="studio-right panel"><div class="panel-top"><span>INSPECTOR</span><span>✳</span></div><div class="inspector-block"><div class="eyebrow">ARTIFACT DETAILS</div><h3 id="inspector-name">Vermilion Nocturne</h3><p id="inspector-desc">装着生命魔力的小药瓶。</p><div class="detail-list"><div><span>类型</span><b id="detail-type">程序化动画</b></div><div><span>画布</span><b id="detail-res">96 × 96</b></div><div><span>动画帧</span><b id="detail-frames">12</b></div><div><span>播放速率</span><b id="detail-fps">8 FPS</b></div><div><span>循环模式</span><b>LOOP</b></div></div></div><div class="inspector-block"><div class="eyebrow">ANIMATION CONTROLS</div><label class="control-label" for="speed-control">播放速度 <strong id="speed-value">1.0×</strong></label><input type="range" id="speed-control" min="0.5" max="2" value="1" step="0.25"><label class="control-label" for="zoom-control">预览缩放 <strong id="zoom-value">5×</strong></label><input type="range" id="zoom-control" min="2" max="5" value="5" step="1"><label class="control-label" for="brush-color">像素画笔颜色</label><div class="brush-controls"><input type="color" id="brush-color" value="#ffd6a5" aria-label="画笔颜色"><button class="tool-btn" id="tool-pencil" aria-pressed="false">✎ 绘制</button><button class="tool-btn" id="tool-erase" aria-pressed="false">⌫ 擦改</button></div><p class="panel-help">编辑仅作用于选中的帧。擦改用于撤销手工像素覆盖。</p></div><div class="inspector-block" id="layers-panel" hidden>
+      <aside class="studio-right panel"><div class="panel-top"><span>03 / INSPECTOR</span><span>✳</span></div><div class="inspector-block"><div class="eyebrow">ARTIFACT DETAILS</div><h3 id="inspector-name">Vermilion Nocturne</h3><p id="inspector-desc">装着生命魔力的小药瓶。</p><div class="detail-list"><div><span>类型</span><b id="detail-type">程序化动画</b></div><div><span>画布</span><b id="detail-res">96 × 96</b></div><div><span>动画帧</span><b id="detail-frames">12</b></div><div><span>播放速率</span><b id="detail-fps">8 FPS</b></div><div><span>循环模式</span><b>LOOP</b></div></div></div><div class="inspector-block"><div class="eyebrow">ANIMATION CONTROLS</div><label class="control-label" for="speed-control">播放速度 <strong id="speed-value">1.0×</strong></label><input type="range" id="speed-control" min="0.5" max="2" value="1" step="0.25"><label class="control-label" for="zoom-control">预览缩放 <strong id="zoom-value">5×</strong></label><input type="range" id="zoom-control" min="2" max="5" value="5" step="1"><label class="control-label" for="brush-color">像素画笔颜色</label><div class="brush-controls"><input type="color" id="brush-color" value="#ffd6a5" aria-label="画笔颜色"><button class="tool-btn" id="tool-pencil" aria-pressed="false">✎ 绘制</button><button class="tool-btn" id="tool-erase" aria-pressed="false">⌫ 擦改</button></div><p class="panel-help">编辑仅作用于选中的帧。擦改用于撤销手工像素覆盖。</p></div><div class="inspector-block" id="layers-panel" hidden>
  <div class="eyebrow">LAYER STACK / PIXEL DSL</div>
  <div class="layer-head"><strong>分层编辑器</strong><span id="layer-count">0 LAYERS</span></div>
  <p class="panel-help">图层从下往上合成。选择一层后，画笔直接修改该层当前帧的像素数据。</p>
@@ -92,16 +93,27 @@
     </div><section class="exploded-panel panel layout-width" aria-labelledby="exploded-title">
  <div class="exploded-head">
   <div><span class="eyebrow">LAYER CONSTRUCTION / DIAGONAL ASSEMBLY</span><h3 id="exploded-title">图层斜向展开 · Exploded Layers</h3><p>每张透明板对应当前动画帧真实像素图层。点击任意板块，即可在右侧选中和编辑。时间轴与展开图同步播放。</p></div>
-  <div class="exploded-meta"><span id="exploded-frame">F01 / 12</span><span>11 REAL LAYERS</span></div>
+  <div class="exploded-meta"><span id="exploded-frame">F01 / 12</span><span id="exploded-total">11 REAL LAYERS</span></div>
  </div>
- <div class="exploded-scroller"><canvas id="exploded-canvas" width="1280" height="610" aria-label="可交互的药瓶动画图层斜向展开图"></canvas></div>
+ <div class="exploded-workspace">
+ <div class="exploded-scroller" id="exploded-scroller"><canvas id="exploded-canvas" width="1280" height="610" aria-label="可交互的像素动画图层斜向展开图"></canvas></div>
+ <aside class="focus-panel" aria-labelledby="focus-heading">
+  <div class="focus-head"><div><span class="eyebrow">SELECTED LAYER / INSPECTION</span><h4 id="focus-heading">独立图层预览</h4></div><span class="focus-index" id="focus-layer-index">04 / 11</span></div>
+  <div class="focus-preview"><canvas id="focus-canvas" width="320" height="320" role="img" aria-label="选中图层的原生像素放大预览"></canvas><span class="focus-zoom" id="focus-zoom">AUTO FIT · 5×</span><span class="focus-corner focus-corner-a"></span><span class="focus-corner focus-corner-b"></span></div>
+  <div class="focus-identity"><strong id="focus-layer-name" aria-live="polite">04 · Crimson infusion</strong><span id="focus-layer-id">crimson_liquid</span></div>
+  <div class="focus-metrics"><div><span>PIXELS</span><b id="focus-pixels">—</b></div><div><span>BOUNDS</span><b id="focus-bounds">—</b></div><div><span>STATE</span><b id="focus-layer-state">VISIBLE</b></div></div>
+  <div class="focus-toolrow"><button id="focus-fit" type="button" class="focus-tool active" aria-pressed="true">⌗ 自适应放大</button><button id="focus-bg" type="button" class="focus-tool active" aria-pressed="true">▦ 透明网格</button></div>
+  <button id="focus-export" class="focus-export" type="button">↓ 导出当前图层原始 PNG <span>↗</span></button>
+  <p class="focus-note">直接显示当前帧的原始图层像素。放大仅用于预览，不修改任何像素；导出保持透明背景。</p>
+ </aside>
+</div>
  <div class="exploded-controls">
   <label for="exploded-spread">展开距离 <strong id="exploded-distance">65%</strong></label>
   <input id="exploded-spread" type="range" min="30" max="95" value="65" step="5">
   <button class="tool-btn" id="exploded-solo" type="button" aria-pressed="false">聚焦当前图层</button>
  </div>
  <div class="exploded-summary"><span>SELECTED · <b id="exploded-active">crimson_liquid</b></span><span>FRAME-SYNCED · PIXEL-PERFECT</span></div>
-</section><footer class="footer layout-width"><span>PIXELWEAVE STUDIO · 0.3</span><span>NO EXTERNAL RENDER SERVICE</span><a href="https://github.com/Tera-Dark/PixelWeave" target="_blank" rel="noopener noreferrer">SOURCE CODE ↗</a></footer>
+</section><footer class="footer layout-width"><span>PIXELWEAVE STUDIO · v0.6</span><span>NO EXTERNAL RENDER SERVICE</span><a href="https://github.com/Tera-Dark/PixelWeave" target="_blank" rel="noopener noreferrer">SOURCE CODE ↗</a></footer>
   </main>
 </div>
 <script type="module" src="./src/main.js"></script>
