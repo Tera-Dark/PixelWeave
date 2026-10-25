@@ -5,6 +5,7 @@ import {loadPotionAsset} from './potion-loader.js';
 import {renderExploded,layerAtPosition,explodedLayout} from './exploded.js';
 import {renderSingleLayer} from './layer-focus.js';
 import {POTION_ID} from './native-potion.mjs';
+import {mountSiteNavigation,syncSiteNavigation} from './site-nav.mjs';
 import {copyCel,pasteCel,clearCel,insertFrame,moveFrame,celStats} from './cel-ops.mjs';
 import {renderCelTimeline,updateCelSelection} from './cel-timeline.mjs';
 import {paintLine,paintRectangle,paintFill,moveRegion} from './pixel-tools.mjs';
@@ -44,7 +45,7 @@ function restore(){try{
  }
  if(d.edits&&typeof d.edits==='object')for(const [id,v] of Object.entries(d.edits))if(state.items.some(a=>a.id===id))state.edits[id]=scrub(v);
 }catch{}}
-function route(name){const studio=name==='studio';$('gallery-page').hidden=studio;$('studio-page').hidden=!studio;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));if(studio&&current())refresh();history.replaceState(null,'','#'+name);window.scrollTo(0,0);}
+function route(name){const studio=name==='studio';$('gallery-page').hidden=studio;$('studio-page').hidden=!studio;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));if(studio&&current())refresh();history.replaceState(null,'','#'+name);syncSiteNavigation();window.scrollTo(0,0);}
 function renderGallery(){cards=[];const host=$('gallery-grid');host.replaceChildren();
  const featured=state.items.filter(a=>a.id===POTION_ID);
  featured.forEach((a,i)=>{
@@ -653,4 +654,4 @@ function events(){
  document.addEventListener('keydown',e=>{if($('studio-page').hidden||e.target.matches('input,textarea,button'))return;if(e.code==='Space'){e.preventDefault();state.play=!state.play;draw();}if(e.code==='ArrowLeft')shift(-1);if(e.code==='ArrowRight')shift(1);if(e.code==='KeyO')$('toggle-onion').click();if((e.ctrlKey||e.metaKey)&&e.code==='KeyZ'){e.preventDefault();timeTravel(e.shiftKey?'redo':'undo');}if((e.ctrlKey||e.metaKey)&&e.code==='KeyY'){e.preventDefault();timeTravel('redo');}});
  window.addEventListener('hashchange',()=>{if(location.hash==='#studio'||location.hash==='#gallery')route(location.hash.slice(1));});
 }
-events();beginLLMStatus();loadCuratedStudies().then(()=>route(location.hash==='#studio'?'studio':'gallery'));requestAnimationFrame(loop);
+mountSiteNavigation();events();beginLLMStatus();loadCuratedStudies().then(()=>route(location.hash==='#studio'?'studio':'gallery'));requestAnimationFrame(loop);
