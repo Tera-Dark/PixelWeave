@@ -11,7 +11,22 @@ const $=id=>document.getElementById(id);
 let entries=[],visible=[],selected=null,source=null,frame=0,playing=true,last=0,speed=1;
 let localObjectURL=null,noteTimer=null,differenceDisabled=false,loadSerial=0;
 const canvas=$('ref-canvas'),ctx=canvas.getContext('2d',{willReadFrequently:true});
+// Only visible reference cards fetch thumbnails; keep decoding memory bounded.
 const imageCache=new Map();
+const IMAGE_CACHE_LIMIT=12;
+let viewerVisible=true;
+const thumbnailObserver=typeof IntersectionObserver==='undefined'?null:new IntersectionObserver(entries=>{
+ for(const entry of entries)if(entry.isIntersecting){
+  thumbnailObserver.unobserve(entry.target);
+  const item=entriesByThumb.get(entry.target);
+  if(item){entriesByThumb.delete(entry.target);paintThumbnail(entry.target,item);}
+ }
+},{root:document.querySelector('.atlas-library'),rootMargin:'100px'});
+const entriesByThumb=new WeakMap();
+if('IntersectionObserver' in window){
+ const observer=new IntersectionObserver(entries=>{viewerVisible=entries.some(e=>e.isIntersecting);},{threshold:0});
+ observer.observe(document.getElementById('ref-canvas'));
+}
 const storeKey='pixelweave.reference-atlas.v1';
 let memory={saved:[],notes:{}};
 try{const v=JSON.parse(localStorage.getItem(storeKey)||'{}');if(v&&Array.isArray(v.saved)&&v.notes)memory=v;}catch{}
@@ -26,7 +41,7 @@ function renderLibrary(){
  if($('sort').value==='frames')visible.sort((a,b)=>(b.frames||0)-(a.frames||0));
  $('result-count').textContent=visible.length+' / '+entries.length;
  $('ref-list').replaceChildren(...visible.map(item=>{
-  const b=document.createElement('button');b.type='button';b.className='atlas-ref'+(item.id===selected?.id?' active':'');
+  const b=document.createElement('button');b.type='button';b.className='atlas-ref'+(item.id===selected?.id?' active':'');b.dataset.id=item.id;
   const strong=document.createElement('strong');strong.textContent=(favorite(item.id)?'★ ':'')+item.title;
   const small=document.createElement('small');small.textContent=item.author+' · '+item.license+' · '+(item.frames?item.frames+' 帧':'制作流程');
   const tag=document.createElement('span');tag.className='atlas-tag';tag.textContent=item.mode==='external'?'原站链接':'可逐帧播放';
@@ -34,23 +49,26 @@ function renderLibrary(){
   const copy=document.createElement('div');copy.className='atlas-source-copy';copy.append(strong,small,tag);
   b.append(thumb,copy);b.onclick=()=>choose(item);
   if(item.mode!=='external'){
-   const url=item.sheet||item.images[0];
-   cachedImage(url).then(img=>{
-    if(!thumb.isConnected)return;
-    const tc=thumb.getContext('2d');renderBackground(tc,66,66);
-    tc.imageSmoothingEnabled=false;
-    const fw=item.sheet?Math.floor(img.naturalWidth/item.cols):img.naturalWidth;
-    const fh=item.sheet?Math.floor(img.naturalHeight/item.rows):img.naturalHeight;
-    const scale=Math.max(1,Math.floor(Math.min(54/fw,54/fh)));
-    const dx=Math.round((66-fw*scale)/2),dy=Math.round((66-fh*scale)/2);
-    tc.drawImage(img,0,0,fw,fh,dx,dy,fw*scale,fh*scale);
-   }).catch(()=>{});
+   if(thumbnailObserver){entriesByThumb.set(thumb,item);thumbnailObserver.observe(thumb);}
+   else paintThumbnail(thumb,item);
   }else{
    const tc=thumb.getContext('2d');renderBackground(tc,66,66);
    tc.fillStyle='#e5b08a';tc.font='25px monospace';tc.fillText('◇',19,40);
   }
   return b;
  }));
+}
+function paintThumbnail(thumb,item){
+ const url=item.sheet||item.images[0];
+ cachedImage(url).then(img=>{
+  if(!thumb.isConnected)return;
+  const tc=thumb.getContext('2d');renderBackground(tc,66,66);
+  tc.imageSmoothingEnabled=false;
+  const fw=item.sheet?Math.floor(img.naturalWidth/item.cols):img.naturalWidth;
+  const fh=item.sheet?Math.floor(img.naturalHeight/item.rows):img.naturalHeight;
+  const scale=Math.max(1,Math.floor(Math.min(54/fw,54/fh)));
+  tc.drawImage(img,0,0,fw,fh,Math.round((66-fw*scale)/2),Math.round((66-fh*scale)/2),fw*scale,fh*scale);
+ }).catch(()=>{});
 }
 function field(id,value){$(id).textContent=value==null?'—':String(value);}
 function panel(item){
@@ -70,8 +88,13 @@ function panel(item){
  field('media-state',labelSource(item));
 }
 function cachedImage(url){
- if(!imageCache.has(url))imageCache.set(url,loadImage(url).catch(e=>{imageCache.delete(url);throw e;}));
- return imageCache.get(url);
+ if(imageCache.has(url)){
+  const result=imageCache.get(url);imageCache.delete(url);imageCache.set(url,result);return result;
+ }
+ const promise=loadImage(url).catch(e=>{imageCache.delete(url);throw e;});
+ imageCache.set(url,promise);
+ while(imageCache.size>IMAGE_CACHE_LIMIT)imageCache.delete(imageCache.keys().next().value);
+ return promise;
 }
 function loadImage(url){
  return new Promise((resolve,reject)=>{
@@ -85,7 +108,8 @@ async function choose(item){
  memory.lastId=item.id;persist();
  $('difference').disabled=false;$('difference').checked=false;$('onion').checked=false;$('background').checked=true;
  $('speed').value='1';speed=1;
- panel(item);renderLibrary();
+ panel(item);
+ for(const b of $('ref-list').children)b.classList.toggle('active',b.dataset.id===item.id);
  if(item.mode==='external'){
   playing=false;ctx.clearRect(0,0,canvas.width,canvas.height);
   drawPlaceholder('原作保留在作者网站','点击「查看原作者页面」浏览；下载合法源文件后可导入下方工具逐帧研究。');
@@ -185,7 +209,7 @@ function updateContactSelection(){for(const b of $('contact').children)b.classLi
 function tick(now){
  if(last===0)last=now;
  const dt=Math.min(now-last,150);last=now;
- if(playing&&source&&selected){tick.elapsed=(tick.elapsed||0)+dt*speed;if(tick.elapsed>=1000/(selected.fps||8)){tick.elapsed%=1000/(selected.fps||8);frame=(frame+1)%source.total;draw();}}
+ if(playing&&source&&selected&&!document.hidden&&viewerVisible){tick.elapsed=(tick.elapsed||0)+dt*speed;if(tick.elapsed>=1000/(selected.fps||8)){tick.elapsed%=1000/(selected.fps||8);frame=(frame+1)%source.total;draw();}}
  requestAnimationFrame(tick);
 }
 function shift(n){if(!source)return;frame=(frame+n+source.total)%source.total;playing=false;tick.elapsed=0;draw();}
