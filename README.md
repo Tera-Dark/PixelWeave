@@ -3,9 +3,19 @@
 **Pixels with a pulse.** 开源像素动画工作站 + 在线作品展示站。**不使用 Diffusion、生图模型或图像 API**；生成动画资产时仅使用普通文本 LLM 返回的结构化像素数据，浏览器负责确定性绘制。
 
 - **作品站（GitHub Pages）：** https://tera-dark.github.io/PixelWeave/
-- **最新实验版本：** v0.6 — Pixel UI / Native Layer Focus
+- **最新版本：** v0.8.0 — Animation Workflow
 - **状态：** 画廊只展示一件文本模型原生编写整数像素结构的药瓶（64×64、11 层、12 帧）；无生图、抠图或像素化源图片。该案例尚在人工审美评审中。通用 LLM 自动流程仍需本地启动 Node.js 代理并配置文本模型。
 
+
+## PixelWeave v0.8 — Animation Workflow（已实现）
+
+本版按审核通过的完整方案强化了像素动画实际制作，而不是继续添加装饰：**真正的 layer × frame Cel 时间轴、Cel 粘贴/清空、插帧/移帧、连续笔画一次撤销、直线/矩形/填充、矩形选区移动、画布平移、前后帧洋葱皮、三种播放模式和可解释结构诊断。**
+
+原生药瓶仍是唯一正式展出素材。GitHub Actions 除 Node 单元测试之外增加真实 Chromium 浏览器工作流回归：选中 Cel → 鼠标落笔 → 撤销/重做 → 刷新恢复 → JSON 导出 → Cel 复制与整帧移动。Pages 构建只发布公开静态资源，不打包本地模型代理或测试依赖。
+
+**[使用 v0.8 Studio](https://tera-dark.github.io/PixelWeave/#studio)** · **[阅读详细版本说明及操作验收表](docs/RELEASE-V08.md)**
+
+现存局限：仍限制每作品至多 12 层、16 帧；逐帧时长、共享 Cel、播放模式与 WebM 导出完全一致等需要后续格式升级。自动测试不代表美术审美过关。
 
 ## 工程审查与 P0/P1 修复 · 2026-10-25
 
