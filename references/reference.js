@@ -7,7 +7,7 @@
 import {framePosition,previewIndices,validGrid,frameDimensions} from './viewer-core.mjs';
 const $=id=>document.getElementById(id);
 let entries=[],visible=[],selected=null,source=null,frame=0,playing=true,last=0,speed=1;
-let localObjectURL=null,noteTimer=null,differenceDisabled=false;
+let localObjectURL=null,noteTimer=null,differenceDisabled=false,loadSerial=0;
 const canvas=$('ref-canvas'),ctx=canvas.getContext('2d',{willReadFrequently:true});
 const imageCache=new Map();
 const storeKey='pixelweave.reference-atlas.v1';
@@ -78,6 +78,7 @@ function loadImage(url){
 }
 async function choose(item){
  if(localObjectURL){URL.revokeObjectURL(localObjectURL);localObjectURL=null;}
+ const serial=++loadSerial;
  selected=item;source=null;frame=0;playing=true;differenceDisabled=false;last=0;
  memory.lastId=item.id;persist();
  $('difference').disabled=false;$('difference').checked=false;$('onion').checked=false;$('background').checked=true;
@@ -92,7 +93,7 @@ async function choose(item){
  setStatus('正在从原作者网站读取素材预览…');drawPlaceholder('LOADING ORIGINAL FRAMES','从原作者页面读取 CC0 动画');
  try{
   const imgs=await Promise.all((item.images||[item.sheet]).map(cachedImage));
-  if(selected!==item)return;
+  if(selected!==item||serial!==loadSerial)return;
   let cols=item.cols||1,rows=item.rows||1;
   const dim=frameDimensions(imgs[0].naturalWidth,imgs[0].naturalHeight,cols,rows);
   source={imgs,cols,rows,width:item.images?imgs[0].naturalWidth:dim.width,height:item.images?imgs[0].naturalHeight:dim.height,total:item.images?imgs.length:cols*rows,isLocal:false};
@@ -120,7 +121,8 @@ function drawSourceFrame(c,s,index,x,y,scale,alpha=1){
  c.restore();
 }
 function drawingGeometry(s,w,h){
- const scale=Math.max(1,Math.floor(Math.min((w-42)/s.width,(h-42)/s.height,12)));
+ const fit=Math.min((w-42)/s.width,(h-42)/s.height,12);
+ const scale=fit>=1?Math.max(1,Math.floor(fit)):Math.max(0.01,fit);
  return {scale,x:Math.round((w-s.width*scale)/2),y:Math.round((h-s.height*scale)/2)};
 }
 function renderBackground(c,w,h,checker=true){
@@ -204,10 +206,17 @@ $('import-file').onchange=async e=>{
  if(!/^image\/(png|webp)$/.test(f.type)){field('import-status','只支持 PNG / WebP 原始精灵表');return;}
  if(f.size>16*1024*1024){field('import-status','文件不得超过 16MB');return;}
  try{
-  const url=URL.createObjectURL(f),img=await loadImage(url);
-  if(localObjectURL)URL.revokeObjectURL(localObjectURL);localObjectURL=url;
+  const url=URL.createObjectURL(f);
+  let img;
+  try{img=await loadImage(url);}catch(error){URL.revokeObjectURL(url);throw error;}
   const cols=Number($('import-cols').value),rows=Number($('import-rows').value);
-  if(!validGrid(img.naturalWidth,img.naturalHeight,cols,rows))throw Error('指定帧网格无法整除原图宽高');
+  if(!validGrid(img.naturalWidth,img.naturalHeight,cols,rows)){URL.revokeObjectURL(url);throw Error('指定帧网格无法整除原图宽高');}
+  // A foreign image drawn without CORS permanently taints the old canvas.
+  // Reset its backing bitmap so subsequent *local* pixel analysis is clean.
+  ++loadSerial;
+  canvas.width=canvas.width;
+  if(localObjectURL)URL.revokeObjectURL(localObjectURL);
+  localObjectURL=url;
   source={imgs:[img],cols,rows,width:img.naturalWidth/cols,height:img.naturalHeight/rows,total:cols*rows,isLocal:true};
   frame=0;playing=true;differenceDisabled=false;$('difference').disabled=false;
   field('size-label',source.width+' × '+source.height);field('mode-label','本地源精灵表');
