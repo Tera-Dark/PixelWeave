@@ -35,10 +35,10 @@ export function validatedPlan(input){
  if(dynamic===0)throw Error('动画任务至少需要一个 animated 图层');
  return {name:input.name.trim(),palette,layers:normalized,concept:String(input.concept||'').slice(0,300),anchors:Array.isArray(input.anchors)?input.anchors.slice(0,8).map(String):[]};
 }
-function composePreview(asset){
+function composePreview(asset,frame=0){
  if(!asset)return '(No prior layer yet)';
  const board=Array.from({length:asset.height},()=>Array(asset.width).fill('.'));
- for(const layer of asset.layers)for(let y=0;y<asset.height;y++)for(let x=0;x<asset.width;x++)if(layer.frames[0][y][x]!=='.')board[y][x]=layer.frames[0][y][x];
+ for(const layer of asset.layers)for(let y=0;y<asset.height;y++)for(let x=0;x<asset.width;x++)if(layer.frames[frame][y][x]!=='.')board[y][x]=layer.frames[frame][y][x];
  return board.map(row=>row.join('')).join('\n');
 }
 export function directorInstructions(brief,guide,style){
@@ -56,13 +56,13 @@ export function directorInstructions(brief,guide,style){
  ].join('\n\n');
 }
 export function layerInstructions(plan,layer,brief,asset,guide,style){
- const mask=composePreview(asset);
+ const previews=asset?Array.from({length:asset.layers[0].frames.length},(_,f)=>'FRAME '+(f+1)+' / '+asset.layers[0].frames.length+'\n'+composePreview(asset,f)).join('\n---\n'):'(No previous approved layer yet)';
  return [
   'ROLE: specialist human-caliber pixel artist. Output only a small JSON drawing PROGRAM for the requested layer, not a 24x24 ASCII grid.',
   'BRIEF: '+brief,
   'ART PLAN: '+JSON.stringify({name:plan.name,concept:plan.concept,anchors:plan.anchors,palette:plan.palette,layers:plan.layers}),
   'CURRENT TARGET: '+JSON.stringify(layer),
-  'PREVIOUS COMPILED ART (palette symbols, frame 0, 24 rows of 24 cells):\n'+mask,
+  'PREVIOUS COMPILED ART (exact palette symbols for EVERY approved animation frame; preserve alignment to the corresponding frame):\n'+previews,
   'TASK KNOWLEDGE: '+guide.context.slice(0,3300),
   'STYLE: '+style.context.slice(0,1200),
   'Output ONLY '+(layer.kind==='animated'?'{"base":[{"op":"rect","x":9,"y":10,"w":3,"h":4,"color":"R"}],"motion":[{"dx":0,"dy":0,"ops":[]},{"dx":1,"dy":0,"ops":[]},{"dx":0,"dy":0,"ops":[{"op":"pixel","x":11,"y":8,"color":"R"}]},{"dx":-1,"dy":0,"ops":[]}]}':'{"base":[{"op":"rect","x":9,"y":10,"w":3,"h":4,"color":"K"}]}')+' as the schema example; replace it with artwork-appropriate geometry.',
