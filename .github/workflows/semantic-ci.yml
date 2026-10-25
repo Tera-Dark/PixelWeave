@@ -22,3 +22,13 @@ jobs:
         run: node --check src/semantic-program.mjs && node --check src/semantic-generator.mjs && node --check src/main.js && node --check dev-server.mjs
       - name: Node unit and regression tests
         run: npm test
+      - name: Install browser test runtime
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Guided Studio browser interaction and recovery
+        run: node tests/e2e/guided-workflow.mjs
+        timeout-minutes: 5
+      - name: Existing Studio editor smoke
+        run: node tests/e2e/smoke.mjs
+        timeout-minutes: 5
