@@ -48,3 +48,16 @@ main{max-width:1440px}
 footer{border-top:2px solid #52687c}
 @media(max-width:1150px){.lab-layout{grid-template-columns:200px minmax(0,1fr)}.inspector{grid-column:2}}
 @media(max-width:740px){header{padding:16px;display:flex;flex-wrap:wrap;gap:12px}header nav{gap:7px}main{padding:0 17px}.hero{padding:40px 0 20px}.hero h1{font-size:clamp(37px,8vw,55px)}.lab-layout{display:block}.panel{margin:12px 0}.stage-head{gap:8px}.stage-head h2{font-size:18px}.art-area{min-height:285px}.art-area canvas{max-width:280px}.teaching{padding-top:55px}.examples{grid-template-columns:1fr}}
+
+/* Contextual lesson links are NOT site-wide navigation items. */
+.lab-resource-links{
+ display:flex;align-items:center;justify-content:flex-end;gap:8px;
+ padding:12px 0 0;flex-wrap:wrap;
+}
+.lab-resource-links span{margin-right:auto;color:#a4b7c7;font:10px var(--mono)}
+.lab-resource-links a{
+ display:inline-block;border:1px solid #4c6377;background:#213346;
+ color:#edd3b9;padding:7px 12px;font-size:11px;
+}
+.lab-resource-links a:hover{border-color:#e9b48c;background:#33485a;color:#ffe9cf}
+@media(max-width:740px){.lab-resource-links{padding-top:10px}.lab-resource-links a{padding:7px 9px}}
