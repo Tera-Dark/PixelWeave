@@ -38,7 +38,8 @@ test('Studio onion-skin layer is optional, frame-aware and not part of the expor
  const css=readFileSync(new URL('../src/pixel-ui.css',import.meta.url),'utf8');
  for(const id of ['onion-canvas','toggle-onion'])assert.match(html,new RegExp('id="'+id+'"'));
  assert.match(src,/const showOnion=onionEnabled&&!state\.play/);
- assert.match(src,/renderAsset\(onion,current\(\),\(state\.frame\+current\(\)\.frames-1\)%current\(\)\.frames,layers\(\)\)/);
+ assert.match(src,/renderAsset\(ghost,current\(\),\(state\.frame\+current\(\)\.frames-1\)%current\(\)\.frames,layers\(\)\)/);
+ assert.match(src,/renderAsset\(ghost,current\(\),\(state\.frame\+1\)%current\(\)\.frames,layers\(\)\)/);
  assert.match(css,/pointer-events:none;opacity:\.28/);
 });
 function fakeContext(stats,offscreen=false){
