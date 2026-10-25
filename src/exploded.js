@@ -19,6 +19,29 @@ export function layerAtPosition(x,y,count,spread=65){
  }
  return -1;
 }
+// Cache rasterized *source layers*, not flattened artworks. Keys include every
+// palette and row value so editing a pixel invalidates the exact frame cache.
+const cellCache=new Map();
+export function resetExplodedCache(){cellCache.clear();}
+function cachedLayerCanvas(asset,layer,frame){
+ const rows=layer.frames[frame%layer.frames.length];
+ const paletteKey=JSON.stringify(asset.palette);
+ const key=asset.width+'x'+asset.height+'|'+layer.x+','+layer.y+'|'+paletteKey+'|'+rows.join('');
+ const prior=cellCache.get(key);
+ if(prior)return prior;
+ const cell=document.createElement('canvas');cell.width=asset.width;cell.height=asset.height;
+ const c=cell.getContext('2d');
+ for(let y=0;y<asset.height;y++)for(let x=0;x<asset.width;x++){
+  const col=asset.palette[rows[y][x]];
+  if(!col||col==='transparent')continue;
+  const px=x+layer.x,py=y+layer.y;
+  if(px<0||py<0||px>=asset.width||py>=asset.height)continue;
+  c.fillStyle=col;c.fillRect(px,py,1,1);
+ }
+ cellCache.set(key,cell);
+ if(cellCache.size>180)cellCache.delete(cellCache.keys().next().value);
+ return cell;
+}
 const ellipse=(ctx,x,y,rx,ry,fill)=>{ctx.fillStyle=fill;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill();};
 export function renderExploded(canvas,asset,frame=0,{activeLayer=null,spread=65,solo=false}={}){
  if(!asset||!asset.layers)return;
@@ -32,8 +55,6 @@ export function renderExploded(canvas,asset,frame=0,{activeLayer=null,spread=65,
  ctx.strokeStyle='#8f829663';ctx.lineWidth=1;ctx.setLineDash([5,7]);
  ctx.beginPath();ctx.moveTo(first.x+92,first.y+87);ctx.lineTo(last.x+92,last.y+87);ctx.stroke();ctx.setLineDash([]);
  // Align transparent layers without inventing color for empty pixels.
- const cell=document.createElement('canvas');cell.width=asset.width;cell.height=asset.height;
- const c=cell.getContext('2d',{willReadFrequently:false});
  for(let i=asset.layers.length-1;i>=0;i--){
   const layer=asset.layers[i],p=pos[i];
   const selected=layer.id===activeLayer,dim=solo&&!selected;
@@ -54,17 +75,8 @@ export function renderExploded(canvas,asset,frame=0,{activeLayer=null,spread=65,
   const display=layer.id.replaceAll('_',' ');
   ctx.fillText(display.slice(0,23),p.x+37,p.y+20);
   // Render native one-layer pixel cells at an exact factor of 2.
-  c.clearRect(0,0,asset.width,asset.height);
-  const rows=layer.frames[frame%layer.frames.length];
-  for(let y=0;y<asset.height;y++)for(let x=0;x<asset.width;x++){
-   const col=asset.palette[rows[y][x]];
-   if(!col||col==='transparent')continue;
-   const px=x+layer.x,py=y+layer.y;
-   if(px<0||py<0||px>=asset.width||py>=asset.height)continue;
-   c.fillStyle=col;c.fillRect(px,py,1,1);
-  }
   ctx.imageSmoothingEnabled=false;
-  ctx.drawImage(cell,p.x+29,p.y+29,128,128);
+  ctx.drawImage(cachedLayerCanvas(asset,layer,frame),p.x+29,p.y+29,128,128);
   ctx.strokeStyle=selected?'#e8a77f90':'#62718735';
   ctx.strokeRect(p.x+29.5,p.y+29.5,128,128);
   ctx.fillStyle=selected?'#fbdcba':'#a4b1c3';
