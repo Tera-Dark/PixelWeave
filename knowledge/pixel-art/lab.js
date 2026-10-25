@@ -1,20 +1,27 @@
 import {validateLayered,renderLayered,metrics} from '../../src/layered.js';
+import {buildNativePotion} from '../../src/native-potion.mjs';
 const $=id=>document.getElementById(id);
-let selected=null,index=[],frame=0,playing=true,last=0,overlay=false;
+let selected=null,index=[],frame=0,playing=true,last=0,overlay=false,assetObjectURL=null;
 const cv=$('art'),ctx=cv.getContext('2d',{willReadFrequently:true});
 const temp=document.createElement('canvas');temp.width=384;temp.height=384;
 function note(s){$('message').textContent=s;}
-function readAsset(item){return fetch('./examples/reference/'+item.path).then(r=>{if(!r.ok)throw Error('请求素材失败');return r.json();}).then(validateLayered);}
+async function readAsset(item){
+ if(item.id==='vermilion-native-v1')return validateLayered(buildNativePotion());
+ throw Error('旧版教学资产已归档，不再作为审美参考');
+}
 async function choose(i){
  const item=index[i];if(!item)return;
  try{selected={item,data:await readAsset(item)};frame=0;playing=true;
   $('asset-title').textContent=selected.data.name;
   $('asset-meta').textContent=selected.data.width+'×'+selected.data.height+' px · '+selected.data.layers.length+' LAYERS · '+selected.data.layers[0].frames.length+' FRAMES';
   $('timeline').max=selected.data.layers[0].frames.length-1;$('timeline').value=0;
-  $('asset-download').href='./examples/reference/'+item.path;$('asset-download').setAttribute('download',item.path);
+  if(assetObjectURL)URL.revokeObjectURL(assetObjectURL);
+  assetObjectURL=URL.createObjectURL(new Blob([JSON.stringify(selected.data,null,2)],{type:'application/json'}));
+  $('asset-download').href=assetObjectURL;
+  $('asset-download').setAttribute('download','vermilion-native-v1.layered.json');
   renderLayers();draw();
   document.querySelectorAll('.library-button').forEach((b,n)=>b.classList.toggle('active',n===i));
-  note('该项目是代码手工编排的原创分层教学例图；图层开关用于结构研究，不会改写源文件。');
+  note('当前为文本原生像素制作的唯一试制品。图层操作只用于查看，不会更改 GitHub 上的正式素材。');
  }catch(e){note('案例加载失败：'+e.message);}
 }
 function renderLayers(){
@@ -54,10 +61,15 @@ $('timeline').oninput=e=>{playing=false;frame=+e.target.value;draw();};
 $('difference').onchange=e=>{overlay=e.target.checked;draw();};
 $('reset').onclick=()=>{if(!selected)return;selected.data.layers.forEach(l=>l.visible=true);renderLayers();draw();};
 async function init(){
- try{const r=await fetch('./examples/reference/index.json');if(!r.ok)throw Error('索引不可访问');const result=await r.json();index=result.items||result.examples||[];
-  $('library').replaceChildren(...index.map((item,i)=>{const b=document.createElement('button');b.className='library-button';const title=document.createElement('strong');title.textContent=item.id;const small=document.createElement('small');small.textContent=item.level+' · '+item.frames+' FRAMES · '+item.layers.length+' LAYERS';b.append(title,small);b.onclick=()=>choose(i);return b;}));
-  await choose(1);
- }catch(e){note('无法载入教学案例：'+e.message);}
+ index=[{id:'vermilion-native-v1',name:'Vermilion Nocturne',level:'ART 01',frames:12,layers:Array(11).fill(0)}];
+ $('library').replaceChildren(...index.map((item,i)=>{
+  const b=document.createElement('button');b.className='library-button';
+  const title=document.createElement('strong');title.textContent=item.name;
+  const small=document.createElement('small');small.textContent='64×64 · 12 FRAMES · 11 LAYERS';
+  b.append(title,small);b.onclick=()=>choose(i);return b;
+ }));
+ await choose(0);
  requestAnimationFrame(tick);
 }
+
 init();
