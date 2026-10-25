@@ -67,7 +67,9 @@ function paintThumbnail(thumb,item){
   const fw=item.sheet?Math.floor(img.naturalWidth/item.cols):img.naturalWidth;
   const fh=item.sheet?Math.floor(img.naturalHeight/item.rows):img.naturalHeight;
   const scale=Math.max(1,Math.floor(Math.min(54/fw,54/fh)));
-  tc.drawImage(img,0,0,fw,fh,Math.round((66-fw*scale)/2),Math.round((66-fh*scale)/2),fw*scale,fh*scale);
+  const index=item.frameMap?.[0]||0;
+  const sx=item.sheet?(index%item.cols)*fw:0,sy=item.sheet?Math.floor(index/item.cols)*fh:0;
+  tc.drawImage(img,sx,sy,fw,fh,Math.round((66-fw*scale)/2),Math.round((66-fh*scale)/2),fw*scale,fh*scale);
  }).catch(()=>{});
 }
 function field(id,value){$(id).textContent=value==null?'—':String(value);}
