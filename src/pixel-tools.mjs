@@ -58,7 +58,8 @@ export function moveRegion(d,id,frame,x0,y0,x1,y1,offsetX,offsetY){
   if(original[y][x]!=='.')moves.push([x,y,original[y][x]]);
   newFrame[y][x]='.';
  }
- for(const [x,y,c] of moves)if(inBox(d,x+dx,y+dy))newFrame[y+dy][x+dx]=c;
+ if(moves.some(([x,y])=>!inBox(d,x+dx,y+dy)))throw Error('位移会让选中像素离开画布，已取消以避免丢失像素');
+ for(const [x,y,c] of moves)newFrame[y+dy][x+dx]=c;
  if(!moves.length)return 0;
  l.frames[frame]=newFrame.map(r=>r.join(''));return moves.length;
 }
