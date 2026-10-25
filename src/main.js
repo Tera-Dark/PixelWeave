@@ -53,7 +53,7 @@ function renderGallery(){cards=[];const host=$('gallery-grid');host.replaceChild
 function choose(id){if(!state.items.some(a=>a.id===id))return;
   state.id=id;state.frame=0;state.elapsed=0;state.play=true;state.undo=[];state.redo=[];
   state.activeLayer=current().type==='layered'?(current().data.layers.find(l=>l.id==='liquid')?.id||current().data.layers.at(-1).id):null;
-  if(current().type==='layered')state.symbol=Object.keys(current().data.palette).find(k=>k!=='.')||'.';
+  if(current().type==='layered')state.symbol=(current().data.palette.m?'m':Object.keys(current().data.palette).find(k=>k!=='.')||'.');
   refresh();
 }
 function refresh(){
@@ -242,7 +242,7 @@ function renderLayers(){
   const b=document.createElement('button');b.type='button';b.className='palette-swatch'+(state.symbol===key?' selected':'');
   b.style.background=color==='transparent'?'repeating-conic-gradient(#8590a1 0% 25%, #3d4758 0% 50%) 50% / 12px 12px':color;
   b.textContent=key==='.'?'×':'';b.title=key+' '+color;b.setAttribute('aria-label','画笔颜色 '+key+' '+color);
-  b.onclick=()=>{state.symbol=key;state.tool='pencil';for(const v of ['pencil','erase'])$('tool-'+v).classList.toggle('active',v==='pencil');renderLayers();};
+  b.onclick=()=>{state.symbol=key;state.tool='pencil';for(const v of ['pencil','erase']){$('tool-'+v).classList.toggle('active',v==='pencil');$('tool-'+v).setAttribute('aria-pressed',String(v==='pencil'));}renderLayers();};
   pal.append(b);
  }
  const m=metrics(data);
@@ -287,6 +287,7 @@ async function loadCuratedStudies(){
   restore();
   state.activeLayer=state.items[0].data.layers.some(l=>l.id==='crimson_liquid')?'crimson_liquid':state.items[0].data.layers.at(-1).id;
   state.frame=0;state.play=true;state.id=POTION_ID;
+  state.symbol=asset.data.palette.m?'m':Object.keys(asset.data.palette).find(k=>k!=='.')||'.';
   renderGallery();refresh();
  }catch(e){
   document.getElementById('gallery-grid').textContent='药瓶动画加载失败：'+e.message;
@@ -379,7 +380,7 @@ function events(){
  $('btn-play').onclick=()=>{state.play=!state.play;state.elapsed=0;draw();};$('btn-prev').onclick=()=>shift(-1);$('btn-next').onclick=()=>shift(1);
  $('btn-restart').onclick=()=>{state.frame=0;state.play=true;state.elapsed=0;draw();};$('frame-range').oninput=e=>{state.frame=+e.target.value;state.play=false;draw();};
  $('speed-control').oninput=e=>{state.speed=+e.target.value;$('speed-value').textContent=state.speed+'×';};
- $('zoom-control').oninput=e=>{const v=+e.target.value;$('zoom-value').textContent=v+'×';$('studio-canvas').style.width=v*64+'px';$('studio-canvas').style.height=v*64+'px';$('onion-canvas').style.width=v*64+'px';$('onion-canvas').style.height=v*64+'px';};
+ $('zoom-control').oninput=e=>{const v=+e.target.value;$('zoom-value').textContent=v+'×';$('studio-canvas').style.width=v*64+'px';$('studio-canvas').style.height=v*64+'px';$('onion-canvas').style.width=v*64+'px';$('onion-canvas').style.height=v*64+'px';$('studio-stage').style.setProperty('--grid-step',v+'px');};
  $('toggle-grid').onclick=()=>{const on=$('studio-stage').classList.toggle('grid-mode');$('toggle-grid').classList.toggle('active',on);};
  $('toggle-onion').onclick=()=>{
   onionEnabled=!onionEnabled;
