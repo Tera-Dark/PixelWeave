@@ -581,3 +581,6 @@ button:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.3)}
 .diagnostic-card button{margin:9px 0;min-height:37px;width:100%;color:#e6bea0}
 #diagnosis-output{font-size:11px;line-height:1.75;color:#bdcbcf}
 @media(max-width:800px){.cel-edit-actions{flex-wrap:wrap}.cel-scroll{max-height:190px}.cel-grid{grid-template-columns:125px repeat(var(--frames),minmax(38px,1fr))}}
+
+.cel-panel.matrix-mode .frame-legacy{display:block}
+.cel-panel.matrix-mode .cel-panel-toolbar,.cel-panel.matrix-mode .cel-scroll,.cel-panel.matrix-mode .cel-footer{display:none}
