@@ -38,6 +38,9 @@ jobs:
       - name: Runtime workload and loading performance E2E
         run: node tests/e2e/performance.mjs
         timeout-minutes: 5
+      - name: Verify every credited artist animation in real Chromium
+        run: node tests/e2e/real-references.mjs
+        timeout-minutes: 5
       - name: Prepare minimal public-only Pages bundle
         run: |
           mkdir -p _site
