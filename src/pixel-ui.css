@@ -611,3 +611,23 @@ button:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.3)}
  .principle{content-visibility:auto;contain-intrinsic-size:auto 150px}
  .exploded-panel{content-visibility:auto;contain-intrinsic-size:auto 760px}
 }
+
+/* Guided LLM authoring: checkpoint review, native sprite preview, no visual clutter. */
+.guided-workbench{margin:1rem 0;padding:1rem;border:1px solid var(--border,#46536b);background:rgba(12,19,31,.48);display:grid;gap:.8rem;min-width:0}
+.guided-head,.guided-actions{display:flex;gap:.55rem;align-items:center;flex-wrap:wrap}
+.guided-head{justify-content:space-between}.guided-head h4{font-size:1rem;margin:.15rem 0}.guided-phase{font-size:.75rem;opacity:.8}
+.guided-stage{display:grid;gap:.7rem;min-width:0}.guided-progress{font-size:.78rem;line-height:1.7;font-weight:600}
+.guided-plan{padding:.65rem;border:1px solid rgba(155,172,201,.22);font-size:.82rem;line-height:1.55;overflow-wrap:anywhere}
+.guided-plan p{margin:.35rem 0}.guided-swatches{display:flex;gap:.4rem;flex-wrap:wrap;padding:.3rem 0}
+.guided-swatches span{padding:.15rem .38rem;background:rgba(255,255,255,.06);font-family:monospace;font-size:.7rem}
+.guided-layer-list{padding-left:1.5rem;margin:.45rem 0}.guided-layer-list li{padding:.15rem 0}
+.guided-layer-list .is-approved{opacity:.65}.guided-layer-list .is-approved::after{content:" ✓";color:#83c4a2}.guided-layer-list .is-current{font-weight:700}
+.guided-preview-wrap{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem}
+.guided-preview-card{min-width:0;display:grid;gap:.45rem;justify-items:center;padding:.65rem;border:1px solid rgba(155,172,201,.2);font-size:.74rem}
+.guided-preview-card canvas{display:block;width:min(100%,240px);height:auto;aspect-ratio:1;image-rendering:pixelated;background:repeating-conic-gradient(#a8afba22 0 25%,#38465a44 0 50%) 50% / 24px 24px;border:1px solid rgba(155,172,201,.25)}
+.guided-preview-card input{max-width:100%;vertical-align:middle}
+.guided-workbench textarea{width:100%;min-height:3.3rem;padding:.5rem;resize:vertical}
+.guided-history,.guided-note{font-size:.72rem;opacity:.65;line-height:1.5}
+.guided-backup{display:grid;gap:.6rem}.guided-backup #guided-backup-toggle{justify-self:start}.guided-backup #guided-backup-content:not([hidden]){display:grid;gap:.6rem}
+.guided-status{font-size:.75rem;line-height:1.6}.guided-status.error{color:#e8a5a1}
+@media(max-width:600px){.guided-preview-wrap{grid-template-columns:1fr}.guided-actions .btn{min-height:40px}.guided-workbench{padding:.7rem}}

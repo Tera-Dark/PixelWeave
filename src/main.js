@@ -10,7 +10,9 @@ import {copyCel,pasteCel,clearCel,insertFrame,moveFrame,celStats} from './cel-op
 import {renderCelTimeline,updateCelSelection} from './cel-timeline.mjs';
 import {paintLine,paintRectangle,paintFill,moveRegion} from './pixel-tools.mjs';
 import {stepPlayback,inspectAnimation} from './animation-analysis.mjs';
+
 const $=id=>document.getElementById(id),state={items:[],id:POTION_ID,frame:0,play:true,speed:1,edits:{},tool:null,elapsed:0,last:0,activeLayer:'liquid',symbol:'K',undo:[],redo:[],mode:'loop',direction:1};
+let guidedController=null;
 let cards=[],thumbs=[],painting=false,galleryTick=-1,localModelAvailable=false,explosionSpread=65,explosionSolo=false,focusFit=true,focusChecker=true,explosionVisible=false,onionEnabled=false,activeStroke=null,selection=null,celClipboard=null,onionPrevious=true,onionFollowing=false,panDrag=null,panX=0,panY=0,studioInitialized=false;
 const current=()=>state.items.find(a=>a.id===state.id)||state.items[0],layers=()=>state.edits[state.id]||{};
 const historyByAsset=new Map();
@@ -363,12 +365,17 @@ function exportVideo(){if(!window.MediaRecorder||!HTMLCanvasElement.prototype.ca
  const timer=setInterval(()=>{i++;renderAsset(c,a,i%a.frames,layers());if(i>=a.frames*2){clearInterval(timer);setTimeout(()=>{if(rec.state!=='inactive')rec.stop();},140);}},1000/a.fps);
  rec.onerror=()=>{clearInterval(timer);if(rec.state!=='inactive')rec.stop();notify('录制失败，请使用精灵图导出。',true);};
 }
-function importJson(){
+async function importJson(){
  const raw=$('json-input').value;
  if(raw.length>950000){notify('输入超过 950KB 限制。',true);return;}
  try{
   const j=parseModelJSON(raw);let a;
   if(j.format===LAYERED_FORMAT){a=createLayeredAsset(validateLayered(j));state.items.push(a);}
+  else if(j.format==='pixelweave/semantic-v1'){
+   const {compileSemanticProgram}=await import('./semantic-program.mjs');
+   const inspected=compileSemanticProgram(j);
+   a=createLayeredAsset(inspected.asset);state.items.push(a);
+  }
   else if(j.format==='pixelweave-project/v0.2'){
    if(j.asset&&j.asset.demoId){a=state.items.find(x=>x.id===j.asset.demoId);if(!a)throw Error('工程引用了未知内置资产');}
    else if(j.asset?.format===LAYERED_FORMAT){a=createLayeredAsset(validateLayered(j.asset));state.items.push(a);}
@@ -463,18 +470,19 @@ function beginLLMStatus(){
   localModelAvailable=false;$('refine-layer').disabled=true;
   $('llm-status').textContent='当前为 GitHub Pages 静态模式：复制 LLM 提示词，在任意文本模型中生成 JSON 后粘贴导入。';
   $('generate-llm').disabled=true;
- });
+ }).finally(()=>guidedController?.refreshAvailability());
 }
 async function generateFromLLM(){
  const button=$('generate-llm'),idea=$('idea-input').value.trim();
  if(idea.length<4){notify('先描述你希望生成的像素动画主题。',true);return;}
- button.disabled=true;button.textContent='LLM 创作中…';notify('正在通过本地文本模型进行美术规划、分层绘制与校验。');
+ button.disabled=true;button.textContent='LLM 创作中…';notify('LLM 正在规划语义图层、编写简洁绘图指令，并逐层编译与验证。');
  try{
   const res=await fetch('./api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idea,styleId:$('art-style-select').value})});
   const output=await res.json();if(!res.ok)throw Error(output.error||'生成失败');
   const a=createLayeredAsset(output.asset);state.items.push(a);choose(a.id);persist();renderGallery();
-  const issues=output.warnings?.length?' 质量提示：'+output.warnings.join('；'):'';
-  notify('已生成 '+a.data.layers.length+' 层 / '+a.frames+' 帧，模型调用 '+output.attempts+' 次。'+issues);
+  const issues=output.warnings?.length?' 风险提示：'+output.warnings.join('；'):'';
+  const accepted=output.stages?.filter(s=>s.status==='accepted').length;
+  notify('已生成 '+a.data.layers.length+' 层 / '+a.frames+' 帧，模型调用 '+output.attempts+' 次。'+(accepted?' 已校验 '+accepted+' 个阶段。':'')+issues);
  }catch(e){notify('LLM 生成失败：'+e.message,true);}
  finally{button.disabled=false;button.textContent='使用本地 LLM 生成 ✳';}
 }
@@ -673,17 +681,38 @@ function events(){
  const appendix=chosen==='ashen-reliquary'
   ?'\n\nART STYLE (original PixelWeave Ashen Reliquary): prioritize a storied functional silhouette, intentionally clustered material highlights, quiet light hierarchy, animated semantic parts anchored to a stable structure. Use no recognizable Blasphemous sprites or iconography. Favor material credibility over generic symmetrical RPG pictograms.'
   :'';
- const text=makeLayeredPrompt($('idea-input').value)+appendix;try{await navigator.clipboard.writeText(text);notify('完整 LLM 像素动画生成规范已复制。');}catch{$('json-import-panel').hidden=false;$('json-input').value=text;$('json-input').select();notify('复制受限：已在文本框选中提示词，请手动复制。',true);}};
+ const {makeSemanticPrompt}=await import('./semantic-program.mjs');
+ const text=makeSemanticPrompt($('idea-input').value)+appendix;try{await navigator.clipboard.writeText(text);notify('语义像素程序规范已复制：LLM 返回 JSON 后可直接粘贴导入 Studio。');}catch{$('json-import-panel').hidden=false;$('json-input').value=text;$('json-input').select();notify('复制受限：已在文本框选中提示词，请手动复制。',true);}};
  document.addEventListener('keydown',e=>{if($('studio-page').hidden||e.target.matches('input,textarea,button'))return;if(e.code==='Space'){e.preventDefault();state.play=!state.play;draw();}if(e.code==='ArrowLeft')shift(-1);if(e.code==='ArrowRight')shift(1);if(e.code==='KeyO')$('toggle-onion').click();if((e.ctrlKey||e.metaKey)&&e.code==='KeyZ'){e.preventDefault();timeTravel(e.shiftKey?'redo':'undo');}if((e.ctrlKey||e.metaKey)&&e.code==='KeyY'){e.preventDefault();timeTravel('redo');}});
  window.addEventListener('hashchange',()=>{if(location.hash==='#studio'||location.hash==='#gallery')route(location.hash.slice(1),{record:false,scroll:false});});
  window.addEventListener('popstate',()=>route(location.hash==='#studio'?'studio':'gallery',{record:false,scroll:false}));
 }
 mountSiteNavigation();events();
+let guidedLoading=null;
+function mountGuidedOnDemand(){
+ if(guidedController)return Promise.resolve();
+ if(guidedLoading)return guidedLoading;
+ guidedLoading=import('./guided-ui.mjs').then(({mountGuidedWorkbench})=>{
+  guidedController=mountGuidedWorkbench({
+ notify,
+ getBrief:()=>$('idea-input').value.trim(),
+ getStyle:()=>$('art-style-select').value,
+ isModelAvailable:()=>localModelAvailable,
+ onPublish:(data)=>{
+  const a=createLayeredAsset(validateLayered(data));state.items.push(a);choose(a.id);persist();renderGallery();
+  notify('已发布为 Studio 的私人分层工程，可继续逐像素编辑并导出。');route('studio');
+ }
+  });
+  guidedController?.refreshAvailability();
+ }).catch(e=>notify('引导式工作站加载失败：'+e.message,true)).finally(()=>{guidedLoading=null;});
+ return guidedLoading;
+}
 watchArt($('hero-canvas'));
 // The optional model proxy is irrelevant to landing-page visitors.
 let modelStatusRequested=false;
 const composer=$('studio-composer-drawer');
 composer.addEventListener('toggle',()=>{
+ if(composer.open)mountGuidedOnDemand();
  if(composer.open&&!modelStatusRequested){modelStatusRequested=true;beginLLMStatus();}
 });
 loadCuratedStudies().then(()=>route(location.hash==='#studio'?'studio':'gallery',{record:false,scroll:false}));requestAnimationFrame(loop);

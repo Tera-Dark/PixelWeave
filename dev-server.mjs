@@ -3,7 +3,9 @@ import {readFile,stat} from 'node:fs/promises';
 import {resolve,extname,sep} from 'node:path';
 import {modelSettings,generateWithLLM} from './src/generator.mjs';
 import {generateProgressive} from './src/progressive.mjs';
+import {generateSemantic} from './src/semantic-generator.mjs';
 import {refineOneLayer} from './src/refine.mjs';
+import {startGuidedDraft,actGuidedDraft,validateGuidedDraft,inspectGuidedDraft} from './src/guided-workflow.mjs';
 import {localRequestAllowed,localApiRequestAllowed,isPublicProjectPath} from './src/local-request-guard.mjs';
 const root=process.cwd();
 const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.json':'application/json; charset=utf-8'};
@@ -20,7 +22,7 @@ http.createServer(async(req,res)=>{
   if(!localRequestAllowed(req.headers)){json(res,403,{error:'本地服务仅接受来自 localhost 的同源请求'});return;}
   if(path.startsWith('/api/')&&!localApiRequestAllowed(req.headers,req.method)){json(res,403,{error:'拒绝跨站或非 JSON 的 API 请求'});return;}
   if(path==='/api/status'&&req.method==='GET'){
-   const cfg=modelSettings();json(res,200,{available:cfg.configured,model:cfg.configured?cfg.model:null,mode:'local-proxy',pipeline:process.env.PIXELWEAVE_PIPELINE==='oneshot'?'oneshot':'progressive'});return;
+   const cfg=modelSettings();json(res,200,{available:cfg.configured,model:cfg.configured?cfg.model:null,mode:'local-proxy',pipeline:process.env.PIXELWEAVE_PIPELINE==='oneshot'?'oneshot':process.env.PIXELWEAVE_PIPELINE==='progressive'?'progressive':'semantic-v1'});return;
   }
   if(path==='/api/generate'&&req.method==='POST'){
    if(generating){json(res,429,{error:'有一个创作任务正在运行，请完成当前任务后再次提交'});return;}
@@ -28,8 +30,26 @@ http.createServer(async(req,res)=>{
    let input;
    try{input=await body(req);}catch(e){json(res,400,{error:'JSON 请求体不合法：'+e.message});return;}
    generating=true;
-   try{const generator=process.env.PIXELWEAVE_PIPELINE==='oneshot'?generateWithLLM:generateProgressive;json(res,200,await generator(input.idea,{...process.env,PIXELWEAVE_ART_STYLE:input.styleId||'none'}));}
+   try{const generator=process.env.PIXELWEAVE_PIPELINE==='oneshot'?generateWithLLM:process.env.PIXELWEAVE_PIPELINE==='progressive'?generateProgressive:generateSemantic;json(res,200,await generator(input.idea,{...process.env,PIXELWEAVE_ART_STYLE:input.styleId||'none'}));}
    catch(e){json(res,502,{error:String(e.message).slice(0,1000)});}
+   finally{generating=false;}
+   return;
+  }
+  if(path==='/api/workflow'&&req.method==='POST'){
+   if(generating){json(res,429,{error:'已有一个模型生成任务在执行，请完成后操作'});return;}
+   let input;
+   try{input=await body(req,130000);}catch(e){json(res,400,{error:'工作流请求无效：'+e.message});return;}
+   const action=input?.action;
+   if(!['start','inspect','accept','retry','next'].includes(action)){json(res,400,{error:'未知的引导式工作流操作'});return;}
+   if(['start','retry','next'].includes(action)&&!modelSettings().configured){json(res,503,{error:'引导式模型生成需要先配置 PIXELWEAVE_MODEL'});return;}
+   generating=true;
+   try{
+    const draft=action==='start'?
+     await startGuidedDraft(input.brief,input.styleId||'none',process.env):
+     action==='inspect'?validateGuidedDraft(input.draft):
+     await actGuidedDraft(input.draft,action,{feedback:input.feedback||'',env:process.env});
+    json(res,200,{draft,view:inspectGuidedDraft(draft)});
+   }catch(e){json(res,422,{error:String(e.message).slice(0,900)});}
    finally{generating=false;}
    return;
   }
