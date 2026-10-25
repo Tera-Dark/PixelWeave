@@ -45,7 +45,7 @@ function restore(){try{
  }
  if(d.edits&&typeof d.edits==='object')for(const [id,v] of Object.entries(d.edits))if(state.items.some(a=>a.id===id))state.edits[id]=scrub(v);
 }catch{}}
-function route(name,{record=true,scroll=true}={}){const studio=name==='studio';$('gallery-page').hidden=studio;$('studio-page').hidden=!studio;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));if(studio&&current())refresh();if(record&&location.hash!=='#'+name)history.pushState(null,'','#'+name);syncSiteNavigation();if(scroll)window.scrollTo(0,0);}
+function route(name,{record=true,scroll=true}={}){const studio=name==='studio';$('gallery-page').hidden=studio;$('studio-page').hidden=!studio;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));if(studio&&current())draw();if(record&&location.hash!=='#'+name)history.pushState(null,'','#'+name);syncSiteNavigation();if(scroll)window.scrollTo(0,0);}
 function renderGallery(){cards=[];const host=$('gallery-grid');host.replaceChildren();
  const featured=state.items.filter(a=>a.id===POTION_ID);
  featured.forEach((a,i)=>{
@@ -56,7 +56,7 @@ function renderGallery(){cards=[];const host=$('gallery-grid');host.replaceChild
  const c=cv();art.append(no,c,live);
  const meta=document.createElement('div');meta.className='work-meta';const info=document.createElement('div'),title=document.createElement('strong'),small=document.createElement('small'),arrow=document.createElement('span');
  title.textContent=a.name;small.textContent=a.cn+' · '+a.frames+' FRAMES';arrow.className='work-arrow';arrow.textContent='↗';info.append(title,small);meta.append(info,arrow);b.append(art,meta);host.append(b);
- b.onclick=()=>{choose(a.id);route('studio');};cards.push({c,a});
+ b.onclick=()=>{choose(a.id);route('studio');};cards.push({c,a});watchArt(c);
  });$('collection-count').textContent=String(featured.length).padStart(2,'0');}
 function choose(id){if(!state.items.some(a=>a.id===id))return;
   state.id=id;state.frame=0;state.elapsed=0;state.play=true;selection=null;activateHistory(id);
@@ -157,16 +157,37 @@ function selectCel(layerId,frame){
  $('cel-selection').textContent='CEL · '+layerId+' / F'+String(frame+1).padStart(2,'0');
 }
 function shift(n){state.frame=(state.frame+n+current().frames)%current().frames;state.play=false;state.elapsed=0;selection=null;draw();}
-function loop(now){if(!state.last)state.last=now;const dt=Math.min(100,now-state.last);state.last=now;
- if(state.play&&current()){
- state.elapsed+=dt*state.speed;const pace=1000/current().fps;
- if(state.elapsed>=pace){
-  const steps=Math.min(100,Math.floor(state.elapsed/pace));state.elapsed%=pace;
-  for(let i=0;i<steps;i++){const next=stepPlayback(state.frame,current().frames,state.direction,state.mode);state.frame=next.frame;state.direction=next.direction;}
-  draw();
+// Frames are processed only for the currently visible application surface.
+// On hidden tabs, rAF still resumes naturally without paying for elapsed frames.
+const visibleArt=new WeakSet();
+const artObserver=typeof IntersectionObserver==='undefined'?null:new IntersectionObserver(entries=>{
+ for(const entry of entries){if(entry.isIntersecting)visibleArt.add(entry.target);else visibleArt.delete(entry.target);}
+},{rootMargin:'120px'});
+function watchArt(canvas){if(artObserver)artObserver.observe(canvas);}
+function isArtVisible(canvas){return !artObserver||visibleArt.has(canvas);}
+function loop(now){
+ const dt=state.last?Math.min(100,now-state.last):0;state.last=now;
+ if(document.hidden){requestAnimationFrame(loop);return;}
+ if(!$('studio-page').hidden){
+  if(state.play&&current()){
+   state.elapsed+=dt*state.speed;const pace=1000/current().fps;
+   if(state.elapsed>=pace){
+    const steps=Math.min(100,Math.floor(state.elapsed/pace));state.elapsed%=pace;
+    for(let i=0;i<steps;i++){const next=stepPlayback(state.frame,current().frames,state.direction,state.mode);state.frame=next.frame;state.direction=next.direction;}
+    draw();
+   }
+  }
+ }else{
+  const tick=Math.floor(now/125);
+  if(tick!==galleryTick){
+   galleryTick=tick;
+   for(const x of cards)if(isArtVisible(x.c))renderAsset(x.c,x.a,tick%x.a.frames,state.edits[x.a.id]);
+   const hero=state.items.find(a=>a.id===POTION_ID),cv=$('hero-canvas');
+   if(hero&&isArtVisible(cv))renderAsset(cv,hero,tick%hero.frames,state.edits[hero.id]);
+  }
  }
+ requestAnimationFrame(loop);
 }
- const tick=Math.floor(now/125);if(tick!==galleryTick){galleryTick=tick;for(const x of cards)renderAsset(x.c,x.a,tick%x.a.frames,state.edits[x.a.id]);const hero=state.items.find(a=>a.id===POTION_ID);if(hero)renderAsset($('hero-canvas'),hero,tick%hero.frames,state.edits[hero.id]);}requestAnimationFrame(loop);}
 function tool(t){
  state.tool=state.tool===t?null:t;
  for(const v of ['pencil','erase','line','rect','rectfill','fill','select']){
@@ -655,4 +676,12 @@ function events(){
  window.addEventListener('hashchange',()=>{if(location.hash==='#studio'||location.hash==='#gallery')route(location.hash.slice(1),{record:false,scroll:false});});
  window.addEventListener('popstate',()=>route(location.hash==='#studio'?'studio':'gallery',{record:false,scroll:false}));
 }
-mountSiteNavigation();events();beginLLMStatus();loadCuratedStudies().then(()=>route(location.hash==='#studio'?'studio':'gallery',{record:false,scroll:false}));requestAnimationFrame(loop);
+mountSiteNavigation();events();
+watchArt($('hero-canvas'));
+// The optional model proxy is irrelevant to landing-page visitors.
+let modelStatusRequested=false;
+const composer=$('studio-composer-drawer');
+composer.addEventListener('toggle',()=>{
+ if(composer.open&&!modelStatusRequested){modelStatusRequested=true;beginLLMStatus();}
+});
+loadCuratedStudies().then(()=>route(location.hash==='#studio'?'studio':'gallery',{record:false,scroll:false}));requestAnimationFrame(loop);
