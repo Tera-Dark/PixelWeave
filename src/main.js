@@ -2,10 +2,12 @@ import {DEMOS,SIZE,renderAsset,makeImported,validateMatrix} from './engine.js';
 import {LAYERED_FORMAT,createLayeredAsset,validateLayered,pixelCoordinates,paintLayerPixel,addEmptyLayer,reorderLayer,duplicateFrame,deleteFrame,createBlankLayered,metrics} from './layered.js';
 import {makeLayeredPrompt,parseModelJSON} from './llm.js';
 import {loadPotionAsset} from './potion-loader.js';
-const $=id=>document.getElementById(id),state={items:[],id:'potion-v3',frame:0,play:true,speed:1,edits:{},tool:null,elapsed:0,last:0,activeLayer:'liquid',symbol:'K',undo:[],redo:[]};
-let cards=[],thumbs=[],painting=false,galleryTick=-1,localModelAvailable=false;
+import {renderExploded,layerAtPosition} from './exploded.js';
+import {POTION_ID} from './native-potion.mjs';
+const $=id=>document.getElementById(id),state={items:[],id:POTION_ID,frame:0,play:true,speed:1,edits:{},tool:null,elapsed:0,last:0,activeLayer:'liquid',symbol:'K',undo:[],redo:[]};
+let cards=[],thumbs=[],painting=false,galleryTick=-1,localModelAvailable=false,explosionSpread=65,explosionSolo=false;
 const current=()=>state.items.find(a=>a.id===state.id)||state.items[0],layers=()=>state.edits[state.id]||{};
-const cv=()=>{const e=document.createElement('canvas');e.width=SIZE;e.height=SIZE;return e;};
+const cv=()=>{const e=document.createElement('canvas');e.width=256;e.height=256;return e;};
 function notify(t,bad=false){$('feedback').textContent=t;$('feedback').className='feedback '+(bad?'error':'success');}
 function scrub(o){const r={};if(!o||typeof o!=='object')return r;for(const [i,obj] of Object.entries(o)){if(!/^\d{1,2}$/.test(i)||+i>15||!obj||typeof obj!=='object')continue;const p={};let n=0;for(const [xy,color] of Object.entries(obj)){const m=/^(\d{1,2}),(\d{1,2})$/.exec(xy);if(m&&+m[1]<96&&+m[2]<96&&/^#[0-9a-f]{6}$/i.test(color)&&n++<10000)p[xy]=color;}r[i]=p;}return r;}
 function persist(){try{
@@ -30,7 +32,7 @@ function restore(){try{
 }catch{}}
 function route(name){const studio=name==='studio';$('gallery-page').hidden=studio;$('studio-page').hidden=!studio;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));if(studio&&current())refresh();history.replaceState(null,'','#'+name);window.scrollTo(0,0);}
 function renderGallery(){cards=[];const host=$('gallery-grid');host.replaceChildren();
- const featured=state.items.filter(a=>a.id==='potion-v3');
+ const featured=state.items.filter(a=>a.id===POTION_ID);
  featured.forEach((a,i)=>{
  const b=document.createElement('button');b.className='work-card';b.type='button';b.setAttribute('aria-label','打开 '+a.name);
  const art=document.createElement('div');art.className='work-art '+a.tone;
@@ -61,11 +63,18 @@ function refresh(){
 function draw(){renderAsset($('studio-canvas'),current(),state.frame,layers());const f=String(state.frame+1).padStart(2,'0'),count=String(current().frames).padStart(2,'0');
  $('stage-frame-label').textContent='FRAME '+f+' / '+count;$('transport-label').textContent=f+' / '+count;$('frame-range').value=state.frame;$('btn-play').textContent=state.play?'Ⅱ':'▶';
  $('frame-track').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('active',i===state.frame));
+ drawExplosion();
+}
+function drawExplosion(){
+ const a=current();if(!a||a.type!=='layered')return;
+ renderExploded($('exploded-canvas'),a.data,state.frame,{activeLayer:state.activeLayer,spread:explosionSpread,solo:explosionSolo});
+ $('exploded-frame').textContent='F'+String(state.frame+1).padStart(2,'0')+' / '+a.frames;
+ $('exploded-active').textContent=a.data.layers.find(l=>l.id===state.activeLayer)?.name||'选择图层';
 }
 function shift(n){state.frame=(state.frame+n+current().frames)%current().frames;state.play=false;state.elapsed=0;draw();}
 function loop(now){if(!state.last)state.last=now;const dt=Math.min(100,now-state.last);state.last=now;
- if(state.play){state.elapsed+=dt*state.speed;const pace=1000/current().fps;if(state.elapsed>=pace){state.frame=(state.frame+Math.floor(state.elapsed/pace))%current().frames;state.elapsed%=pace;draw();}}
- const tick=Math.floor(now/125);if(tick!==galleryTick){galleryTick=tick;for(const x of cards)renderAsset(x.c,x.a,tick%x.a.frames,state.edits[x.a.id]);const hero=state.items.find(a=>a.id==='potion-v3');if(hero)renderAsset($('hero-canvas'),hero,tick%hero.frames,state.edits[hero.id]);}requestAnimationFrame(loop);}
+ if(state.play&&current()){state.elapsed+=dt*state.speed;const pace=1000/current().fps;if(state.elapsed>=pace){state.frame=(state.frame+Math.floor(state.elapsed/pace))%current().frames;state.elapsed%=pace;draw();}}
+ const tick=Math.floor(now/125);if(tick!==galleryTick){galleryTick=tick;for(const x of cards)renderAsset(x.c,x.a,tick%x.a.frames,state.edits[x.a.id]);const hero=state.items.find(a=>a.id===POTION_ID);if(hero)renderAsset($('hero-canvas'),hero,tick%hero.frames,state.edits[hero.id]);}requestAnimationFrame(loop);}
 function tool(t){state.tool=state.tool===t?null:t;for(const v of ['pencil','erase']){$('tool-'+v).classList.toggle('active',state.tool===v);$('tool-'+v).setAttribute('aria-pressed',String(state.tool===v));}}
 function paint(e){
  if(!state.tool)return;
@@ -75,7 +84,7 @@ function paint(e){
   if(!pt)return;
   const symbol=state.tool==='erase'?'.':state.symbol;
   if(paintLayerPixel(data,state.activeLayer,state.frame,pt.x,pt.y,symbol)){
-   renderAsset(c,current(),state.frame);renderAsset(thumbs[state.frame],current(),state.frame);
+   renderAsset(c,current(),state.frame);renderAsset(thumbs[state.frame],current(),state.frame);drawExplosion();
   }
   return;
  }
@@ -165,7 +174,7 @@ function renderLayers(){
   const select=document.createElement('button');select.type='button';select.className='layer-select';
   const b=document.createElement('strong');b.textContent=layer.name;
   const sub=document.createElement('small');sub.textContent=layer.id+' · '+Math.round(layer.opacity*100)+'%';
-  select.append(b,sub);select.onclick=()=>{state.activeLayer=layer.id;renderLayers();};
+  select.append(b,sub);select.onclick=()=>{state.activeLayer=layer.id;renderLayers();drawExplosion();};
   row.append(eye,select);host.append(row);
  }
  $('layer-count').textContent=data.layers.length+' LAYERS';
@@ -187,6 +196,7 @@ function renderLayers(){
  }
  const m=metrics(data);
  $('layer-metrics').textContent='COVERAGE '+m.coverage+'%  ·  MOTION '+m.meanMotion+'%  ·  LOOP SEAM '+m.seam+'%';
+ drawExplosion();
 }
 function beginLLMStatus(){
  fetch('./api/status',{cache:'no-store'}).then(async r=>{if(!r.ok)throw Error('static');return r.json();}).then(cfg=>{
@@ -215,11 +225,11 @@ async function loadCuratedStudies(){
  try{
   const data=validateLayered(await loadPotionAsset());
   const asset=createLayeredAsset(data);
-  asset.id='potion-v3';
-  asset.cn='修补封存药剂 · 首件评审样品';
+  asset.id=POTION_ID;
+  asset.cn='原生文本像素创作 · 首件评审样品';
   asset.category='SOLE ART STUDY';
   asset.tone='health';
-  asset.desc='真正可编辑的 64×64 像素资产：10 个语义图层、12 帧循环。已将旧素材从当前画廊与工作站清空。';
+  asset.desc='文本 LLM 原生绘制的 64×64 像素矩阵：11 个可编辑语义图层、12 帧循环，不使用图片抠图或图片转像素。';
   state.items=[asset];state.id=asset.id;
   state.activeLayer='crimson_liquid';state.frame=0;state.play=true;
   renderGallery();refresh();
@@ -265,7 +275,16 @@ function newProject(){
 }
 function events(){
  document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>route(b.dataset.page));
- $('hero-studio').onclick=()=>route('studio');$('hero-open').onclick=()=>{choose('potion-v3');route('studio');};
+ $('exploded-spread').oninput=e=>{explosionSpread=Number(e.target.value);$('exploded-distance').textContent=explosionSpread+'%';drawExplosion();};
+ $('exploded-solo').onclick=()=>{explosionSolo=!explosionSolo;$('exploded-solo').classList.toggle('active',explosionSolo);$('exploded-solo').setAttribute('aria-pressed',String(explosionSolo));$('exploded-solo').textContent=explosionSolo?'恢复完整展开':'聚焦当前图层';drawExplosion();};
+ $('exploded-canvas').addEventListener('click',e=>{
+  const a=current();if(!a||a.type!=='layered')return;
+  const box=e.currentTarget.getBoundingClientRect();
+  const x=(e.clientX-box.left)/box.width*e.currentTarget.width,y=(e.clientY-box.top)/box.height*e.currentTarget.height;
+  const i=layerAtPosition(x,y,a.data.layers.length,explosionSpread);
+  if(i>=0){state.activeLayer=a.data.layers[i].id;renderLayers();drawExplosion();}
+ });
+ $('hero-studio').onclick=()=>route('studio');$('hero-open').onclick=()=>{choose(POTION_ID);route('studio');};
  $('principle-open').onclick=()=>route('studio');$('studio-to-gallery').onclick=()=>route('gallery');
  $('btn-play').onclick=()=>{state.play=!state.play;state.elapsed=0;draw();};$('btn-prev').onclick=()=>shift(-1);$('btn-next').onclick=()=>shift(1);
  $('btn-restart').onclick=()=>{state.frame=0;state.play=true;state.elapsed=0;draw();};$('frame-range').oninput=e=>{state.frame=+e.target.value;state.play=false;draw();};
