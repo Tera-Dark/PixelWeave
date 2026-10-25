@@ -77,7 +77,12 @@ function refresh(){
   $('cel-selection').textContent='CEL · '+state.activeLayer+' / F'+String(state.frame+1).padStart(2,'0');
  }
  const track=$('frame-track');track.replaceChildren();thumbs=[];
- for(let i=0;i<a.frames;i++){const b=document.createElement('button');b.type='button';b.className='frame-button';const c=cv();renderAsset(c,a,i,layers());const label=document.createElement('span');label.textContent='F'+String(i+1).padStart(2,'0');b.append(c,label);b.onclick=()=>{state.frame=i;state.play=false;draw();};track.append(b);thumbs.push(c);}
+ $('studio-cel-panel').classList.toggle('matrix-mode',a.type!=='layered');
+ if(a.type!=='layered')for(let i=0;i<a.frames;i++){
+  const b=document.createElement('button');b.type='button';b.className='frame-button';const c=cv();renderAsset(c,a,i,layers());
+  const label=document.createElement('span');label.textContent='F'+String(i+1).padStart(2,'0');
+  b.append(c,label);b.onclick=()=>{state.frame=i;state.play=false;draw();};track.append(b);thumbs.push(c);
+ }
  renderLayers();draw();
 }
 function draw(){
