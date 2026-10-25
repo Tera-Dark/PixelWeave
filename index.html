@@ -17,7 +17,7 @@
       <button class="nav-link active" data-page="gallery">作品画廊 <span>GALLERY</span></button>
       <button class="nav-link" data-page="studio">创作工作站 <span>STUDIO</span></button>
     </nav>
-    <div class="header-actions"><span class="header-version"><i class="status-dot"></i> ART STUDIES v2</span><a class="btn btn-line header-gh" href="https://github.com/Tera-Dark/PixelWeave" target="_blank" rel="noopener noreferrer">GITHUB <span aria-hidden="true">↗</span></a></div>
+    <div class="header-actions"><span class="header-version"><i class="status-dot"></i> VERMILION v3</span><a class="btn btn-line header-gh" href="https://github.com/Tera-Dark/PixelWeave" target="_blank" rel="noopener noreferrer">GITHUB <span aria-hidden="true">↗</span></a></div>
   </header>
   <main id="gallery-page" class="page">
     <section class="hero layout-width">
@@ -26,17 +26,17 @@
         <h1>Tiny worlds.<br><em>Alive by design.</em></h1>
         <p class="hero-desc">让每一颗像素都有自己的心跳。用代码编织轮廓、色彩与时间，让静止的游戏素材成为会呼吸的小世界。</p>
         <div class="hero-actions"><button class="btn btn-primary" id="hero-studio">进入创作工作站 <span>↗</span></button><a href="#collection" class="btn btn-quiet">探索作品 <span>↓</span></a></div>
-        <div class="hero-foot"><span><b>06</b> 精修分层作品</span><i></i><span><b>0</b> DIFFUSION REQUIRED</span></div>
+        <div class="hero-foot"><span><b>01</b> 药瓶动画研究</span><i></i><span><b>0</b> DIFFUSION REQUIRED</span></div>
       </div>
       <div class="hero-visual">
         <div class="visual-orbit orbit-a"></div><div class="visual-orbit orbit-b"></div>
-        <div class="hero-work-card"><div class="card-upper"><span>NO. 001 / LAYERED PIXEL ART</span><span class="blink">● LOOPING</span></div><div class="hero-art"><canvas id="hero-canvas" width="96" height="96" aria-label="循环播放的红色生命药水像素动画"></canvas></div><div class="card-lower"><div><b>Vermilion Nocturne</b><small>7 semantic layers · 8 frames</small></div><button class="open-arrow" id="hero-open" title="在工作站编辑生命药水" aria-label="编辑生命药水">↗</button></div></div>
-        <div class="float-note note-left">FRAME BY FRAME<br><b>01 — 08</b></div>
+        <div class="hero-work-card"><div class="card-upper"><span>NO. 001 / LAYERED PIXEL ART</span><span class="blink">● LOOPING</span></div><div class="hero-art"><canvas id="hero-canvas" width="96" height="96" aria-label="循环播放的红色生命药水像素动画"></canvas></div><div class="card-lower"><div><b>Vermilion Nocturne</b><small>10 semantic layers · 12 frames</small></div><button class="open-arrow" id="hero-open" title="在工作站编辑生命药水" aria-label="编辑生命药水">↗</button></div></div>
+        <div class="float-note note-left">FRAME BY FRAME<br><b>01 — 12</b></div>
         <div class="float-note note-right">PIXEL<br><b>PERFECT ✳</b></div>
       </div>
     </section>
     <section id="collection" class="collection layout-width">
-      <div class="section-top"><div><div class="eyebrow">01 / CURATED COLLECTION</div><h2>精修<span class="serif">像素藏品</span><span class="tiny-star">✳</span></h2><p>精修后的 32×32 原创像素研究，逐层绘制、逐帧循环。保留旧版作品以便对照进步。</p></div><div class="gallery-control"><button id="toggle-archive" class="btn btn-quiet" type="button">查看旧版演示</button><span class="collection-count">COLLECTION · <b id="collection-count">06</b></span></div></div>
+      <div class="section-top"><div><div class="eyebrow">01 / CURATED COLLECTION</div><h2>Vermilion <span class="serif">Nocturne</span><span class="tiny-star">✳</span></h2><p>唯一展出：修补封存的绯红药剂。64×64 真正可编辑像素，12 帧循环。其余旧素材已从画廊清空。</p></div><div class="gallery-control"><span class="collection-count">COLLECTION · <b id="collection-count">01</b></span></div></div>
       <div class="gallery-grid" id="gallery-grid" aria-label="像素动画作品列表"></div>
     </section>
     <section class="principle layout-width"><div class="principle-icon">✳</div><div><span class="eyebrow">THE PIXELWEAVE APPROACH</span><h2>不靠图像模型，<em>只靠创造力与逻辑。</em></h2><p>像素轮廓、有限调色板、逐帧变化以及确定性的循环引擎。这些演示素材目前由手工编程绘制；我们正在为通用 LLM 构建开放的像素资产格式与创作流程。</p></div><button class="btn btn-line" id="principle-open">打开实验工作台 ↗</button></section>
@@ -50,7 +50,7 @@
         <div class="panel-bottom"><span>✳</span><p><strong>CODE, NOT DIFFUSION</strong><small>本地确定性绘制引擎</small></p></div>
       </aside>
       <section class="studio-center">
-        <div class="studio-canvas-header"><div><span class="eyebrow">LIVE PREVIEW / ASSET</span><h2 id="asset-name">Scarlet Remedy</h2><div class="asset-subline" id="asset-subline">治疗药剂 · 12 帧循环</div></div><div class="tag-stack"><span class="tag" id="asset-size">96 × 96 PX</span><span class="tag tag-accent">PIXEL ART</span></div></div>
+        <div class="studio-canvas-header"><div><span class="eyebrow">LIVE PREVIEW / ASSET</span><h2 id="asset-name">Vermilion Nocturne</h2><div class="asset-subline" id="asset-subline">修补封存药剂 · 12 帧循环</div></div><div class="tag-stack"><span class="tag" id="asset-size">64 × 64 PX</span><span class="tag tag-accent">PIXEL ART</span></div></div>
         <div class="studio-stage" id="studio-stage">
           <div class="stage-top"><span>PREVIEW / 01</span><div class="stage-top-right"><span class="stage-live"><i class="status-dot"></i> LIVE RENDER</span><button class="stage-icon" id="toggle-grid" title="显示/隐藏像素网格" aria-label="切换像素网格">▦</button></div></div>
           <div class="studio-canvas-wrap"><canvas id="studio-canvas" width="96" height="96" aria-label="可编辑像素动画画布"></canvas></div>
