@@ -1,0 +1,50 @@
+/* PixelWeave / Learning Lab — mirrors the native editor without obscuring lessons */
+:root{--bg:#0d141e;--p:#172334;--ink:#f2e9da;--mute:#a9bdcb;--line:#455a70;--hot:#e6ad83;--mint:#9fc9ad}
+body{font:14px/1.75 var(--sans);color:var(--ink);background-color:var(--bg);
+background-image:linear-gradient(#b0c4d208 1px,transparent 1px),linear-gradient(90deg,#b0c4d208 1px,transparent 1px),linear-gradient(150deg,#121e2d,#0c1420);
+background-size:24px 24px,24px 24px,100% 100%}
+header{max-width:1440px;padding:24px 27px;border-bottom:2px solid #596b80;background:#121e2c}
+header nav{gap:10px}
+header nav a{background:#1e2f42;border:1px solid #485b70;padding:8px 12px;color:#d3dedf;font-size:11px}
+header nav a:hover{border-color:var(--hot);background:#374051}
+.logo{font:700 24px var(--mono);letter-spacing:-.06em}
+.logo span{color:var(--hot)}
+main{max-width:1440px}
+.hero{display:block;min-height:0;padding:55px 0 46px;max-width:920px}
+.hero h1{font-weight:700;letter-spacing:-.045em;line-height:1.2}
+.hero h1 em{color:var(--hot)}
+.hero p{font-size:14px;line-height:2;max-width:740px}
+.overline{font:10px var(--mono);letter-spacing:0;color:#d2ab94}
+.overline:before{content:'▸';color:#e8b58e;margin-right:7px}
+.lab-layout{grid-template-columns:220px minmax(0,1fr) 250px;gap:13px}
+.lab-layout .panel,.examples article{border-radius:0;background:#172334;border:1px solid #4b6076;box-shadow:inset 3px 3px 0 #2a4054,inset -3px -3px 0 #0d1723}
+.panel h2{font-size:20px;color:#ffe0c0}
+.library-button,.controls button,.layer-row button{border-radius:0!important}
+.library-button{background:#1c2c3e;border:1px solid #3f546b;min-height:64px}
+.library-button.active{border-color:#eab08a;background:#4c3b41;box-shadow:inset 3px 0 0 #ffd3a2}
+.library-button:hover{background:#314356}
+.library-button strong{font-size:12px}
+.library-button small{color:#c7ced4}
+.stage-head h2{font-size:23px}
+.stage-head .tag{color:#b2d8c7;border-radius:0;border:1px solid #649d8a;background:#253b43;padding:6px 7px}
+.art-area{border-radius:0;background-color:#253049;border:2px solid #52677f;background-image:linear-gradient(#a8bcc70c 1px,transparent 1px),linear-gradient(90deg,#a8bcc70c 1px,transparent 1px),linear-gradient(135deg,#303a53,#1a2739);background-size:16px 16px,16px 16px,100% 100%}
+.art-area canvas{width:min(100%,384px);image-rendering:pixelated;filter:none}
+.controls button{min-height:40px;background:#25394f;border:1px solid #5b738a;color:#f4e5d6;box-shadow:inset -2px -2px 0 #152435}
+.controls button:hover{background:#40536a;border-color:#e6b58f}
+.controls input[type=range]{accent-color:var(--hot)}
+.controls span{font:10px var(--mono)}
+.secondary{font-size:11px}
+.secondary a{color:#ecc098;text-decoration:underline;text-underline-offset:3px}
+.layer-row{border-bottom:1px solid #3e5065}
+.layer-row button{min-width:36px;min-height:36px;background:#2d4055;border:1px solid #63758a}
+.layer-row strong{color:#f0e8df}
+.layer-row small{font:9px var(--mono);color:#a7bbcb}
+#metrics{font:11px/2.2 var(--mono);white-space:pre-line;color:#bcd7cd}
+.teaching{padding-top:76px}
+.teaching h2{font-weight:700}
+.examples article{padding:10px}
+.examples article img{image-rendering:pixelated;aspect-ratio:16/9;object-fit:contain;background:#122034}
+.examples h3{font-size:16px}
+footer{border-top:2px solid #52687c}
+@media(max-width:1150px){.lab-layout{grid-template-columns:200px minmax(0,1fr)}.inspector{grid-column:2}}
+@media(max-width:740px){header{padding:16px;display:flex;flex-wrap:wrap;gap:12px}header nav{gap:7px}main{padding:0 17px}.hero{padding:40px 0 20px}.hero h1{font-size:clamp(37px,8vw,55px)}.lab-layout{display:block}.panel{margin:12px 0}.stage-head{gap:8px}.stage-head h2{font-size:18px}.art-area{min-height:285px}.art-area canvas{max-width:280px}.teaching{padding-top:55px}.examples{grid-template-columns:1fr}}
