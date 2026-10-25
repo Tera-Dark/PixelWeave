@@ -8,7 +8,9 @@ export function localRequestAllowed(headers={}){
  const host=(headers.host||'').toLowerCase();
  if(!LOCAL_HOSTS.has(host))return false;
  const site=(headers['sec-fetch-site']||'').toLowerCase();
- if(site==='cross-site'||site==='same-site'&&headers.origin&&new URL(headers.origin).host.toLowerCase()!==host)return false;
+ // Browsers report requests initiated from another origin as same-site or
+ // cross-site. Neither is permitted to invoke a localhost model API.
+ if(site&&site!=='same-origin'&&site!=='none')return false;
  const origin=headers.origin;
  if(origin){
   let url;
