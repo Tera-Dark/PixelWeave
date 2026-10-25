@@ -29,6 +29,9 @@ jobs:
       - name: Browser editor workflow smoke
         run: node tests/e2e/smoke.mjs
         timeout-minutes: 5
+      - name: Global navigation consistency E2E
+        run: node tests/e2e/navigation.mjs
+        timeout-minutes: 5
       - name: Prepare minimal public-only Pages bundle
         run: |
           mkdir -p _site
