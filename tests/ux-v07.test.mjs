@@ -32,7 +32,7 @@ test('workspace layout follows progressive disclosure and saves local UI prefere
  assert.match(script,/pixelweave\.atlas\.layout\.v1/);
  assert.match(script,/persistLayout/);
  assert.match(script,/function applyLayout/);
- assert.match(script,/source===/);
+ assert.match(script,/layoutPreference\.tab==='source'/);
  assert.match(style,/\.atlas-body\.library-hidden/);
  assert.match(style,/\.atlas-body\.inspector-hidden/);
 });
