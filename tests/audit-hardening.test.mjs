@@ -27,8 +27,9 @@ test('local proxy actually enforces request guards for API and static routes',()
 });
 test('Studio restores saved user edits and never resurrects old rejected gallery sprites',()=>{
  const src=readFileSync(new URL('../src/main.js',import.meta.url),'utf8');
- const a=src.indexOf('  state.items=[asset];'),r=src.indexOf('  restore();',a),g=src.indexOf('  renderGallery();refresh();',r);
+ const a=src.indexOf('  state.items=[asset];'),r=src.indexOf('  restore();',a),g=src.indexOf('  renderGallery();',r);
  assert.ok(a>=0&&r>a&&g>r);
+ assert.match(src,/if\(!studioInitialized\)\{refresh\(\);studioInitialized=true;\}/);
  assert.match(src,/if\(v\.id!==POTION_ID&&!\/\^layered-/);
  assert.match(src,/localStorage\.setItem\('pixelweave\.v04'/);
 });
