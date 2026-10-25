@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {localRequestAllowed,localApiRequestAllowed} from '../src/local-request-guard.mjs';
+import {localRequestAllowed,localApiRequestAllowed,isPublicProjectPath} from '../src/local-request-guard.mjs';
 import {buildNativePotion} from '../src/native-potion.mjs';
 import {renderExploded,resetExplodedCache} from '../src/exploded.js';
 
@@ -78,4 +78,11 @@ test('Atlas always clears tainted foreign pixels before local frame-diff inspect
  assert.match(viewer,/const serial=\+\+loadSerial/);
  assert.match(viewer,/serial!==loadSerial/);
  assert.match(viewer,/Math\.max\(0\.01,fit\)/);
+});
+
+test('static server never exposes dotfiles or sensitive development directories',()=>{
+ for(const name of ['/index.html','/references/','/src/main.js','/knowledge/pixel-art/lab.html'])assert.equal(isPublicProjectPath(name),true);
+ for(const name of ['/.env','/.git/config','/src/.env.local','/node_modules/package/index.js','/tests/pixel-lab.test.mjs','/dev-server.mjs','/private/config.json'])assert.equal(isPublicProjectPath(name),false,name);
+ const server=readFileSync(new URL('../dev-server.mjs',import.meta.url),'utf8');
+ assert.match(server,/isPublicProjectPath\(path\)/);
 });
