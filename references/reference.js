@@ -79,6 +79,7 @@ function loadImage(url){
 async function choose(item){
  if(localObjectURL){URL.revokeObjectURL(localObjectURL);localObjectURL=null;}
  selected=item;source=null;frame=0;playing=true;differenceDisabled=false;last=0;
+ memory.lastId=item.id;persist();
  $('difference').disabled=false;$('difference').checked=false;$('onion').checked=false;$('background').checked=true;
  $('speed').value='1';speed=1;
  panel(item);renderLibrary();
@@ -278,7 +279,7 @@ async function init(){
  try{
   const result=await fetch('./curation.json',{cache:'no-cache'});if(!result.ok)throw Error('参考索引不可访问');
   const json=await result.json();entries=json.items||[];field('source-total',entries.length);renderLibrary();
-  if(entries.length)await choose(entries[0]);
+  if(entries.length)await choose(entries.find(item=>item.id===memory.lastId)||entries[0]);
  }catch(e){setStatus('无法加载参考库：'+e.message);drawPlaceholder('LIBRARY UNAVAILABLE','检查 GitHub Pages 的 references/curation.json 文件');}
  requestAnimationFrame(tick);
 }
