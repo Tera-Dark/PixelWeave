@@ -518,3 +518,12 @@ button:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.3)}
 .studio-canvas-wrap>#studio-canvas,.studio-canvas-wrap>#onion-canvas{grid-area:1 / 1;align-self:center;justify-self:center;}
 .studio-canvas-wrap>#onion-canvas{pointer-events:none;opacity:.28;filter:none;image-rendering:pixelated;background:transparent!important}
 #toggle-onion.active{color:#181f2c;background:#dfbe95;border-color:#ffe2b2}
+
+
+/* Pixel-grid step follows editor zoom; ghost layer remains transparent. */
+.studio-canvas-wrap>#studio-canvas,.studio-canvas-wrap>#onion-canvas{width:320px;height:320px}
+.studio-stage.grid-mode #studio-canvas{
+ background-size:var(--grid-step,5px) var(--grid-step,5px);
+ background-image:linear-gradient(#ffffff16 1px,transparent 1px),linear-gradient(90deg,#ffffff16 1px,transparent 1px);
+}
+.studio-stage.grid-mode #onion-canvas{background:none!important}
