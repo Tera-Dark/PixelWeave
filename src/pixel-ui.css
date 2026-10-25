@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap');
+/* Font loading is non-blocking via document <link>; system fallbacks render immediately. */
 /*
  * PixelWeave PIXEL UI v0.6
  * Visual language: cold graphite windows, copper active markers, mint states,
