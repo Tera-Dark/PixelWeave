@@ -13,23 +13,23 @@ A passing JSON validator is *necessary but insufficient*: the final human evalua
 
 ### P0/A · Protocol and stage-state gate
 - [x] Introduce `semantic-v1` shape/cluster/animated-layer compiler and stage-local generator (prototype).
-- [ ] Make explicit draft states: director proposal → plan accepted → layer proposal → layer accepted → next layer → complete. Stop before every irreversible approval.
-- [ ] Revalidate every draft and pending proposal on each request; never allow a model to rewrite previously accepted layers.
-- [ ] Validate user feedback length, stage IDs and allowed transitions. No silent default art plan.
+- [x] Make explicit draft states: director proposal → plan accepted → layer proposal → layer accepted → next layer → complete. Stop before every irreversible approval.
+- [x] Revalidate every draft and pending proposal on each request; never allow a model to rewrite previously accepted layers.
+- [x] Validate user feedback length, stage IDs and allowed transitions. No silent default art plan.
 - **Acceptance:** malformed/unauthorized transitions fail; retry affects only the pending proposal; previous approved layer pixel bytes are identical.
 
 ### P0/B · Visible, guided UI and recoverable draft
-- [ ] Show the director's subject, palette and layer responsibilities before drawing.
-- [ ] Show **actual rendered pending pixels** at 1× and magnified scale before accepting each generated layer.
-- [ ] Provide Accept / Retry-with-feedback / Next layer / Publish as separate actions, with an explicit progress indicator.
-- [ ] Save the entire small validated draft to browser localStorage on successful steps, re-check it on server; interrupted sessions can be resumed without another model call.
-- [ ] Allow JSON draft export/import, with explicit errors on untrusted or oversized drafts.
+- [x] Show the director's subject, palette and layer responsibilities before drawing.
+- [x] Show **actual rendered pending pixels** at 1× and magnified scale before accepting each generated layer.
+- [x] Provide Accept / Retry-with-feedback / Next layer / Publish as separate actions, with an explicit progress indicator.
+- [x] Save the entire small validated draft to browser localStorage on successful steps, re-check it on server; interrupted sessions can be resumed without another model call.
+- [x] Allow JSON draft export/import, with explicit errors on untrusted or oversized drafts.
 - **Acceptance:** browser refresh during review preserves pending proposal; rejection does not alter approved art; published asset is editable in Studio.
 
 ### P0/C · Objective evaluation and repeatability
-- [ ] Add deterministic fixtures and tests for stage guardrails, retry, restoration and drawn-pixel parity.
-- [ ] Record model, prompt version, per-stage attempts and validation error summaries without storing API keys.
-- [ ] Create an opt-in benchmark runner; never bill external models in ordinary CI.
+- [x] Add deterministic fixtures and tests for stage guardrails, retry, restoration and drawn-pixel parity.
+- [x] Record model identity, per-stage attempts and validation error summaries without storing API keys.
+- [x] Create an opt-in benchmark runner; never bill external models in ordinary CI.
 - **Acceptance:** old 103 tests + new regression cases pass; no unverified claim of visual improvement.
 
 ### P1 · Model-driven visual quality iteration
@@ -50,3 +50,14 @@ A passing JSON validator is *necessary but insufficient*: the final human evalua
 - "Accept" is the human decision; avoid claiming heuristic passes certify aesthetic quality.
 - Stage previews use rendered native pixels, not external generated illustrations or symbolic placeholders.
 - Keep gallery curated; generated drafts do not become public artworks until the user explicitly accepts and publishes.
+
+## Implementation record (v0.9 development branch)
+
+- Protocol: `src/guided-workflow.mjs`; text-driven accepted plan and accepted layers validated and replay-compiled on every transition.
+- Backend: `POST /api/workflow` with `start / inspect / accept / next / retry` and localhost request guard. No model call for `inspect` or `accept`.
+- Browser: `src/guided-ui.mjs` loaded **only when the composer drawer is opened**. The candidate preview and accepted baseline render actual `layered-v1` pixels for selectable frames. Portability: `pixelweave/guided-v1` JSON backups and localStorage recovery.
+- Regression: `tests/guided-workflow.test.mjs` covers error/review boundaries and frozen work; `tests/e2e/guided-workflow.mjs` replays actual Chromium UI (using simulated text-model outputs) including browser reload without an extra model call and final editable Cels.
+- CLI: `node tools/benchmark-guided.mjs` prints the **no-cost dry run**. Real API usage only with `--run --max-calls=N`, and stops at the cap. A real run has **not** been carried out without selecting an actual model and usage budget.
+- Evidence classification: Passing unit/E2E tests validates workflow correctness, not that current language models produce good-looking art. Reviewers must still score rendered examples blindly.
+
+**Remaining critical limitations:** Human can accept or request revision but cannot yet edit the director plan field-by-field; the pending frame shows raw native pixels without automated artistic understanding; no live art-feedback model, organic bone/pose solver, per-frame duration or proven multi-model quality. Those are explicit future phases, not retroactively counted as completed.
