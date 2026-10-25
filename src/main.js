@@ -23,10 +23,16 @@ function restore(){try{
  }
  for(const v of (Array.isArray(d.layered)?d.layered:[]).slice(0,12)){
   try{
+   // Never silently resurrect rejected archived gallery experiments.
+   if(v.id!==POTION_ID&&!/^layered-[0-9-]+$/.test(v.id||''))continue;
    const data=validateLayered(v.data);
    const built=state.items.find(a=>a.id===v.id&&a.type==='layered');
-   if(built){built.data=data;built.frames=data.layers[0].frames.length;built.name=data.name;built.fps=data.fps;}
-   else {const a=createLayeredAsset(data);if(/^layered-[0-9-]+$/.test(v.id||''))a.id=v.id;state.items.push(a);}
+   if(built){
+    built.data=data;built.frames=data.layers[0].frames.length;built.name=data.name;
+    built.fps=data.fps;built.cn='已恢复的本地编辑 · 与原始样品分开导出备份';
+   }else{
+    const a=createLayeredAsset(data);a.id=v.id;state.items.push(a);
+   }
   }catch{}
  }
  if(d.edits&&typeof d.edits==='object')for(const [id,v] of Object.entries(d.edits))if(state.items.some(a=>a.id===id))state.edits[id]=scrub(v);
@@ -271,7 +277,11 @@ async function loadCuratedStudies(){
   asset.tone='health';
   asset.desc='文本 LLM 原生绘制的 64×64 像素矩阵：11 个可编辑语义图层、12 帧循环，不使用图片抠图或图片转像素。';
   state.items=[asset];state.id=asset.id;
-  state.activeLayer='crimson_liquid';state.frame=0;state.play=true;
+  // Restore previously edited native art and private local projects only after
+  // the authoritative bundled sprite has been created.
+  restore();
+  state.activeLayer=state.items[0].data.layers.some(l=>l.id==='crimson_liquid')?'crimson_liquid':state.items[0].data.layers.at(-1).id;
+  state.frame=0;state.play=true;state.id=POTION_ID;
   renderGallery();refresh();
  }catch(e){
   document.getElementById('gallery-grid').textContent='药瓶动画加载失败：'+e.message;
