@@ -21,7 +21,30 @@ function grid(w,h){return Array.from({length:h},()=>Array(w).fill('.'));}
 const rows=g=>g.map(row=>row.join(''));
 function drawOp(g,op,w,h,palette,label){
  requireObject(op,label);
- if(!['pixel','rect','line','ellipse','polygon'].includes(op.op))throw Error(label+': 未授权绘图指令 '+String(op.op));
+ if(!['pixel','rect','line','ellipse','polygon','span','stamp'].includes(op.op))throw Error(label+': 未授权绘图指令 '+String(op.op));
+ if(op.op==='span'){
+  requireInt(op.x,0,w-1,label+'.x');requireInt(op.y,0,h-1,label+'.y');
+  if(typeof op.colors!=='string'||op.colors.length<1||op.colors.length>w-op.x)throw Error(label+': span 长度越出画布');
+  for(const [i,s] of [...op.colors].entries()){
+   if(!Object.hasOwn(palette,s))throw Error(label+': span 含未定义颜色');
+   g[op.y][op.x+i]=s;
+  }
+  return;
+ }
+ if(op.op==='stamp'){
+  requireInt(op.x,0,w-1,label+'.x');requireInt(op.y,0,h-1,label+'.y');
+  if(!Array.isArray(op.rows)||op.rows.length<1||op.rows.length>12)throw Error(label+': stamp 最多允许 12 行');
+  const sw=op.rows[0]?.length;
+  if(!integer(sw,1,12)||sw+op.x>w||op.rows.length+op.y>h)throw Error(label+': stamp 越出画布');
+  for(const [dy,row] of op.rows.entries()){
+   if(typeof row!=='string'||row.length!==sw)throw Error(label+': stamp 行宽必须一致');
+   for(let dx=0;dx<sw;dx++){
+    if(!Object.hasOwn(palette,row[dx]))throw Error(label+': stamp 含未定义颜色');
+    g[op.y+dy][op.x+dx]=row[dx];
+   }
+  }
+  return;
+ }
  if(typeof op.color!=='string'||!Object.hasOwn(palette,op.color))throw Error(label+': 未定义的色板符号');
  const put=(x,y)=>{if(x>=0&&x<w&&y>=0&&y<h)g[y][x]=op.color;};
  const xy=(x,y)=>{requireInt(x,0,w-1,label+'.x');requireInt(y,0,h-1,label+'.y');};
@@ -134,9 +157,9 @@ export function makeSemanticPrompt(brief){
   'Return format "pixelweave/semantic-v1", name, width:24, height:24, fps:8, frames:4, palette, layers.',
   'Palette is {".":"transparent","K":"#231d31","R":"#b94760",...} with up to 15 visible colors. Every color in drawings is a palette symbol.',
   'Each layer: {id, name, kind:"static"|"animated", base:[drawing ops], clipTo:optional previous layer ID, motion:only for animated layers}.',
-  'Drawing ops whitelist: {"op":"pixel","x":5,"y":5,"color":"K"}; {"op":"rect","x":2,"y":3,"w":9,"h":5,"color":"K","fill":true}; {"op":"line","x":1,"y":1,"x2":5,"y2":9,"color":"R"}; {"op":"ellipse","x":2,"y":2,"w":8,"h":6,"color":"R","fill":true}; {"op":"polygon","points":[[3,3],[12,4],[9,14]],"color":"K"}.',
+  'Drawing ops whitelist: {"op":"pixel","x":5,"y":5,"color":"K"}; {"op":"rect","x":2,"y":3,"w":9,"h":5,"color":"K","fill":true}; {"op":"line","x":1,"y":1,"x2":5,"y2":9,"color":"R"}; {"op":"ellipse","x":2,"y":2,"w":8,"h":6,"color":"R","fill":true}; {"op":"polygon","points":[[3,3],[12,4],[9,14]],"color":"K"}; {"op":"span","x":4,"y":8,"colors":"KKKRR.."}; {"op":"stamp","x":8,"y":7,"rows":[".KK.","KRRK",".KK."]}.',
   'For EVERY animated layer specify exactly four motion entries: {"dx":0,"dy":0,"ops":[]}. The base is shifted by dx/dy, then ops overdraw/erase with palette ".". Static layers OMIT motion and are copied bit-for-bit to all frames.',
-  'Keep shapes inside 24x24, design the readable silhouette FIRST, then grouped materials, a consistent light direction, and semantic movement of just the movable parts. Clip interior materials with clipTo when sensible. Limit to 3–6 purpose-specific layers and 6–12 colors; avoid random single-pixel noise.',
+  'Keep shapes inside 24x24. Use large shapes for silhouette and material masses, then small span/stamp commands for asymmetric 1px cluster and edge refinement. Do not paint the whole canvas row by row. Design one light direction and move just the semantically animated parts. Clip interiors with clipTo when sensible. Limit to 3–6 purpose-specific layers and 6–12 colors; avoid random single-pixel noise.',
   'Stage your intent internally: (1) subject silhouette, (2) negative space, (3) material/lighting, (4) stable anchors, (5) movement, (6) 4-frame seamless loop. Final output must be a SINGLE COMPLETE JSON object ready for compilation.',
   'No explanation or markdown.'
  ].join('\n\n');
