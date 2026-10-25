@@ -6,20 +6,25 @@ const library=JSON.parse(readFileSync(new URL('../references/curation.json',impo
 const page=readFileSync(new URL('../references/index.html',import.meta.url),'utf8');
 const viewer=readFileSync(new URL('../references/reference.js',import.meta.url),'utf8');
 const home=readFileSync(new URL('../index.html',import.meta.url),'utf8');
-test('curated reference library is explicitly independent and source attributed',()=>{
- assert.equal(library.format,'pixelweave/reference-v1');
- assert.ok(library.items.length>=8);
+test('Atlas accepts only credited, original, actually playable CC0 artist animations',()=>{
+ assert.equal(library.format,'pixelweave/reference-v2');
+ assert.ok(library.items.length>=6);
  assert.equal(new Set(library.items.map(i=>i.id)).size,library.items.length);
  for(const r of library.items){
-  assert.ok(r.author&&r.title&&r.license&&r.question);
-  assert.match(r.url,/^https:\/\//);
-  assert.ok(['sheet','frames','external'].includes(r.mode));
+  assert.ok(r.author&&r.title&&r.license==='CC0'&&r.question);
+  assert.match(r.url,/^https:\/\/opengameart\.org\/content\//);
+  assert.ok(['sheet','frames'].includes(r.mode),'no source-only/placeholder entries');
   if(r.mode==='sheet'){
-   assert.match(r.sheet,/^https:\/\//);
-   assert.equal(r.cols*r.rows,r.frames);
+   assert.match(r.sheet,/^\.\/media\/[a-z0-9-]+\.png$/);
+   assert.match(r.sourceFile,/^https:\/\/opengameart\.org\/sites\/default\/files\//);
+   assert.ok(r.cols*r.rows>=r.frames);
+   if(r.frameMap)assert.equal(r.frameMap.length,r.frames);
   }
-  if(r.mode==='frames')assert.equal(r.images.length,r.frames);
-  if(r.license==='All rights reserved')assert.equal(r.mode,'external');
+  if(r.mode==='frames'){
+   assert.equal(r.images.length,r.frames);
+   assert.equal(r.sourceImages.length,r.frames);
+  }
+  assert.ok(r.frames>=2);
  }
 });
 test('external sources remain references and never become project original gallery sprites',()=>{
