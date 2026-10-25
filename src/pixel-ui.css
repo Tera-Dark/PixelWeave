@@ -628,6 +628,6 @@ button:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.3)}
 .guided-preview-card input{max-width:100%;vertical-align:middle}
 .guided-workbench textarea{width:100%;min-height:3.3rem;padding:.5rem;resize:vertical}
 .guided-history,.guided-note{font-size:.72rem;opacity:.65;line-height:1.5}
-.guided-backup summary{cursor:pointer;font-size:.78rem}.guided-backup[open]{display:grid;gap:.6rem}
+.guided-backup{display:grid;gap:.6rem}.guided-backup #guided-backup-toggle{justify-self:start}.guided-backup #guided-backup-content:not([hidden]){display:grid;gap:.6rem}
 .guided-status{font-size:.75rem;line-height:1.6}.guided-status.error{color:#e8a5a1}
 @media(max-width:600px){.guided-preview-wrap{grid-template-columns:1fr}.guided-actions .btn{min-height:40px}.guided-workbench{padding:.7rem}}
