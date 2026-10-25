@@ -42,6 +42,7 @@ try{
  await page.locator('#layer-palette .palette-swatch[title^="m "]').click();
  await page.evaluate(()=>{window.__pointerLog=[];document.getElementById('studio-canvas').addEventListener('pointerdown',e=>window.__pointerLog.push({type:'down',x:e.clientX,y:e.clientY,target:e.target.id}),true);document.getElementById('studio-canvas').addEventListener('pointermove',e=>{if(e.buttons)window.__pointerLog.push({type:'move',x:e.clientX,y:e.clientY,target:e.target.id});},true);});
  const drawing=page.locator('#studio-canvas');
+ await drawing.scrollIntoViewIfNeeded();
  const rect=await drawing.boundingBox();
  assert.ok(rect,'drawing canvas must be visible');
  const xp=rect.x+rect.width*(2.5/64),yp=rect.y+rect.height*(2.5/64);
