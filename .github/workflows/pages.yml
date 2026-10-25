@@ -21,6 +21,9 @@ jobs:
         with:
           node-version: "22"
       - run: node --check src/main.js && node --check src/layered.js && node --check dev-server.mjs && node --check src/progressive.mjs && node --check references/reference.js && node --check references/viewer-core.mjs && node --check knowledge/pixel-art/lab.js
+      - name: Acquire and validate real CC0 artist animations
+        run: node scripts/build-reference-media.mjs
+        timeout-minutes: 4
       - run: npm test
       - name: Install Chromium test harness
         run: |
