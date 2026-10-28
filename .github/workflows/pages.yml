@@ -20,7 +20,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: node --check src/main.js && node --check src/layered.js && node --check dev-server.mjs && node --check src/progressive.mjs && node --check references/reference.js && node --check references/viewer-core.mjs && node --check knowledge/pixel-art/lab.js
+      - run: node --check src/main.js && node --check src/pixelize.js && node --check src/pixelize-core.mjs && node --check src/layered.js && node --check dev-server.mjs && node --check src/progressive.mjs && node --check references/reference.js && node --check references/viewer-core.mjs && node --check knowledge/pixel-art/lab.js
       - name: Acquire and validate real CC0 artist animations
         run: node scripts/build-reference-media.mjs
         timeout-minutes: 4
@@ -31,6 +31,9 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Browser editor workflow smoke
         run: node tests/e2e/smoke.mjs
+        timeout-minutes: 5
+      - name: Pixelizer upload, scales and Studio handoff E2E
+        run: node tests/e2e/pixelize.mjs
         timeout-minutes: 5
       - name: Global navigation consistency E2E
         run: node tests/e2e/navigation.mjs
@@ -45,7 +48,7 @@ jobs:
         run: |
           mkdir -p _site
           cp index.html favicon.svg .nojekyll _site/
-          cp -R src references knowledge docs _site/
+          cp -R src references knowledge docs pixelize _site/
           test ! -e _site/dev-server.mjs
           test ! -e _site/node_modules
           test ! -e _site/tests
