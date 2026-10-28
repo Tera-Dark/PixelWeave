@@ -1,0 +1,67 @@
+/* Isolated pixelizer workspace: no dependency on Studio's heavy stylesheet. */
+.px-layout{width:min(1440px,calc(100% - 48px));margin:0 auto;padding:34px 0 60px}
+.px-heading{display:flex;justify-content:space-between;gap:26px;align-items:center;margin-bottom:25px}
+.px-eyebrow,.px-panel-title span{font:10px/1.5 ui-monospace,'DM Mono',monospace;letter-spacing:.1em;color:#e3b38f}
+.px-heading h1{font-size:clamp(27px,3vw,43px);line-height:1.3;letter-spacing:-.05em;margin:9px 0}
+.px-heading h1 span{color:#e8b38e;margin-left:8px}
+.px-heading p{max-width:750px;color:#aec1cf;margin:9px 0 0;font-size:13px}
+.px-link{border:1px solid #5e7080;padding:11px 15px;white-space:nowrap;background:#1b2b3a;font-size:12px}
+.px-link:hover{background:#34465a}
+.px-workspace{display:grid;grid-template-columns:minmax(260px,310px) minmax(0,1fr);gap:18px;align-items:start}
+.px-controls{display:grid;gap:12px;min-width:0}
+.px-panel,.px-result,.px-note{border:1px solid #40566c;background:#162535}
+.px-panel{padding:16px}
+.px-panel-title{display:flex;align-items:baseline;justify-content:space-between;gap:8px;border-bottom:1px solid #374d62;padding-bottom:12px;margin-bottom:14px}
+.px-panel-title strong{font-size:13px;font-weight:700}
+.px-panel label:not(.px-drop):not(.px-check){display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#d4dfeb;margin:16px 0 8px}
+.px-panel output{font:11px ui-monospace,monospace;color:#f1bf97}
+.px-panel input[type=range]{display:block;width:100%;accent-color:#e6ad83}
+.px-panel select,.px-inline input{width:100%;min-width:0;background:#0f1c2a;border:1px solid #496077;color:#f1eadb;border-radius:3px;padding:9px 10px}
+.px-inline{display:flex;align-items:center;gap:12px;margin-top:9px}
+.px-inline input{width:94px;flex:none}
+.px-inline span{font-size:11px;color:#9fb1c2}
+.px-presets{display:flex;flex-wrap:wrap;gap:5px;margin:12px 0 6px}
+.px-presets button{border:1px solid #41566d;padding:6px 8px;background:#23364a;color:#b9c9d9;font:11px ui-monospace,monospace;flex:1}
+.px-presets button:hover,.px-presets button.active{background:#5c4b45;border-color:#d7a782;color:#ffe4c7}
+.px-hint,.px-muted{color:#91a9b9;font-size:11px;line-height:1.7;margin:10px 0 0}
+.px-drop{display:grid;justify-items:center;gap:8px;min-height:148px;padding:24px 12px;border:1px dashed #8497aa;background:#1a2b3b;cursor:pointer;text-align:center}
+.px-drop:hover,.px-drop.dragging,.px-drop:focus-visible{border-color:#ebaf82;background:#2c3948;outline:1px solid #ebaf82}
+.px-drop-icon{font:30px/1 ui-monospace,monospace;color:#e7b28b}
+.px-drop strong{font-size:13px}
+.px-drop small{font-size:10px;color:#acbfca}
+.px-check{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:#d3e0e9;margin-top:15px}
+.px-check input{accent-color:#ecb48e;width:15px;height:15px;flex:none}
+.px-check small{color:#95aabb;font-size:10px}
+.px-buttons{display:grid;gap:8px;margin-top:16px}
+.px-button{min-height:42px;text-align:center;border:1px solid #587086;background:#20364a;color:#e9ddcf;font-size:12px;font-weight:600;padding:10px;cursor:pointer}
+.px-button:hover:not(:disabled){filter:brightness(1.15)}
+.px-primary{background:#e2ad87;color:#1d2832;border-color:#f0c19d}
+.px-secondary{border-color:#a2b3bd;background:#33495b}
+.px-results{min-width:0}
+.px-preview-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:3px 0 15px}
+.px-preview-title h2{font-size:22px;margin:5px 0 0}
+.px-grid-toggle{margin-top:0;white-space:nowrap}
+.px-preview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.px-result{min-width:0}
+.px-result-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #40566c;gap:9px}
+.px-result-head strong{font:10px ui-monospace,monospace;color:#d8c6b7}
+.px-result-head span{font:10px ui-monospace,monospace;color:#97b3c6}
+.px-view{position:relative;display:grid;place-items:center;min-height:380px;aspect-ratio:1;overflow:hidden;padding:14px;background-color:#111e2c;background-image:linear-gradient(45deg,#243447 25%,transparent 25%),linear-gradient(-45deg,#243447 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#243447 75%),linear-gradient(-45deg,transparent 75%,#243447 75%);background-size:22px 22px;background-position:0 0,0 11px,11px -11px,-11px 0}
+.px-view>canvas,.px-canvas-frame{display:block;max-width:100%;max-height:100%;object-fit:contain}
+.px-view>canvas{width:auto;height:auto}
+.px-canvas-frame{position:relative;display:none;max-height:550px}
+.px-canvas-frame canvas{display:block;width:100%;height:100%;object-fit:fill;image-rendering:pixelated}
+#px-result{image-rendering:pixelated}
+#px-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.px-empty{position:absolute;max-width:220px;padding:14px;text-align:center;color:#a2b6c9;font-size:12px;line-height:1.8;background:#101d2dd9;border:1px dashed #415a70}
+.px-stats{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}
+.px-stats span{border:1px solid #465b70;padding:6px 10px;font:10px ui-monospace,monospace;color:#c0d3dd}
+.px-status{border-left:3px solid #9fc7ac;padding:10px 13px;margin:0;background:#203344;color:#cce0d3;font-size:12px;min-height:40px}
+.px-status.error{border-color:#e19b93;color:#f1b1a5}
+.px-note{padding:20px;margin-top:18px}
+.px-note h3{font-size:15px;margin:9px 0}
+.px-note p{color:#adbfcd;font-size:12px;line-height:1.85;margin:0}
+@media(max-width:1000px){.px-workspace{grid-template-columns:260px minmax(0,1fr)}.px-view{min-height:260px}}
+@media(max-width:740px){.px-layout{width:calc(100% - 24px);padding-top:20px}.px-heading{display:block}.px-link{display:inline-block;margin-top:13px}.px-workspace{display:block}.px-controls{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:14px}.px-preview-grid{gap:7px}.px-view{min-height:180px}.px-result-head{padding:10px}.px-note{padding:14px}}
+@media(max-width:520px){.px-controls{grid-template-columns:1fr}.px-preview-grid{grid-template-columns:1fr}.px-view{min-height:280px;max-height:440px}.px-heading h1{font-size:29px}.px-preview-title h2{font-size:18px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
