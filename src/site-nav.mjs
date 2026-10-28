@@ -6,6 +6,7 @@
 export const SITE_SECTIONS=Object.freeze([
  Object.freeze({id:'gallery',label:'作品画廊',short:'GALLERY',path:'index.html#gallery'}),
  Object.freeze({id:'studio',label:'创作工作站',short:'STUDIO',path:'index.html#studio'}),
+ Object.freeze({id:'pixelize',label:'图片像素化',short:'PIXELIZE',path:'pixelize/'}),
  Object.freeze({id:'atlas',label:'动画参考库',short:'ATLAS',path:'references/'}),
  Object.freeze({id:'lab',label:'学习实验室',short:'LEARNING',path:'knowledge/pixel-art/lab.html'})
 ]);
@@ -18,6 +19,7 @@ export function siteUrl(id){
 }
 export function currentSection(pathname,hash=''){
  const path=pathname.replace(/\/+$/,'/');
+ if(/\/pixelize\/(?:index\.html)?$/.test(path))return 'pixelize';
  if(/\/references\/(?:index\.html)?$/.test(path))return 'atlas';
  if(/\/knowledge\/pixel-art\/lab\.html$/.test(path))return 'lab';
  return hash==='#studio'?'studio':'gallery';
