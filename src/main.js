@@ -46,7 +46,9 @@ function restore(){try{
  }
  if(d.edits&&typeof d.edits==='object')for(const [id,v] of Object.entries(d.edits))if(state.items.some(a=>a.id===id))state.edits[id]=scrub(v);
 }catch{}}
-function route(name,{record=true,scroll=true}={}){const studio=name==='studio';$('gallery-page').hidden=studio;$('studio-page').hidden=!studio;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));if(studio&&current()){if(!studioInitialized){refresh();studioInitialized=true;}else draw();}if(record&&location.hash!=='#'+name)history.pushState(null,'','#'+name);syncSiteNavigation();if(scroll)window.scrollTo(0,0);}
+let worldSceneLoad;
+function ensureWorldScene(){if(!worldSceneLoad)worldSceneLoad=import('./world-scene.mjs').then(m=>m.mountWorldScene($('world-scene'))).catch(e=>console.warn('场景加载失败',e));}
+function route(name,{record=true,scroll=true}={}){const studio=name==='studio';if(!studio)ensureWorldScene();$('gallery-page').hidden=studio;$('studio-page').hidden=!studio;document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));if(studio&&current()){if(!studioInitialized){refresh();studioInitialized=true;}else draw();}if(record&&location.hash!=='#'+name)history.pushState(null,'','#'+name);syncSiteNavigation();if(scroll)window.scrollTo(0,0);}
 function renderGallery(){cards=[];const host=$('gallery-grid');host.replaceChildren();
  const featured=state.items.filter(a=>a.id===POTION_ID);
  featured.forEach((a,i)=>{

@@ -3,8 +3,8 @@ import {spawn} from 'node:child_process';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 
-const origin='http://127.0.0.1:4173';
-const server=spawn(process.execPath,['dev-server.mjs'],{cwd:process.cwd(),env:{...process.env,PIXELWEAVE_MODEL:''},stdio:['ignore','pipe','pipe']});
+const origin='http://127.0.0.1:4181';
+const server=spawn(process.execPath,['dev-server.mjs'],{cwd:process.cwd(),env:{...process.env,PIXELWEAVE_MODEL:'',PIXELWEAVE_PORT:'4181'},stdio:['ignore','pipe','pipe']});
 let stderr='';server.stderr.on('data',x=>stderr+=String(x));
 let browser;
 async function ready(){
@@ -13,7 +13,7 @@ async function ready(){
 }
 try{
  await ready();
- browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH||undefined,args:['--no-sandbox']});
  const page=await browser.newPage({acceptDownloads:true,viewport:{width:1200,height:900},reducedMotion:'reduce'});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(origin+'/pixelize/',{waitUntil:'domcontentloaded'});
@@ -28,6 +28,7 @@ try{
  });
  await page.locator('#px-file').setInputFiles({name:'pixelizer-test.png',mimeType:'image/png',buffer:Buffer.from(bytes)});
  await page.waitForFunction(()=>document.querySelector('#px-result').width===96);
+ await page.locator('#px-grid-settings summary').click();await page.locator('#px-color-settings summary').click();
  await page.locator('#px-edge-number').fill('32');await page.locator('#px-edge-number').dispatchEvent('change');
  await page.waitForFunction(()=>document.querySelector('#px-result').width===32);
  const nativeDims=await page.locator('#px-result').evaluate(c=>[c.width,c.height]);
@@ -73,10 +74,9 @@ try{
  await page.locator('#px-colors-number').fill('16');await page.locator('#px-colors-number').dispatchEvent('change');
  await page.waitForFunction(()=>document.querySelector('#px-stat-colors').textContent.includes('PALETTE'));
  await page.locator('#px-send-studio').click();
- await page.waitForURL('**/index.html#studio',{timeout:20000});
- await page.waitForFunction(()=>document.querySelector('#asset-name')?.textContent.includes('Pixelized'),{timeout:20000});
- assert.match(await page.locator('#detail-res').innerText(),/32 × 21/);
- assert.equal(await page.locator('#detail-frames').innerText(),'1');
+ await page.waitForURL('**/workspace/#editor',{timeout:20000});
+ await page.waitForFunction(()=>document.querySelector('#aw-canvas')?.width===32,{timeout:20000});
+ assert.deepEqual(await page.locator('#aw-canvas').evaluate(c=>[c.width,c.height]),[32,21]);
  assert.deepEqual(errors,[],'no browser exceptions: '+errors.join('; '));
  console.log('PixelWeave pixelization Chromium E2E: PASS (image import, 3x/7x/11x export, pixel blocks, Studio handoff)');
 }finally{

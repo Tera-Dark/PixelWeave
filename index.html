@@ -3,41 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#101622">
-  <meta name="description" content="PixelWeave — 不依赖 Diffusion 的像素动画作品展示站与在线创作工作站。">
+  <meta name="theme-color" content="#fff1d5">
+  <meta name="description" content="PixelWeave — 像素素材处理、动画创作与参考学习工作空间。">
   <title>PixelWeave — Pixels with a pulse.</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./src/style.css">
   <link rel="stylesheet" href="./src/pixel-ui.css">
   <link rel="stylesheet" href="./src/site-nav.css">
+<link rel="stylesheet" href="./src/workspace-refresh.css">
+<link rel="stylesheet" href="./src/world-theme.css">
+<link rel="stylesheet" href="./src/world-home.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&amp;family=DM+Sans:wght@400;500;600;700&amp;family=Noto+Sans+SC:wght@400;500;600;700&amp;family=Silkscreen:wght@400;700&amp;display=swap" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="./src/meadow-theme.css">
 </head>
 <body>
 <div class="shell">
   <header class="pw-header" data-pw-header aria-label="PixelWeave 全站导航"></header>
   <main id="gallery-page" class="page">
-    <section class="hero layout-width">
-      <div class="hero-copy">
-        <div class="eyebrow"><span class="asterisk">✳</span> A LITTLE PIXEL STUDIO <span class="thin-line"></span> EST. 2026</div>
-        <h1>Tiny worlds.<br><em>Alive by design.</em></h1>
-        <p class="hero-desc">让每一颗像素都有自己的心跳。用代码编织轮廓、色彩与时间，让静止的游戏素材成为会呼吸的小世界。</p>
-        <div class="hero-actions"><button class="btn btn-primary" id="hero-studio">进入创作工作站 <span>↗</span></button><a href="#collection" class="btn btn-quiet">探索作品 <span>↓</span></a><a href="./references/" class="btn btn-line">研究优秀像素动画 <span>↗</span></a><a href="./pixelize/" class="btn btn-line">图片像素化 <span>↗</span></a></div>
-        <div class="hero-foot"><span><b>01</b> 药瓶动画研究</span><i></i><span><b>0</b> DIFFUSION REQUIRED</span></div>
+    <section class="world-intro layout-width"><div><div class="world-kicker">✳ &nbsp; PIXELWEAVE <span></span> 像素创作桌面</div><h1>今天，想创造什么<span>？</span></h1><p>捡起灵感，开始创造。</p></div><span class="world-ready">● &nbsp; 准备好了，出发吧</span></section>
+    <section class="world-desk layout-width" aria-label="创作桌面">
+     <div class="world-desk-bar"><span>■ &nbsp; CREATIVE DESK</span><span>点击物件开始 &nbsp; ✳</span></div>
+     <div class="world-desk-content">
+      <article class="world-feature"><div class="world-feature-head"><div><span class="world-micro">TODAY’S WORLD</span><h2>一方小世界</h2><p>你的像素灵感。</p></div><span>✳</span></div>
+       <div class="world-scene"><canvas id="world-scene" width="384" height="208" aria-hidden="true"></canvas><canvas id="hero-canvas" width="256" height="256" aria-label="循环播放的红色生命药水像素动画"></canvas><span class="world-scene-tag">64 × 64 · PIXEL ART</span></div>
+       <div class="world-feature-foot"><div><strong>Vermilion Nocturne</strong><small>原创分层像素动画 · 12 帧</small></div><button id="hero-open" type="button" aria-label="在动画工作站打开药瓶">↗</button></div>
+      </article>
+      <div class="world-toolbox"><div class="world-toolbox-head"><strong>你的工具箱</strong><span>CHOOSE A TOOL</span></div>
+       <a class="world-tool" href="./workspace/"><span class="world-icon world-icon-workspace" aria-hidden="true"><i>▦</i></span><span><small>素材与项目</small><strong>素材工作台</strong><em>原尺寸编辑、保存与管理</em></span><b>↗</b></a>
+       <a class="world-tool" href="./pixelize/"><span class="world-icon world-icon-image" aria-hidden="true"><i>▧</i></span><span><small>01 / 整理素材</small><strong>图片像素化</strong><em>恢复网格，保留画面</em></span><b>↗</b></a>
+       <button class="world-tool" id="hero-studio" type="button"><span class="world-icon world-icon-animation" aria-hidden="true"><i>▣</i></span><span><small>02 / 开始创作</small><strong>动画工作站</strong><em>绘制逐帧动画</em></span><b>↗</b></button>
+       <div class="world-tool-row"><a class="world-mini-tool world-mini-atlas" href="./references/"><span>▤</span><div><small>寻找灵感</small><strong>动画图鉴</strong></div><b>↗</b></a><a class="world-mini-tool world-mini-lab" href="./knowledge/pixel-art/lab.html"><span>◇</span><div><small>学习技巧</small><strong>像素实验室</strong></div><b>↗</b></a></div>
       </div>
-      <div class="hero-visual">
-        <div class="visual-orbit orbit-a"></div><div class="visual-orbit orbit-b"></div>
-        <div class="hero-work-card"><div class="card-upper"><span>NO. 001 / LAYERED PIXEL ART</span><span class="blink">● LOOPING</span></div><div class="hero-art"><canvas id="hero-canvas" width="256" height="256" aria-label="循环播放的红色生命药水像素动画"></canvas></div><div class="card-lower"><div><b>Vermilion Nocturne</b><small>11 independent layers · 12 frames</small></div><button class="open-arrow" id="hero-open" title="在工作站编辑生命药水" aria-label="编辑生命药水">↗</button></div></div>
-        <div class="float-note note-left">FRAME BY FRAME<br><b>01 — 12</b></div>
-        <div class="float-note note-right">PIXEL<br><b>PERFECT ✳</b></div>
-      </div>
+     </div><div class="world-desk-bar world-desk-bottom"><span>■ &nbsp; 创造从这里开始</span><span>DESIGNED FOR PIXEL LOVERS &nbsp; ✳</span></div>
     </section>
     <section id="collection" class="collection layout-width">
       <div class="section-top"><div><div class="eyebrow">01 / CURATED COLLECTION</div><h2>Vermilion <span class="serif">Nocturne</span><span class="tiny-star">✳</span></h2><p>唯一展出：修补封存的绯红药剂。64×64 文本 LLM 原生绘制像素，11 个独立图层、12 帧循环。不使用抠图或图片转像素。</p></div><div class="gallery-control"><span class="collection-count">COLLECTION · <b id="collection-count">01</b></span></div></div>
       <div class="gallery-grid" id="gallery-grid" aria-label="像素动画作品列表"></div>
     </section>
-    <section class="principle layout-width"><div class="principle-icon">✳</div><div><span class="eyebrow">THE PIXELWEAVE APPROACH</span><h2>不靠图像模型，<em>只靠创造力与逻辑。</em></h2><p>像素轮廓、有限调色板、逐帧变化以及确定性的循环引擎。本轮唯一药瓶由文本 LLM 直接编写整数像素结构，逐层构建并逐帧动画，不经过图像生成、抠图、边缘检测或图片转像素。</p></div><button class="btn btn-line" id="principle-open">打开实验工作台 ↗</button></section>
+    <section class="principle layout-width"><div class="principle-icon">✳</div><div><span class="eyebrow">THE PIXELWEAVE APPROACH</span><h2>从像素出发，<em>一步步构建作品。</em></h2><p>像素轮廓、有限调色板、逐帧变化以及确定性的循环引擎。本轮唯一药瓶由文本 LLM 直接编写整数像素结构，逐层构建并逐帧动画，不经过图像生成、抠图、边缘检测或图片转像素。</p></div><button class="btn btn-line" id="principle-open">打开实验工作台 ↗</button></section>
     <footer class="footer layout-width"><span>PIXELWEAVE © 2026</span><span>MADE OF CODE · MADE TO MOVE</span><a href="https://github.com/Tera-Dark/PixelWeave" target="_blank" rel="noopener noreferrer">OPEN SOURCE ↗</a></footer>
   </main>
   <main id="studio-page" class="page studio-page" hidden>

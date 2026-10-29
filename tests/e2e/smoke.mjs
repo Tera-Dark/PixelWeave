@@ -9,8 +9,8 @@ import {spawn} from 'node:child_process';
 import {readFile} from 'node:fs/promises';
 import assert from 'node:assert/strict';
 
-const url='http://127.0.0.1:4173/';
-const server=spawn(process.execPath,['dev-server.mjs'],{cwd:process.cwd(),env:{...process.env,PIXELWEAVE_MODEL:''},stdio:['ignore','pipe','pipe']});
+const url='http://127.0.0.1:4189/';
+const server=spawn(process.execPath,['dev-server.mjs'],{cwd:process.cwd(),env:{...process.env,PIXELWEAVE_MODEL:'',PIXELWEAVE_PORT:'4189'},stdio:['ignore','pipe','pipe']});
 let serverErrors='';
 server.stderr.on('data',b=>{serverErrors+=String(b);});
 async function available(){
@@ -29,7 +29,7 @@ async function exported(page){
 }
 try{
  await available();
- browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH||undefined,args:['--no-sandbox']});
  const page=await browser.newPage({viewport:{width:1450,height:920},acceptDownloads:true,reducedMotion:'reduce'});
  const uncaught=[];page.on('pageerror',e=>uncaught.push(e.message));
  await page.goto(url+'#studio',{waitUntil:'domcontentloaded'});

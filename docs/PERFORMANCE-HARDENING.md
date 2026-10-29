@@ -44,9 +44,9 @@
 
 ## 强制性能门禁
 
-- tests/performance-budget.test.mjs：扫描 HTML 实际同步 CSS 和 JS import graph，限制三个页面的源码体积预算：主站 210 KiB；Atlas 85 KiB；Lab 80 KiB。
+- tests/performance-budget.test.mjs：扫描 HTML 实际同步 CSS 和 JS import graph，限制三个页面的源码体积预算：主站 220 KiB；Atlas 85 KiB；Lab 80 KiB。
 - 同一个测试还保护按视口加载图片、有上限缓存、隐藏动画不渲染、可选模型探测延后触发及第三方字体不阻塞 CSS。
-- tests/e2e/performance.mjs：真实 Chromium 比对 Gallery→Studio→Gallery 的 Canvas 绘画计数，确认隐藏页面不在每帧画图；确认 Gallery 首次没有完整 Cel 网格；Studio 第一次进入才有 132 个 Cel；LLM 状态请求只发生在展开助手之后；参考库正常列出 10 件研究素材。
+- tests/e2e/performance.mjs：真实 Chromium 比对 Gallery→Studio→Gallery 的 Canvas 绘画计数，确认隐藏页面不在每帧画图；确认 Gallery 首次没有完整 Cel 网格；Studio 第一次进入才有 132 个 Cel；LLM 状态请求只发生在展开助手之后；参考库正常列出已审核研究素材。
 - 之前的 v0.8 真实编辑器操作测试和四路由导航 E2E 继续保留，所有测试成功后才能部署 GH Pages。
 
 ## 继续迭代时不要破坏的约束
@@ -62,7 +62,7 @@
 
 - 将主站导入的完整渲染引擎进一步按路由拆分为按需的 ES Module（需要彻底梳理跨模块状态和初始化依赖，目前仅实现视图/控件延迟初始化）。
 - 用 IndexedDB 存储大型个人项目而非无限扩大 localStorage JSON；需要迁移、事务与导入导出的安全验证。
-- 大规模参考库（1000+ 条）才考虑列表虚拟化和分页，现有 10 条不值得付出虚拟列表复杂度。
+- 大规模参考库（1000+ 条）才考虑列表虚拟化和分页，现有 7 条不值得付出虚拟列表复杂度。
 - 建立带固定网络节流、冷热缓存两种模式的 Lighthouse/Web Vitals 基准，报告 p50/p95，分清静态文件与第三方外链延迟。
 
 本次没有生成图片、裁切已有图片、修改药瓶素材或把第三方参考作为训练数据。

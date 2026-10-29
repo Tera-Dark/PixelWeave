@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pixel World Art Direction"
+  short_description: "Create original cozy pixel worlds and usable interfaces"
+  default_prompt: "Use $pixel-world-art-direction to create an original cozy pixel world interface."

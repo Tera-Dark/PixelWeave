@@ -4,11 +4,12 @@
  * All standalone pages mount this module. Never duplicate navigation markup.
  */
 export const SITE_SECTIONS=Object.freeze([
- Object.freeze({id:'gallery',label:'作品画廊',short:'GALLERY',path:'index.html#gallery'}),
- Object.freeze({id:'studio',label:'创作工作站',short:'STUDIO',path:'index.html#studio'}),
- Object.freeze({id:'pixelize',label:'图片像素化',short:'PIXELIZE',path:'pixelize/'}),
- Object.freeze({id:'atlas',label:'动画参考库',short:'ATLAS',path:'references/'}),
- Object.freeze({id:'lab',label:'学习实验室',short:'LEARNING',path:'knowledge/pixel-art/lab.html'})
+ Object.freeze({id:'gallery',group:'总览',label:'作品画廊',short:'GALLERY',path:'index.html#gallery'}),
+ Object.freeze({id:'studio',group:'创作',label:'创作工作站',short:'STUDIO',path:'index.html#studio'}),
+ Object.freeze({id:'pixelize',group:'创作',label:'图片像素化',short:'PIXELIZE',path:'pixelize/'}),
+ Object.freeze({id:'workspace',group:'创作',label:'素材工作台',short:'ASSETS',path:'workspace/'}),
+ Object.freeze({id:'atlas',group:'研究',label:'动画参考库',short:'ATLAS',path:'references/'}),
+ Object.freeze({id:'lab',group:'研究',label:'学习实验室',short:'LEARNING',path:'knowledge/pixel-art/lab.html'})
 ]);
 export const SITE_VERSION='v0.8';
 const ROOT=new URL('../',import.meta.url);
@@ -20,6 +21,7 @@ export function siteUrl(id){
 export function currentSection(pathname,hash=''){
  const path=pathname.replace(/\/+$/,'/');
  if(/\/pixelize\/(?:index\.html)?$/.test(path))return 'pixelize';
+ if(/\/workspace\/(?:index\.html)?$/.test(path))return 'workspace';
  if(/\/references\/(?:index\.html)?$/.test(path))return 'atlas';
  if(/\/knowledge\/pixel-art\/lab\.html$/.test(path))return 'lab';
  return hash==='#studio'?'studio':'gallery';
@@ -55,12 +57,17 @@ export function mountSiteNavigation(){
  identity.append(el('small','','ANIMATION LAB'));
  brand.append(glyph,identity);
  const nav=el('nav','pw-main-nav');nav.setAttribute('aria-label','主导航');
+ let group,groupName;
  for(const item of SITE_SECTIONS){
+  if(item.group!==groupName){
+   groupName=item.group;group=el('div','pw-nav-group');
+   group.append(el('span','pw-nav-group-label',groupName));nav.append(group);
+  }
   const link=el('a','pw-nav-link');link.href=siteUrl(item.id);
   link.dataset.pwNav=item.id;
   if(item.id==='gallery'||item.id==='studio')link.dataset.page=item.id;
   link.append(document.createTextNode(item.label+' '),el('span','',item.short));
-  nav.append(link);
+  group.append(link);
  }
  const actions=el('div','pw-header-actions');
  const status=el('span','pw-site-status');

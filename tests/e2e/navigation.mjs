@@ -3,8 +3,8 @@ import {spawn} from 'node:child_process';
 import assert from 'node:assert/strict';
 import {SITE_SECTIONS} from '../../src/site-nav.mjs';
 
-const origin='http://127.0.0.1:4173';
-const server=spawn(process.execPath,['dev-server.mjs'],{cwd:process.cwd(),env:{...process.env,PIXELWEAVE_MODEL:''},stdio:['ignore','pipe','pipe']});
+const origin='http://127.0.0.1:4182';
+const server=spawn(process.execPath,['dev-server.mjs'],{cwd:process.cwd(),env:{...process.env,PIXELWEAVE_MODEL:'',PIXELWEAVE_PORT:'4182'},stdio:['ignore','pipe','pipe']});
 let serverErrors='';server.stderr.on('data',x=>serverErrors+=String(x));
 async function serve(){
  for(let n=0;n<75;n++){try{if((await fetch(origin+'/index.html')).ok)return;}catch{}await new Promise(r=>setTimeout(r,200));}
@@ -13,7 +13,7 @@ async function serve(){
 let browser;
 try{
  await serve();
- browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH||undefined,args:['--no-sandbox']});
  const page=await browser.newPage({viewport:{width:1440,height:900},reducedMotion:'reduce'});
  const errors=[];page.on('pageerror',err=>errors.push(err.message));
  const check=async id=>{
@@ -27,9 +27,10 @@ try{
    assert.equal(await b.getAttribute('aria-current'),expected.id===id?'page':null);
   }
   assert.equal(await page.locator('.pw-header').count(),1,'single shared header');
+  assert.deepEqual(await page.locator('.pw-nav-group-label').allTextContents(),['总览','创作','研究']);
   assert.equal(await page.locator('.pw-main-nav [aria-current="page"]').count(),1,'exactly one active nav');
   const headerStyle=await page.locator('.pw-header').evaluate(el=>({background:getComputedStyle(el).backgroundColor,height:Math.round(el.getBoundingClientRect().height)}));
-  assert.equal(headerStyle.background,'rgb(17, 30, 45)','shared header background');
+  assert.equal(headerStyle.background,'rgb(255, 241, 213)','shared warm header background');
   return headerStyle;
  };
  await page.goto(origin+'/index.html#gallery',{waitUntil:'domcontentloaded'});
@@ -57,7 +58,7 @@ try{
  await page.waitForURL('**/index.html#studio');
  await check('studio');
  // Check every standalone document at desktop, tablet and mobile widths.
- const routes=[['/index.html#studio','studio'],['/references/','atlas'],['/knowledge/pixel-art/lab.html','lab']];
+ const routes=[['/index.html#studio','studio'],['/references/','atlas'],['/knowledge/pixel-art/lab.html','lab'],['/pixelize/','pixelize'],['/workspace/','workspace']];
  for(const width of [1440,768,390,320]){
   await page.setViewportSize({width,height:900});
   for(const [path,id] of routes){

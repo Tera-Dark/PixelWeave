@@ -30,7 +30,7 @@ export function localApiRequestAllowed(headers={},method='GET'){
 export function isPublicProjectPath(pathname){
  if(typeof pathname!=='string'||!pathname.startsWith('/'))return false;
  const parts=pathname.split('/').filter(Boolean);
- if(parts.some(s=>s.startsWith('.')||['node_modules','tests','secrets','private'].includes(s)))return false;
+ if(parts.some(s=>s.startsWith('.')||['node_modules','tests','secrets','private','tools'].includes(s)))return false;
  if(parts.length===1&&['dev-server.mjs','package-lock.json','package.json'].includes(parts[0]))return false;
  return true;
 }

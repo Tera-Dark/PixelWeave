@@ -1,14 +1,14 @@
 import {chromium} from 'playwright';
 import {spawn} from 'node:child_process';
 import assert from 'node:assert/strict';
-const origin='http://127.0.0.1:4173';
-const server=spawn(process.execPath,['dev-server.mjs'],{cwd:process.cwd(),env:{...process.env,PIXELWEAVE_MODEL:''},stdio:['ignore','pipe','pipe']});
+const origin='http://127.0.0.1:4191';
+const server=spawn(process.execPath,['dev-server.mjs'],{cwd:process.cwd(),env:{...process.env,PIXELWEAVE_MODEL:'',PIXELWEAVE_PORT:'4191'},stdio:['ignore','pipe','pipe']});
 let errorText='';server.stderr.on('data',d=>errorText+=String(d));
 async function ready(){for(let i=0;i<75;i++){try{if((await fetch(origin+'/index.html')).ok)return;}catch{}await new Promise(r=>setTimeout(r,200));}throw Error(errorText);}
 let browser;
 try{
  await ready();
- browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH||undefined,args:['--no-sandbox']});
  const page=await browser.newPage({viewport:{width:1380,height:870},reducedMotion:'reduce'});
  const jsErrors=[];page.on('pageerror',e=>jsErrors.push(e.message));
  let modelRequests=0;page.on('request',r=>{if(r.url().includes('/api/status'))modelRequests++;});

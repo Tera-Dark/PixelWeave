@@ -1,11 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync,statSync} from 'node:fs';
-import {resolve,dirname,extname} from 'node:path';
-const root=new URL('../',import.meta.url).pathname;
+import {resolve,dirname,extname,relative} from 'node:path';
+import {fileURLToPath} from 'node:url';
+const root=fileURLToPath(new URL('../',import.meta.url));
 const content=path=>readFileSync(resolve(root,path),'utf8');
+const projectPath=(base,path)=>relative(root,resolve(root,dirname(base),path)).replaceAll('\\','/');
 const htmlEntries=[
- {html:'index.html',budgetKiB:210},
+ {html:'index.html',budgetKiB:220},
  {html:'references/index.html',budgetKiB:85},
  {html:'knowledge/pixel-art/lab.html',budgetKiB:80}
 ];
@@ -14,7 +16,7 @@ function inputGraph(entry,seen=new Set()){
  const src=content(entry);
  // ES imports are static and can be transitively counted without a bundler.
  for(const match of src.matchAll(/(?:^|\n)\s*(?:import|export)\s+(?:[^'\n]*?\sfrom\s*)?['"](\.[^'"]+)['"]/g)){
-  const dest=resolve(dirname(entry),match[1]);let rel=dest.slice(root.length);
+  let rel=projectPath(entry,match[1]);
   if(!extname(rel))rel+='.js';
   inputGraph(rel,seen);
  }
@@ -23,13 +25,13 @@ function inputGraph(entry,seen=new Set()){
 function stylesIn(htmlPath){
  const h=content(htmlPath);
  return [...h.matchAll(/<link\b[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)]
-  .map(x=>x[1]).filter(x=>!x.startsWith('http')).map(x=>resolve(dirname(htmlPath),x).slice(root.length));
+  .map(x=>x[1]).filter(x=>!x.startsWith('http')).map(x=>projectPath(htmlPath,x));
 }
 function jsIn(htmlPath){
  const h=content(htmlPath);
  const m=[...h.matchAll(/<script\b[^>]*type="module"[^>]*src="([^"]+)"/g)];
  assert.equal(m.length,1,htmlPath+' must have exactly one top-level entry module');
- return resolve(dirname(htmlPath),m[0][1]).slice(root.length);
+ return projectPath(htmlPath,m[0][1]);
 }
 test('page-specific synchronous first-party CSS+module graph budgets',()=>{
  for(const {html,budgetKiB} of htmlEntries){

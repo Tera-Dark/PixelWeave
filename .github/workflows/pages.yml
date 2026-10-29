@@ -20,11 +20,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: node --check src/main.js && node --check src/pixelize.js && node --check src/pixelize-core.mjs && node --check src/layered.js && node --check dev-server.mjs && node --check src/progressive.mjs && node --check references/reference.js && node --check references/viewer-core.mjs && node --check knowledge/pixel-art/lab.js
+      - run: node --check src/asset-workspace.js && node --check src/v2-document.mjs && node --check tools/workspace-store.mjs && node --check tools/agent-service.mjs && node --check src/main.js && node --check src/pixelize.js && node --check src/pixelize-core.mjs && node --check src/world-scene.mjs && node --check tools/pixel-fixer/service.mjs && node --check src/layered.js && node --check dev-server.mjs && node --check src/progressive.mjs && node --check references/reference.js && node --check references/viewer-core.mjs && node --check knowledge/pixel-art/lab.js
       - name: Acquire and validate real CC0 artist animations
         run: node scripts/build-reference-media.mjs
         timeout-minutes: 4
       - run: npm test
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install local pixel restoration dependencies
+        run: python -m pip install -r tools/pixel-fixer/requirements.txt
       - name: Install Chromium test harness
         run: |
           npm install --no-save playwright
@@ -34,6 +39,21 @@ jobs:
         timeout-minutes: 5
       - name: Pixelizer upload, scales and Studio handoff E2E
         run: node tests/e2e/pixelize.mjs
+        timeout-minutes: 5
+      - name: Local workspace save and reopen E2E
+        run: node tests/e2e/workspace.mjs
+        timeout-minutes: 5
+      - name: Workspace editor and animation E2E
+        run: node tests/e2e/workspace-editor.mjs
+        timeout-minutes: 5
+      - name: Large workspace performance observation
+        run: node tests/e2e/workspace-performance.mjs
+        timeout-minutes: 5
+      - name: Complete restore and workspace E2E
+        run: node tests/e2e/restore-workspace.mjs
+        timeout-minutes: 5
+      - name: Local high quality restoration E2E
+        run: node tests/e2e/pixel-fixer.mjs
         timeout-minutes: 5
       - name: Global navigation consistency E2E
         run: node tests/e2e/navigation.mjs
@@ -48,7 +68,7 @@ jobs:
         run: |
           mkdir -p _site
           cp index.html favicon.svg .nojekyll _site/
-          cp -R src references knowledge docs pixelize _site/
+          cp -R src references knowledge docs pixelize workspace assets _site/
           test ! -e _site/dev-server.mjs
           test ! -e _site/node_modules
           test ! -e _site/tests

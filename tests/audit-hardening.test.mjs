@@ -23,7 +23,7 @@ test('local proxy actually enforces request guards for API and static routes',()
  const server=readFileSync(new URL('../dev-server.mjs',import.meta.url),'utf8');
  assert.match(server,/localRequestAllowed\(req\.headers\)/);
  assert.match(server,/localApiRequestAllowed\(req\.headers,req\.method\)/);
- assert.match(server,/\.listen\(4173,'127\.0\.0\.1'/);
+ assert.match(server,/\.listen\(port,'127\.0\.0\.1'/);
 });
 test('Studio restores saved user edits and never resurrects old rejected gallery sprites',()=>{
  const src=readFileSync(new URL('../src/main.js',import.meta.url),'utf8');

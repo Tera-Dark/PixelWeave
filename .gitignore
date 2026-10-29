@@ -1,0 +1,8 @@
+# Third-party media downloaded by scripts.
+references/media/
+# Local dependencies, experiments, and user project data.
+node_modules/
+output/
+.pixelweave/
+__pycache__/
+*.py[cod]

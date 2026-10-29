@@ -8,7 +8,7 @@
 
 ## 唯一配置
 
-- src/site-nav.mjs：唯一导航配置 SITE_SECTIONS，统一四项入口：作品画廊、创作工作站、动画参考库、学习实验室。
+- src/site-nav.mjs：唯一导航配置 SITE_SECTIONS，统一五项入口：作品画廊、创作工作站、图片像素化、动画参考库、学习实验室；分为总览、创作、研究。
 - src/site-nav.css：共享品牌、菜单、高亮、桌面和移动端排版样式，严格限定在 .pw-header 内。
 - 全部页面只保留一个带 data-pw-header 的 header 占位；页面自身不得再复制一套全站导航链接。
 - 每个入口脚本通过 mountSiteNavigation() 构建导航；syncSiteNavigation() 依据路径和 hash 计算唯一的 aria-current=page。
@@ -23,8 +23,8 @@
 
 ## 自动化门禁
 
-- tests/site-navigation.test.mjs：校验全站四项配置、主入口路径、每个 HTML 只有一个共享导航占位且不存在第二份主菜单。
-- tests/e2e/navigation.mjs：真实 Chromium 分别访问 Gallery、Studio、Atlas、Lab；验证选中项唯一、路径有效、历史前进/后退、跨页面高亮一致。
+- tests/site-navigation.test.mjs：校验全站五项配置、主入口路径、每个 HTML 只有一个共享导航占位且不存在第二份主菜单。
+- tests/e2e/navigation.mjs：真实 Chromium 分别访问 Gallery、Studio、Pixelize、Atlas、Lab；验证选中项唯一、路径有效、历史前进/后退、跨页面高亮一致。
 - 使用 1440/768/390/320 像素视口检查导航宽度、是否可达、是否出现整页水平溢出。
 - GitHub Actions 在所有测试通过后才部署 Pages，后续导航回归会阻断发布。
 

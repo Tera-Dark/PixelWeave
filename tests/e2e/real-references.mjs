@@ -3,14 +3,14 @@ import {spawn} from 'node:child_process';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const catalog=JSON.parse(readFileSync(new URL('../../references/curation.json',import.meta.url),'utf8')).items;
-const base='http://127.0.0.1:4173';
-const server=spawn(process.execPath,['dev-server.mjs'],{cwd:process.cwd(),env:{...process.env,PIXELWEAVE_MODEL:''},stdio:['ignore','pipe','pipe']});
+const base='http://127.0.0.1:4192';
+const server=spawn(process.execPath,['dev-server.mjs'],{cwd:process.cwd(),env:{...process.env,PIXELWEAVE_MODEL:'',PIXELWEAVE_PORT:'4192'},stdio:['ignore','pipe','pipe']});
 let serverErrors='';server.stderr.on('data',d=>serverErrors+=String(d));
 async function ready(){for(let i=0;i<75;i++){try{if((await fetch(base+'/references/')).ok)return;}catch{}await new Promise(r=>setTimeout(r,180));}throw Error(serverErrors);}
 let browser;
 try{
  await ready();
- browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH||undefined,args:['--no-sandbox']});
  const page=await browser.newPage({viewport:{width:1420,height:920}});
  const exceptions=[];page.on('pageerror',e=>exceptions.push(e.message));
  await page.goto(base+'/references/',{waitUntil:'domcontentloaded'});
