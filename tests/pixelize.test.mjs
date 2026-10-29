@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {logicalSize,exportSize,pixelizeImageData,toLayeredProject,TRANSFER_KEY} from '../src/pixelize-core.mjs';
+import {logicalSize,exportSize,maxExportScale,pixelizeImageData,toLayeredProject,TRANSFER_KEY} from '../src/pixelize-core.mjs';
 import {validateLayered} from '../src/layered.js';
 
 function image(w,h,fn){
@@ -19,12 +19,18 @@ test('pixel grid keeps aspect ratio with arbitrary original dimensions',()=>{
  assert.throws(()=>logicalSize(256,128,0),/原生长边/);
  assert.throws(()=>logicalSize(256,128,513),/原生长边/);
 });
-test('nearest-neighbor export accepts EVERY integer scale, not just powers of two',()=>{
- for(const n of [1,2,3,5,7,11,13,17,31,64,128]){
+test('export accepts arbitrary positive integer scales, limited by safe canvas dimensions',()=>{
+ for(const n of [1,2,3,5,7,11,13,17,31,64,128,129,200]){
   assert.deepEqual(exportSize(32,24,n),{width:32*n,height:24*n,scale:n});
  }
- for(const n of [0,1.5,-3,129,Infinity,NaN])assert.throws(()=>exportSize(32,32,n),/整数/);
+ assert.equal(maxExportScale(8,8),866);
+ assert.deepEqual(exportSize(8,8,512),{width:4096,height:4096,scale:512});
+ assert.equal(maxExportScale(512,512),13);
+ for(const n of [0,1.5,-3,Infinity,NaN,''])assert.throws(()=>exportSize(32,32,n),/整数/);
+ assert.throws(()=>exportSize(8,8,867),/过大/);
+ assert.throws(()=>exportSize(512,512,14),/过大/);
  assert.throws(()=>exportSize(512,512,128),/过大/);
+ assert.throws(()=>maxExportScale(0,8),/无效原生/);
 });
 test('quantizer emits discrete colors only and retains transparent pixels',()=>{
  const src=image(8,8,(x,y)=>x===0?[255,0,255,0]:x<4?[255,12+y,10,255]:[8,y*2,241,255]);
@@ -69,6 +75,8 @@ test('pixelizer page is isolated and wired to shared navigation and Studio hando
  assert.match(html,/src="\.\.\/src\/pixelize\.js"/);
  for(const id of ['px-file','px-edge-number','px-colors-number','px-scale','px-dither','px-result','px-download-native','px-download-scaled','px-send-studio','px-status'])assert.ok(html.includes('id="'+id+'"'),id);
  assert.match(js,/ctx\.imageSmoothingEnabled=false/);
+ assert.match(html,/id="px-scale-limit"/);
+ assert.doesNotMatch(html,/id="px-scale"[^>]*max="128"/);
  assert.match(js,/sessionStorage\.setItem\(TRANSFER_KEY/);
  const studio=readFileSync(new URL('../src/main.js',import.meta.url),'utf8');
  assert.match(studio,/sessionStorage\.getItem\(TRANSFER_KEY\)/);

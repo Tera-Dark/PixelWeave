@@ -43,9 +43,9 @@
    </section>
    <section class="px-panel"><div class="px-panel-title"><span>04 / EXPORT</span><strong>任意整数倍率</strong></div>
     <label for="px-scale">无模糊放大 <output id="px-scale-value">4×</output></label>
-    <div class="px-inline"><input id="px-scale" type="number" min="1" max="128" step="1" value="4" aria-label="导出整数倍率"><span>× · 支持 1–128 的任意整数倍</span></div>
-    <div class="px-presets" role="group" aria-label="导出倍率快捷值"><button data-scale="1" type="button">1×</button><button data-scale="2" type="button">2×</button><button data-scale="4" class="active" type="button">4×</button><button data-scale="8" type="button">8×</button><button data-scale="16" type="button">16×</button></div>
-    <p class="px-hint" id="px-output-info">导入图片后显示原生与导出尺寸。</p>
+    <div class="px-inline"><input id="px-scale" type="number" min="1" step="1" value="4" aria-label="导出整数倍率" aria-describedby="px-scale-limit"><span>× · 任意正整数，按输出尺寸动态限制</span></div>
+    <div class="px-presets" role="group" aria-label="导出倍率快捷值"><button data-scale="1" type="button">1×</button><button data-scale="2" type="button">2×</button><button data-scale="3" type="button">3×</button><button data-scale="4" class="active" type="button">4×</button><button data-scale="8" type="button">8×</button><button data-scale="16" type="button">16×</button></div>
+    <p class="px-hint" id="px-scale-limit">倍率上限会根据原生像素网格动态计算。</p><p class="px-hint" id="px-output-info">导入图片后显示原生与导出尺寸。</p>
     <div class="px-buttons"><button id="px-download-native" class="px-button" type="button" disabled>↓ 下载原生像素 PNG</button><button id="px-download-scaled" class="px-button px-primary" type="button" disabled>↓ 下载放大 PNG</button><button id="px-send-studio" class="px-button px-secondary" type="button" disabled>↗ 送入动画工作站编辑</button></div>
     <p class="px-hint">送入工作站时自动适配 ≤64×64 / ≤31 色，原图保留在本页，不会覆盖当前项目。</p>
    </section>
