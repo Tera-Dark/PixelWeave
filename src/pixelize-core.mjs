@@ -10,12 +10,23 @@ export function logicalSize(width,height,longEdge){
  const ratio=edge/Math.max(width,height);
  return {width:Math.max(1,Math.round(width*ratio)),height:Math.max(1,Math.round(height*ratio))};
 }
+// No arbitrary multiplier cap: the source grid and the output canvas budget determine the limit.
+const MAX_EXPORT_SIDE=16384;
+const MAX_EXPORT_PIXELS=48000000;
+export function maxExportScale(width,height){
+ if(!Number.isSafeInteger(width)||!Number.isSafeInteger(height)||width<1||height<1)throw Error('无效原生画布尺寸');
+ return Math.max(0,Math.min(
+  Math.floor(MAX_EXPORT_SIDE/width),
+  Math.floor(MAX_EXPORT_SIDE/height),
+  Math.floor(Math.sqrt(MAX_EXPORT_PIXELS/(width*height)))
+ ));
+}
 export function exportSize(width,height,scale){
  const n=Number(scale);
- if(!Number.isSafeInteger(n)||n<1||n>128)throw Error('导出倍率必须为 1–128 的整数');
- const w=width*n,h=height*n;
- if(w>16384||h>16384||w*h>48000000)throw Error('放大后画布过大，请降低倍率或原生尺寸');
- return {width:w,height:h,scale:n};
+ if(!Number.isSafeInteger(n)||n<1)throw Error('导出倍率必须为正整数');
+ const maximum=maxExportScale(width,height);
+ if(n>maximum)throw Error('放大后画布过大；当前像素网格最多支持 '+maximum+'×，请降低倍率或原生尺寸');
+ return {width:width*n,height:height*n,scale:n};
 }
 const clamp=n=>Math.max(0,Math.min(255,Math.round(n)));
 const dist=(r,g,b,c)=>{const dr=r-c[0],dg=g-c[1],db=b-c[2];return dr*dr*2+dg*dg*3+db*db;};

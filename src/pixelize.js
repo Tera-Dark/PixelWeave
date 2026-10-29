@@ -1,5 +1,5 @@
 import {mountSiteNavigation} from './site-nav.mjs';
-import {logicalSize,exportSize,pixelizeImageData,toLayeredProject,TRANSFER_KEY} from './pixelize-core.mjs';
+import {logicalSize,exportSize,maxExportScale,pixelizeImageData,toLayeredProject,TRANSFER_KEY} from './pixelize-core.mjs';
 
 const $=id=>document.getElementById(id);
 let source=null,sourceName='',sourceWidth=0,sourceHeight=0,rendered=null,renderTimer=0,loadVersion=0;
@@ -22,13 +22,14 @@ function syncInput(id,numberId,outputId,min,max,suffix,value){
  scheduleRender();
 }
 function updateScale(){
- const value=Number($('px-scale').value),valid=Number.isSafeInteger(value)&&value>=1&&value<=128;
+ const raw=$('px-scale').value.trim(),value=Number(raw),valid=raw!==''&&Number.isSafeInteger(value)&&value>=1;
  $('px-scale-value').textContent=valid?value+'×':'无效倍率';
  document.querySelectorAll('[data-scale]').forEach(b=>b.classList.toggle('active',Number(b.dataset.scale)===value));
  const scaled=$('px-download-scaled');
  if(!rendered){scaled.disabled=true;return;}
+ $('px-scale-limit').textContent='当前网格最高可导出 '+maxExportScale(rendered.width,rendered.height)+'×（最长边 16384px / 最多 4800 万像素）';
  try{
-  const size=exportSize(rendered.width,rendered.height,value);
+  const size=exportSize(rendered.width,rendered.height,valid?value:NaN);
   scaled.disabled=false;$('px-output-info').textContent='原生 '+rendered.width+'×'+rendered.height+' → 导出 '+size.width+'×'+size.height+'（'+value+'×）';
   $('px-stat-scale').textContent='EXPORT · '+size.width+'×'+size.height;
  }catch(e){

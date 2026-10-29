@@ -55,6 +55,21 @@ try{
   },factor);
   assert.equal(proof,true,'every source pixel becomes an exact NxN rectangle at '+factor+'x');
  }
+ // More than 128x is valid when the native grid is small enough to export safely.
+ await page.locator('#px-edge-number').fill('8');await page.locator('#px-edge-number').dispatchEvent('change');
+ await page.waitForFunction(()=>document.querySelector('#px-result').width===8);
+ await page.locator('#px-scale').fill('129');
+ assert.equal(await page.locator('#px-download-scaled').isEnabled(),true);
+ const largePending=page.waitForEvent('download');
+ await page.locator('#px-download-scaled').click();
+ const largeFile=await largePending,largePng=await readFile(await largeFile.path());
+ assert.equal(largePng.readUInt32BE(16),8*129);
+ assert.equal(largePng.readUInt32BE(20),5*129);
+ await page.locator('#px-scale').fill('100000');
+ assert.equal(await page.locator('#px-download-scaled').isDisabled(),true);
+ await page.locator('#px-scale').fill('4');
+ await page.locator('#px-edge-number').fill('32');await page.locator('#px-edge-number').dispatchEvent('change');
+ await page.waitForFunction(()=>document.querySelector('#px-result').width===32);
  await page.locator('#px-colors-number').fill('16');await page.locator('#px-colors-number').dispatchEvent('change');
  await page.waitForFunction(()=>document.querySelector('#px-stat-colors').textContent.includes('PALETTE'));
  await page.locator('#px-send-studio').click();
